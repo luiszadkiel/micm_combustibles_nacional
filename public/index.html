@@ -559,6 +559,22 @@
       border-radius: 1px;
     }
 
+    /* ── GEO DRILL-DOWN LABELS ─────────────────────────────────────── */
+    .geo-label {
+      background: none !important;
+      border: none !important;
+    }
+
+    .geo-label span {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.7);
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
     /* ── PANEL TOGGLE BUTTON ────────────────────────────────────────── */
     .panel-toggle {
       position: absolute;
@@ -1876,6 +1892,7 @@
       metricas: null,
       rawData: { estaciones: null, alertas: null, rutas: null, gps: null, frontera: null },
       selectedEstacion: null,
+      geoData: null, // drill-down data cache
     };
 
     async function init() {
@@ -1885,6 +1902,7 @@
       initWebSocket();
       initFilters();
       loadProvinceLabels();
+      loadGeografia();
     }
 
     // ── MAP (Dark Theme) ────────────────────────────────────────────────────────
@@ -1913,6 +1931,17 @@
       state.leafletLayers.alertas = L.layerGroup().addTo(state.map);
       state.leafletLayers.gps = L.layerGroup().addTo(state.map);
 
+      // Geographic drill-down layers (GADM polygons)
+      state.leafletLayers.geoRegiones = L.layerGroup().addTo(state.map);
+      state.leafletLayers.geoProvincia = L.layerGroup().addTo(state.map);
+      state.leafletLayers.geoMunicipios = L.layerGroup().addTo(state.map);
+
+      // Zoom-based drill-down: show/hide geo layers
+      state.map.on('zoomend', updateGeoLayers);
+
+      // Click map background to reset polygon selection
+      state.map.on('click', () => { if (typeof resetGeoSelection === 'function') resetGeoSelection(); });
+
       // Fix rendering: recalculate size on window/map resize
       let _resizeTimer = null;
       window.addEventListener('resize', () => {
@@ -1939,6 +1968,361 @@
           L.marker([p.center_lat, p.center_lon], { icon: label, interactive: false }).addTo(layer);
         });
       } catch (e) { console.warn('[MAP] Province labels failed:', e.message); }
+    }
+
+    // ── GEOGRAPHIC DRILL-DOWN (Polygon Choropleth) ─────────────────────────────
+    // 3 distinct palettes — one per zoom level
+    const REGION_COLORS = [
+      '#e6550d','#fd8d3c','#fdae6b','#fdd0a2','#c6dbef',
+      '#9ecae1','#6baed6','#3182bd','#e377c2','#bcbd22',
+    ];
+    const PROVINCE_COLORS = [
+      '#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e',
+      '#e6ab02','#a6761d','#666666','#8dd3c7','#ffffb3',
+      '#bebada','#fb8072','#80b1d3','#fdb462','#b3de69',
+      '#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f',
+      '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99',
+      '#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a',
+      '#ffff99','#b15928',
+    ];
+    const MUNICIPALITY_COLORS = [
+      '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f',
+      '#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac',
+      '#86bcb6','#8cd17d','#b6992d','#499894','#d37295',
+      '#a0cbe8','#ffbe7d','#8b8b8b','#d4a6c8','#fabfd2',
+    ];
+
+    async function loadGeografia() {
+      try {
+        const [provGeoRes, munGeoRes, metricsRes] = await Promise.all([
+          fetch('/geo/provincias.geojson'),
+          fetch('/geo/municipios.geojson'),
+          fetch('/api/geografia'),
+        ]);
+        const provGeo = await provGeoRes.json();
+        const munGeo = await munGeoRes.json();
+        const metrics = await metricsRes.json();
+
+        if (metrics.status !== 'ok') {
+          console.warn('[GEO] Metrics API failed');
+          return;
+        }
+
+        state.geoData = { provGeo, munGeo, metrics };
+
+        // Build province → region mapping from API metrics
+        const provToRegion = {};
+        const regionSet = new Set();
+        if (metrics.provincias?.features) {
+          metrics.provincias.features.forEach(f => {
+            const p = f.properties;
+            if (p.region && p.nombre) {
+              provToRegion[p.nombre.toUpperCase()] = p.region;
+              regionSet.add(p.region);
+            }
+          });
+        }
+        const regionList = [...regionSet].sort();
+
+        // Build metrics lookup maps
+        const provMetrics = {};
+        if (metrics.provincias?.features) {
+          metrics.provincias.features.forEach(f => {
+            provMetrics[f.properties.nombre?.toUpperCase()] = f.properties;
+          });
+        }
+        const munMetrics = {};
+        if (metrics.municipios?.features) {
+          metrics.municipios.features.forEach(f => {
+            munMetrics[f.properties.nombre?.toUpperCase()] = f.properties;
+          });
+        }
+        // Build region aggregated metrics
+        const regMetrics = {};
+        if (metrics.regiones?.features) {
+          metrics.regiones.features.forEach(f => {
+            regMetrics[f.properties.nombre?.toUpperCase()] = f.properties;
+          });
+        }
+
+        // ── REGIONS: Province polygons colored by region group ──
+        renderRegionLayer(
+          state.leafletLayers.geoRegiones, provGeo,
+          provToRegion, regionList, regMetrics
+        );
+
+        // ── PROVINCES: Each province its own color ──
+        renderCategoricalLayer(
+          state.leafletLayers.geoProvincia, provGeo, provMetrics,
+          f => (f.properties.NAME_1 || '').toUpperCase(),
+          PROVINCE_COLORS, 'Provincia', 0.35
+        );
+
+        // ── MUNICIPALITIES: Each municipality its own color ──
+        renderCategoricalLayer(
+          state.leafletLayers.geoMunicipios, munGeo, munMetrics,
+          f => (f.properties.NAME_2 || '').toUpperCase(),
+          MUNICIPALITY_COLORS, 'Municipio', 0.40
+        );
+
+        updateGeoLayers();
+        console.log(`[GEO] ✓ Drill-down: ${regionList.length} regiones, ${provGeo.features.length} provincias, ${munGeo.features.length} municipios`);
+      } catch (e) {
+        console.warn('[GEO] Error cargando geografía:', e.message);
+      }
+    }
+
+    // Render province polygons colored by REGION group
+    function renderRegionLayer(layer, provGeo, provToRegion, regionList, regMetrics) {
+      layer.clearLayers();
+      const regionColorMap = {};
+      regionList.forEach((r, i) => { regionColorMap[r] = REGION_COLORS[i % REGION_COLORS.length]; });
+
+      const geoLayer = L.geoJSON(provGeo, {
+        style: feature => {
+          const provName = (feature.properties.NAME_1 || '').toUpperCase();
+          const region = provToRegion[provName] || 'OTRO';
+          return {
+            fillColor: regionColorMap[region] || '#888',
+            fillOpacity: 0.40,
+            color: 'rgba(255,255,255,0.6)',
+            weight: 2,
+            opacity: 0.8,
+          };
+        },
+        onEachFeature: (feature, featureLayer) => {
+          const provName = (feature.properties.NAME_1 || '').toUpperCase();
+          const region = provToRegion[provName] || 'Desconocida';
+          const m = regMetrics[region.toUpperCase()] || {};
+          const origColor = regionColorMap[region] || '#888';
+
+          // Store original style for reset
+          featureLayer._origStyle = {
+            fillColor: origColor, fillOpacity: 0.40,
+            color: 'rgba(255,255,255,0.6)', weight: 2, opacity: 0.8,
+          };
+
+          featureLayer.bindPopup(`
+            <div class="popup-title">${region}</div>
+            <span class="popup-badge n0">Región</span>
+            <div class="popup-row"><span class="label">Provincia</span> ${feature.properties.NAME_1}</div>
+            <div class="popup-row"><span class="label">Estaciones</span> ${m.estaciones || 0}</div>
+            <div class="popup-row"><span class="label">Alertas activas</span> ${m.alertas_activas || 0}</div>
+            <div class="popup-row"><span class="label">Alertas críticas</span> <strong style="color:#f85149">${m.alertas_criticas || 0}</strong></div>
+          `);
+          featureLayer.on('mouseover', function () {
+            this.setStyle({ fillOpacity: 0.65, weight: 3, color: '#fff' });
+          });
+          featureLayer.on('mouseout', function () {
+            const s = this._selected ? { fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: this._origStyle.fillColor }
+              : (this._dimmed ? { fillColor: '#333', fillOpacity: 0.15, color: 'rgba(255,255,255,0.2)', weight: 1 }
+              : this._origStyle);
+            this.setStyle(s);
+          });
+          featureLayer.on('click', function () {
+            isolatePolygon(geoLayer, this);
+            state.map.flyToBounds(this.getBounds(), { padding: [30, 30], duration: 0.6 });
+          });
+        },
+        interactive: true,
+        bubblingMouseEvents: false,
+      }).addTo(layer);
+      layer._geoLayer = geoLayer;
+    }
+
+    // Render polygons with categorical (distinct) colors per feature
+    function renderCategoricalLayer(layer, geojson, metricsMap, nameExtractor, palette, nivelLabel, baseOpacity) {
+      layer.clearLayers();
+      if (!geojson?.features) return;
+
+      // Assign a unique color to each feature name
+      const nameColorMap = {};
+      let ci = 0;
+      geojson.features.forEach(f => {
+        const name = nameExtractor(f);
+        if (!nameColorMap[name]) {
+          nameColorMap[name] = palette[ci % palette.length];
+          ci++;
+        }
+      });
+
+      const geoLayer = L.geoJSON(geojson, {
+        style: feature => {
+          const name = nameExtractor(feature);
+          return {
+            fillColor: nameColorMap[name] || '#888',
+            fillOpacity: baseOpacity,
+            color: 'rgba(255,255,255,0.45)',
+            weight: 1.2,
+            opacity: 0.7,
+          };
+        },
+        onEachFeature: (feature, featureLayer) => {
+          const name = nameExtractor(feature);
+          const displayName = feature.properties.NAME_2 || feature.properties.NAME_1 || name;
+          const m = metricsMap[name] || {};
+          const badgeLevel = m.alertas_criticas > 0 ? 3 : m.alertas_activas > 0 ? 1 : 0;
+          const origColor = nameColorMap[name] || '#888';
+
+          featureLayer._origStyle = {
+            fillColor: origColor, fillOpacity: baseOpacity,
+            color: 'rgba(255,255,255,0.45)', weight: 1.2, opacity: 0.7,
+          };
+
+          featureLayer.bindPopup(`
+            <div class="popup-title">${displayName}</div>
+            <span class="popup-badge n${badgeLevel}">${nivelLabel}</span>
+            <div class="popup-row"><span class="label">Estaciones</span> ${m.estaciones || 0}</div>
+            <div class="popup-row"><span class="label">Alertas activas</span> ${m.alertas_activas || 0}</div>
+            <div class="popup-row"><span class="label">Alertas críticas</span> <strong style="color:#f85149">${m.alertas_criticas || 0}</strong></div>
+            <div class="popup-row"><span class="label">Z-score prom.</span> ${m.z_score_avg || 0}</div>
+          `);
+
+          featureLayer.on('mouseover', function () {
+            this.setStyle({ fillOpacity: baseOpacity + 0.25, weight: 2.5, color: '#fff' });
+          });
+          featureLayer.on('mouseout', function () {
+            const s = this._selected ? { fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: this._origStyle.fillColor }
+              : (this._dimmed ? { fillColor: '#333', fillOpacity: 0.15, color: 'rgba(255,255,255,0.2)', weight: 0.8 }
+              : this._origStyle);
+            this.setStyle(s);
+          });
+          featureLayer.on('click', function () {
+            isolatePolygon(geoLayer, this);
+            state.map.flyToBounds(this.getBounds(), { padding: [30, 30], duration: 0.6 });
+          });
+        },
+        interactive: true,
+        bubblingMouseEvents: false,
+      }).addTo(layer);
+      layer._geoLayer = geoLayer;
+    }
+
+    // Isolate a single polygon: dim others + hide markers/routes outside bounds + filter panel
+    function isolatePolygon(geoLayer, selectedLayer) {
+      // First restore any previous isolation
+      _restoreIsolatedLayers();
+
+      // Dim/highlight geo polygons
+      geoLayer.eachLayer(fl => {
+        if (fl === selectedLayer) {
+          fl._selected = true;
+          fl._dimmed = false;
+          fl.setStyle({ fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: fl._origStyle.fillColor });
+          fl.bringToFront();
+        } else {
+          fl._selected = false;
+          fl._dimmed = true;
+          fl.setStyle({ fillColor: '#333', fillOpacity: 0.15, color: 'rgba(255,255,255,0.2)', weight: fl._origStyle.weight * 0.5 });
+        }
+      });
+
+      // Hide markers/routes OUTSIDE the selected territory
+      const bounds = selectedLayer.getBounds();
+      state._isolatedLayers = [];
+      state._selectedBounds = bounds;
+
+      ['estaciones', 'alertas', 'rutas', 'gps', 'frontera'].forEach(key => {
+        const lg = state.leafletLayers[key];
+        if (!lg) return;
+        const toRemove = [];
+        lg.eachLayer(sl => {
+          if (!_isInsideBounds(sl, bounds)) toRemove.push(sl);
+        });
+        toRemove.forEach(sl => {
+          state._isolatedLayers.push({ group: lg, layer: sl });
+          lg.removeLayer(sl);
+        });
+      });
+
+      // Filter panel lists to only show items within this territory
+      _filterPanelByBounds(bounds);
+    }
+
+    function _isInsideBounds(layer, bounds) {
+      if (layer.getLatLng) return bounds.contains(layer.getLatLng());
+      if (layer.getLatLngs) {
+        const pts = layer.getLatLngs().flat(Infinity);
+        return pts.some(ll => bounds.contains(ll));
+      }
+      if (layer.getBounds) return bounds.intersects(layer.getBounds());
+      return true;
+    }
+
+    function _restoreIsolatedLayers() {
+      if (state._isolatedLayers) {
+        state._isolatedLayers.forEach(({ group, layer }) => group.addLayer(layer));
+        state._isolatedLayers = [];
+      }
+    }
+
+    function _filterGeoJSONByBounds(geojson, bounds) {
+      if (!geojson?.features) return { type: 'FeatureCollection', features: [] };
+      return {
+        type: 'FeatureCollection',
+        features: geojson.features.filter(f => {
+          if (!f.geometry?.coordinates) return false;
+          const [lng, lat] = f.geometry.coordinates;
+          return bounds.contains(L.latLng(lat, lng));
+        }),
+      };
+    }
+
+    function _filterPanelByBounds(bounds) {
+      // Filter alertas panel
+      if (state.rawData.alertas) {
+        const filtered = _filterGeoJSONByBounds(state.rawData.alertas, bounds);
+        updateAlertasUI(filtered);
+      }
+      // Filter GPS panel
+      if (state.rawData.gps) {
+        const filtered = _filterGeoJSONByBounds(state.rawData.gps, bounds);
+        updateGpsUI(filtered);
+      }
+    }
+
+    function _restorePanel() {
+      const prov = document.getElementById('filter-provincia')?.value || '';
+      if (state.rawData.alertas) updateAlertasUI(state.rawData.alertas, prov);
+      if (state.rawData.gps) updateGpsUI(state.rawData.gps);
+    }
+
+    // Reset all polygon layers to original colors + restore hidden markers/routes + restore panel
+    function resetGeoSelection() {
+      ['geoRegiones', 'geoProvincia', 'geoMunicipios'].forEach(key => {
+        const lg = state.leafletLayers[key];
+        if (lg?._geoLayer) {
+          lg._geoLayer.eachLayer(fl => {
+            fl._selected = false;
+            fl._dimmed = false;
+            if (fl._origStyle) fl.setStyle(fl._origStyle);
+          });
+        }
+      });
+      _restoreIsolatedLayers();
+      state._selectedBounds = null;
+      _restorePanel();
+    }
+
+    function updateGeoLayers() {
+      if (!state.geoData) return;
+      const zoom = state.map.getZoom();
+      const map = state.map;
+
+      // ≤7: Regiones | 8-9: Provincias | 10+: Municipios
+      if (zoom <= 7) {
+        if (!map.hasLayer(state.leafletLayers.geoRegiones)) map.addLayer(state.leafletLayers.geoRegiones);
+        if (map.hasLayer(state.leafletLayers.geoProvincia)) map.removeLayer(state.leafletLayers.geoProvincia);
+        if (map.hasLayer(state.leafletLayers.geoMunicipios)) map.removeLayer(state.leafletLayers.geoMunicipios);
+      } else if (zoom <= 9) {
+        if (map.hasLayer(state.leafletLayers.geoRegiones)) map.removeLayer(state.leafletLayers.geoRegiones);
+        if (!map.hasLayer(state.leafletLayers.geoProvincia)) map.addLayer(state.leafletLayers.geoProvincia);
+        if (map.hasLayer(state.leafletLayers.geoMunicipios)) map.removeLayer(state.leafletLayers.geoMunicipios);
+      } else {
+        if (map.hasLayer(state.leafletLayers.geoRegiones)) map.removeLayer(state.leafletLayers.geoRegiones);
+        if (map.hasLayer(state.leafletLayers.geoProvincia)) map.removeLayer(state.leafletLayers.geoProvincia);
+        if (!map.hasLayer(state.leafletLayers.geoMunicipios)) map.addLayer(state.leafletLayers.geoMunicipios);
+      }
     }
 
     // ── OSRM is now server-side — no client-side API calls needed ───────────────
@@ -2042,15 +2426,15 @@
       all.forEach(f => {
         const p = f.properties;
         const style = RIESGO_STYLES[p.riesgo] || DEFAULT_STYLE;
-        const finalStyle = { ...style, dashArray: p.has_road ? null : '5, 10' };
+        // No dashArray — dashed lines are ~3x more expensive on canvas
+        const isHighRisk = (p.riesgo === 'CRITICO' || p.riesgo === 'ALTO');
         let coords;
 
         if (p.has_road) {
           coords = f.geometry.coordinates.map(c => [c[1], c[0]]);
         } else {
           const points = f.geometry.coordinates.map(c => [c[1], c[0]]);
-          // Use coarser step for low-risk routes to reduce canvas rendering load
-          const bezierStep = (p.riesgo === 'CRITICO') ? 0.05 : 0.1;
+          const bezierStep = isHighRisk ? 0.05 : 0.1;
           coords = createBezier(points, bezierStep);
         }
 
@@ -2058,24 +2442,31 @@
         if (isPartial && existingLayers[p.ruta_id]) {
           const line = existingLayers[p.ruta_id];
           line.setLatLngs(coords);
-          line.setStyle(finalStyle); // Always update style to remove dash if needed
-          line.getPopup().setContent(`
+          line.setStyle(style);
+          if (line.getPopup()) {
+            line.getPopup().setContent(`
         <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
         <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
         <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
         <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
       `);
+          }
         } else {
           const line = L.polyline(coords, {
-            ...finalStyle, smoothFactor: 3, lineCap: 'round', lineJoin: 'round',
-            ruta_id: p.ruta_id // Store ID for partial updates
+            ...style, smoothFactor: 3, lineCap: 'round', lineJoin: 'round',
+            interactive: isHighRisk, // BAJO/MEDIO routes skip hit-testing = huge perf win
+            bubblingMouseEvents: false,
+            ruta_id: p.ruta_id
           });
-          line.bindPopup(`
+          // Only bind popups on high-risk routes to reduce overhead
+          if (isHighRisk) {
+            line.bindPopup(`
         <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
         <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
         <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
         <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
       `);
+          }
           line.addTo(layer);
         }
       });

@@ -13,6 +13,7 @@ const fronteraService   = require('../services/frontera.service');
 const timelineService   = require('../services/timeline.service');
 const triangulacionService = require('../services/triangulacion.service');
 const rutasService      = require('../services/rutas.service');
+const geografiaService  = require('../services/geografia.service');
 const db                = require('../db');
 
 const router = Router();
@@ -181,6 +182,17 @@ router.get('/provincia-boundaries', async (req, res) => {
     `);
     res.json({ status: 'ok', provincias: result.rows });
   } catch (err) {
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/geografia ─────────────────────────────────────────────────────
+router.get('/geografia', async (req, res) => {
+  try {
+    const geo = await geografiaService.getGeografia();
+    res.json({ status: 'ok', ...geo });
+  } catch (err) {
+    console.error('[API] Error en /geografia:', err.message);
     res.status(500).json({ status: 'error', error: err.message });
   }
 });
