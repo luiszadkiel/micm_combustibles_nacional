@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MICM-INTEL v1.0 — Sistema Nacional de Inteligencia de Combustibles</title>
-  <meta name="description" content="Sistema de inteligencia en tiempo real para el monitoreo de combustibles en la República Dominicana">
+  <meta name="description"
+    content="Sistema de inteligencia en tiempo real para el monitoreo de combustibles en la República Dominicana">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,839 +14,1965 @@
   <style>
     :root {
       --bg-primary: #0d1117;
-      --bg-panel: rgba(13,17,23,0.92);
+      --bg-panel: rgba(13, 17, 23, 0.92);
       --bg-panel-solid: #161b22;
-      --bg-card: rgba(22,27,34,0.95);
-      --border: rgba(255,255,255,0.06);
-      --border-strong: rgba(255,255,255,0.1);
+      --bg-card: rgba(22, 27, 34, 0.95);
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.1);
       --text-primary: #e6edf3;
       --text-secondary: #8b949e;
       --text-muted: #6e7681;
       --accent: #58a6ff;
-      --accent-light: rgba(56,139,253,0.15);
+      --accent-light: rgba(56, 139, 253, 0.15);
       --red: #f85149;
-      --red-bg: rgba(248,81,73,0.1);
+      --red-bg: rgba(248, 81, 73, 0.1);
       --orange: #d29922;
-      --orange-bg: rgba(210,153,34,0.1);
+      --orange-bg: rgba(210, 153, 34, 0.1);
       --green: #3fb950;
-      --green-bg: rgba(63,185,80,0.1);
+      --green-bg: rgba(63, 185, 80, 0.1);
       --blue: #58a6ff;
-      --blue-bg: rgba(56,139,253,0.1);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-      --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+      --blue-bg: rgba(56, 139, 253, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
       --radius: 12px;
       --radius-sm: 8px;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
     /* ── LAYOUT ─────────────────────────────────────────────────────── */
-    #app { display: grid; grid-template-rows: 48px 1fr; grid-template-columns: 280px 1fr 360px; height: 100vh; transition: grid-template-columns 0.4s cubic-bezier(0.4,0,0.2,1); }
-    #app.panel-collapsed { grid-template-columns: 280px 1fr 0px; }
-    #topbar { grid-column: 1 / -1; }
-    #sidebar { grid-row: 2; grid-column: 1; }
-    #map-container { grid-row: 2; grid-column: 2; position: relative; }
-    #panel { grid-row: 2; grid-column: 3; transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.4,0,0.2,1); }
-    #app.panel-collapsed #panel { opacity: 0; transform: translateX(100%); pointer-events: none; overflow: hidden; }
+    #app {
+      display: grid;
+      grid-template-rows: 48px 1fr;
+      grid-template-columns: 280px 1fr 360px;
+      height: 100vh;
+      transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #app.panel-collapsed {
+      grid-template-columns: 280px 1fr 0px;
+    }
+
+    #topbar {
+      grid-column: 1 / -1;
+    }
+
+    #sidebar {
+      grid-row: 2;
+      grid-column: 1;
+    }
+
+    #map-container {
+      grid-row: 2;
+      grid-column: 2;
+      position: relative;
+    }
+
+    #panel {
+      grid-row: 2;
+      grid-column: 3;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #app.panel-collapsed #panel {
+      opacity: 0;
+      transform: translateX(100%);
+      pointer-events: none;
+      overflow: hidden;
+    }
 
     /* ── TOP BAR ────────────────────────────────────────────────────── */
     #topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; background: var(--bg-panel-solid); border-bottom: 1px solid var(--border);
-      box-shadow: var(--shadow-sm); z-index: 1000;
-      animation: fadeIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: var(--bg-panel-solid);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      z-index: 1000;
+      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .topbar-logo {
-      font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
       background: linear-gradient(135deg, #58a6ff, #3fb950);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .topbar-version { font-size: 11px; color: var(--text-muted); padding: 2px 8px; background: var(--accent-light); border-radius: 20px; font-weight: 500; }
-    .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-secondary); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-    .status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse-dot 2s infinite; }
-    .status-dot.disconnected { background: var(--red); }
-    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .topbar-stat { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(255,255,255,0.04); border-radius: 6px; }
-    .topbar-stat strong { color: var(--text-primary); font-weight: 600; }
+
+    .topbar-version {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 2px 8px;
+      background: var(--accent-light);
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .status-dot.connected {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+
+    .status-dot.disconnected {
+      background: var(--red);
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .topbar-stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+    }
+
+    .topbar-stat strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
 
     /* ── SIDEBAR ────────────────────────────────────────────────────── */
     #sidebar {
-      background: var(--bg-panel); backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border); overflow-y: auto;
-      padding: 16px; display: flex; flex-direction: column; gap: 16px; z-index: 500;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 500;
       scroll-behavior: smooth;
     }
-    .sidebar-section { display: flex; flex-direction: column; gap: 8px; }
-    .sidebar-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
-    .filter-group { display: flex; flex-direction: column; gap: 4px; }
-    .filter-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-    .filter-group select, .filter-group input {
-      width: 100%; padding: 8px 10px; border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;
-      background: var(--bg-panel-solid); color: var(--text-primary);
-      transition: border-color 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, background 0.3s ease;
+
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .filter-group select:focus, .filter-group input:focus {
-      border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(56,139,253,0.2), 0 0 20px rgba(56,139,253,0.08);
-      background: rgba(22,27,34,1);
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
     }
-    .filter-group select:hover, .filter-group input:hover {
-      border-color: rgba(255,255,255,0.15);
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .filter-group select option { background: var(--bg-panel-solid); color: var(--text-primary); }
-    .nivel-btns { display: flex; gap: 4px; }
+
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .filter-group select,
+    .filter-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg-panel-solid);
+      color: var(--text-primary);
+      transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, background 0.3s ease;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.2), 0 0 20px rgba(56, 139, 253, 0.08);
+      background: rgba(22, 27, 34, 1);
+    }
+
+    .filter-group select:hover,
+    .filter-group input:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-group select option {
+      background: var(--bg-panel-solid);
+      color: var(--text-primary);
+    }
+
+    .nivel-btns {
+      display: flex;
+      gap: 4px;
+    }
+
     .nivel-btn {
-      flex: 1; padding: 6px; border: 1.5px solid var(--border-strong); border-radius: 6px;
-      font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;
-      transition: all 0.25s cubic-bezier(0.4,0,0.2,1); background: transparent;
+      flex: 1;
+      padding: 6px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      background: transparent;
       will-change: transform, background-color;
     }
-    .nivel-btn:hover { transform: translateY(-1px); filter: brightness(1.15); }
-    .nivel-btn.active { color: #fff; }
-    .nivel-btn[data-nivel="0"] { color: var(--green); }
-    .nivel-btn[data-nivel="0"].active { background: var(--green); border-color: var(--green); }
-    .nivel-btn[data-nivel="1"] { color: var(--blue); }
-    .nivel-btn[data-nivel="1"].active { background: var(--blue); border-color: var(--blue); }
-    .nivel-btn[data-nivel="2"] { color: var(--orange); }
-    .nivel-btn[data-nivel="2"].active { background: var(--orange); border-color: var(--orange); }
-    .nivel-btn[data-nivel="3"] { color: var(--red); }
-    .nivel-btn[data-nivel="3"].active { background: var(--red); border-color: var(--red); }
-    .pilares-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .nivel-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.15);
+    }
+
+    .nivel-btn.active {
+      color: #fff;
+    }
+
+    .nivel-btn[data-nivel="0"] {
+      color: var(--green);
+    }
+
+    .nivel-btn[data-nivel="0"].active {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .nivel-btn[data-nivel="1"] {
+      color: var(--blue);
+    }
+
+    .nivel-btn[data-nivel="1"].active {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .nivel-btn[data-nivel="2"] {
+      color: var(--orange);
+    }
+
+    .nivel-btn[data-nivel="2"].active {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+
+    .nivel-btn[data-nivel="3"] {
+      color: var(--red);
+    }
+
+    .nivel-btn[data-nivel="3"].active {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .pilares-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
     .pilar-pill {
-      padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: 600;
-      border: 1px solid var(--border-strong); cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4,0,0.2,1); background: transparent; color: var(--text-secondary);
-      letter-spacing: 0.3px; will-change: transform, background-color;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: transparent;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+      will-change: transform, background-color;
     }
-    .pilar-pill:hover { transform: translateY(-1px); background: rgba(255,255,255,0.05); }
-    .pilar-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 12px rgba(88,166,255,0.3); }
-    .timeline-container { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
-    .timeline-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+    .pilar-pill:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .pilar-pill.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(88, 166, 255, 0.3);
+    }
+
+    .timeline-container {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
     input[type="range"] {
-      width: 100%; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px;
-      background: linear-gradient(to right, var(--green), var(--orange), var(--red)); outline: none;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, var(--green), var(--orange), var(--red));
+      outline: none;
     }
+
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
-      background: var(--accent); cursor: pointer; box-shadow: 0 0 0 3px rgba(56,139,253,0.3);
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.3);
     }
 
     /* ── MAP ─────────────────────────────────────────────────────────── */
-    #map-container { position: relative; }
-    #map { width: 100%; height: 100%; z-index: 1; background: #0d1117; }
-    .leaflet-popup-content-wrapper { background: var(--bg-card) !important; border: 1px solid var(--border-strong) !important; border-radius: var(--radius-sm) !important; box-shadow: var(--shadow-lg) !important; font-family: 'Inter', sans-serif !important; color: var(--text-primary) !important; }
-    .leaflet-popup-tip { background: var(--bg-card) !important; border: 1px solid var(--border-strong) !important; }
-    .leaflet-popup-content { margin: 12px 16px !important; font-size: 13px !important; max-width: 280px; }
-    .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--text-primary); }
-    .popup-row { display: flex; justify-content: space-between; padding: 2px 0; font-size: 12px; }
-    .popup-row .label { color: var(--text-muted); }
-    .popup-badge {
-      display: inline-block; padding: 2px 8px; border-radius: 4px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    #map-container {
+      position: relative;
     }
-    .popup-badge.n3 { background: var(--red-bg); color: var(--red); }
-    .popup-badge.n2 { background: var(--orange-bg); color: var(--orange); }
-    .popup-badge.n1 { background: var(--blue-bg); color: var(--blue); }
-    .popup-badge.n0 { background: var(--green-bg); color: var(--green); }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: #0d1117;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-strong) !important;
+      border-radius: var(--radius-sm) !important;
+      box-shadow: var(--shadow-lg) !important;
+      font-family: 'Inter', sans-serif !important;
+      color: var(--text-primary) !important;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-strong) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 12px 16px !important;
+      font-size: 13px !important;
+      max-width: 280px;
+    }
+
+    .popup-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      font-size: 12px;
+    }
+
+    .popup-row .label {
+      color: var(--text-muted);
+    }
+
+    .popup-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .popup-badge.n3 {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .popup-badge.n2 {
+      background: var(--orange-bg);
+      color: var(--orange);
+    }
+
+    .popup-badge.n1 {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .popup-badge.n0 {
+      background: var(--green-bg);
+      color: var(--green);
+    }
 
     /* Monitor panel */
     .monitor-panel {
-      position: absolute; top: 16px; left: 16px;
-      background: var(--bg-card); backdrop-filter: blur(20px);
-      border: 1px solid var(--border-strong); border-radius: var(--radius);
-      padding: 16px 20px; font-size: 12px; z-index: 800;
-      box-shadow: var(--shadow-lg); min-width: 200px;
-      animation: fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) 0.3s both;
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 12px;
+      z-index: 800;
+      box-shadow: var(--shadow-lg);
+      min-width: 200px;
+      animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
     }
-    .monitor-title { font-weight: 700; font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
-    .monitor-row { display: flex; justify-content: space-between; padding: 3px 0; }
-    .monitor-row .label { color: var(--text-muted); }
-    .monitor-row .value { font-weight: 700; }
-    .monitor-row .value.critico { color: var(--red); }
+
+    .monitor-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+    }
+
+    .monitor-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+
+    .monitor-row .label {
+      color: var(--text-muted);
+    }
+
+    .monitor-row .value {
+      font-weight: 700;
+    }
+
+    .monitor-row .value.critico {
+      color: var(--red);
+    }
 
     /* Map legend */
     .map-legend {
-      position: absolute; bottom: 20px; left: 20px;
-      background: var(--bg-card); backdrop-filter: blur(20px);
-      border: 1px solid var(--border-strong); border-radius: var(--radius);
-      padding: 12px 16px; font-size: 11px; z-index: 800;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 11px;
+      z-index: 800;
       box-shadow: var(--shadow-md);
-      animation: fadeIn 0.5s cubic-bezier(0.4,0,0.2,1) 0.5s both;
+      animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
     }
-    .legend-title { font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
-    .legend-item { display: flex; align-items: center; gap: 6px; padding: 2px 0; color: var(--text-secondary); }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .legend-line { width: 16px; height: 3px; flex-shrink: 0; border-radius: 1px; }
+
+    .legend-title {
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 0;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 16px;
+      height: 3px;
+      flex-shrink: 0;
+      border-radius: 1px;
+    }
 
     /* ── PANEL TOGGLE BUTTON ────────────────────────────────────────── */
     .panel-toggle {
-      position: absolute; top: 50%; right: 8px; transform: translateY(-50%);
-      width: 28px; height: 56px; border-radius: 8px 0 0 8px;
-      background: var(--bg-card); border: 1px solid var(--border-strong); border-right: none;
-      color: var(--text-secondary); cursor: pointer; z-index: 900;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; transition: all 0.3s ease;
-      box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 56px;
+      border-radius: 8px 0 0 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-right: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
     }
-    .panel-toggle:hover { background: var(--bg-panel-solid); color: var(--text-primary); width: 32px; }
-    #app.panel-collapsed .panel-toggle { right: 0; border-radius: 8px 0 0 8px; border-right: none; }
-    .panel-toggle .chevron { transition: transform 0.3s ease; display: inline-block; }
-    #app.panel-collapsed .panel-toggle .chevron { transform: rotate(180deg); }
+
+    .panel-toggle:hover {
+      background: var(--bg-panel-solid);
+      color: var(--text-primary);
+      width: 32px;
+    }
+
+    #app.panel-collapsed .panel-toggle {
+      right: 0;
+      border-radius: 8px 0 0 8px;
+      border-right: none;
+    }
+
+    .panel-toggle .chevron {
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    #app.panel-collapsed .panel-toggle .chevron {
+      transform: rotate(180deg);
+    }
 
     /* ── ANALYTICS BUTTON ───────────────────────────────────────────── */
     .analytics-btn {
-      position: absolute; top: 50%; right: 44px; transform: translateY(-50%);
-      width: 40px; height: 40px; border-radius: 10px;
-      background: linear-gradient(135deg, #58a6ff, #3fb950); border: none;
-      color: #fff; cursor: pointer; z-index: 900;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: all 0.3s ease;
-      box-shadow: 0 2px 12px rgba(88,166,255,0.3);
+      position: absolute;
+      top: 50%;
+      right: 44px;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #58a6ff, #3fb950);
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 12px rgba(88, 166, 255, 0.3);
     }
-    .analytics-btn:hover { transform: translateY(-50%) scale(1.1); box-shadow: 0 4px 20px rgba(88,166,255,0.5); }
-    #app.panel-collapsed .analytics-btn { right: 36px; }
+
+    .analytics-btn:hover {
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 4px 20px rgba(88, 166, 255, 0.5);
+    }
+
+    #app.panel-collapsed .analytics-btn {
+      right: 36px;
+    }
 
     /* ── ANALYTICS MODAL ────────────────────────────────────────────── */
     .analytics-overlay {
-      position: fixed; inset: 0; z-index: 2000;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
       transition: opacity 0.35s ease;
     }
-    .analytics-overlay.open { opacity: 1; pointer-events: all; }
-    .analytics-modal {
-      width: 92vw; height: 88vh; max-width: 1400px;
-      background: var(--bg-panel-solid); border: 1px solid var(--border-strong);
-      border-radius: 16px; box-shadow: 0 20px 80px rgba(0,0,0,0.6);
-      display: flex; flex-direction: column; overflow: hidden;
-      transform: scale(0.92) translateY(20px); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+
+    .analytics-overlay.open {
+      opacity: 1;
+      pointer-events: all;
     }
-    .analytics-overlay.open .analytics-modal { transform: scale(1) translateY(0); }
+
+    .analytics-modal {
+      width: 92vw;
+      height: 88vh;
+      max-width: 1400px;
+      background: var(--bg-panel-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .analytics-overlay.open .analytics-modal {
+      transform: scale(1) translateY(0);
+    }
+
     .analytics-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
-    .analytics-header-left { display: flex; align-items: center; gap: 16px; }
-    .analytics-title { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, #58a6ff, #3fb950); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-    .analytics-tabs { display: flex; gap: 4px; }
-    .analytics-tab {
-      padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
-      border: 1px solid var(--border); background: transparent; color: var(--text-secondary);
-      cursor: pointer; transition: all 0.25s ease;
+
+    .analytics-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
-    .analytics-tab:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
-    .analytics-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .analytics-title {
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #58a6ff, #3fb950);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .analytics-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .analytics-tab {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .analytics-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .analytics-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
     .analytics-close {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-      color: var(--text-secondary); cursor: pointer; font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.2s;
     }
-    .analytics-close:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-    .analytics-body { flex: 1; overflow-y: auto; padding: 20px 24px; scroll-behavior: smooth; }
-    .analytics-search {
-      display: flex; gap: 12px; margin-bottom: 20px; align-items: center;
+
+    .analytics-close:hover {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: var(--red);
     }
+
+    .analytics-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      scroll-behavior: smooth;
+    }
+
+    .analytics-search {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
     .analytics-search input {
-      flex: 1; padding: 10px 16px; border: 1px solid var(--border-strong);
-      border-radius: 10px; font-size: 13px; font-family: inherit;
-      background: var(--bg-card); color: var(--text-primary);
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text-primary);
       transition: border-color 0.3s, box-shadow 0.3s;
     }
-    .analytics-search input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(56,139,253,0.2); }
-    .analytics-search input::placeholder { color: var(--text-muted); }
-    .analytics-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .analytics-stat-card {
-      padding: 16px; border-radius: 12px; background: var(--bg-card);
-      border: 1px solid var(--border); transition: all 0.3s ease;
+
+    .analytics-search input:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.2);
     }
-    .analytics-stat-card:hover { border-color: rgba(88,166,255,0.2); transform: translateY(-2px); }
-    .analytics-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-    .analytics-stat-value { font-size: 24px; font-weight: 800; color: var(--text-primary); margin-top: 4px; }
-    .analytics-stat-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-    .analytics-stat-trend { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
-    .analytics-stat-trend.up { color: var(--red); background: var(--red-bg); }
-    .analytics-stat-trend.down { color: var(--green); background: var(--green-bg); }
+
+    .analytics-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .analytics-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .analytics-stat-card {
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .analytics-stat-card:hover {
+      border-color: rgba(88, 166, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .analytics-stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .analytics-stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    .analytics-stat-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .analytics-stat-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    .analytics-stat-trend.up {
+      color: var(--red);
+      background: var(--red-bg);
+    }
+
+    .analytics-stat-trend.down {
+      color: var(--green);
+      background: var(--green-bg);
+    }
 
     /* Analytics tab panels */
-    .analytics-tab-panel { display: none; }
-    .analytics-tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+    .analytics-tab-panel {
+      display: none;
+    }
+
+    .analytics-tab-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
 
     /* Data table */
-    .analytics-table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-    .analytics-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .analytics-table-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
     .analytics-table thead th {
-      padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
-      background: var(--bg-card); border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; cursor: pointer;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      cursor: pointer;
     }
-    .analytics-table thead th:hover { color: var(--accent); }
-    .analytics-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.2s; }
-    .analytics-table tbody tr:hover { background: rgba(88,166,255,0.04); }
-    .analytics-table td { padding: 10px 12px; color: var(--text-secondary); }
-    .analytics-table td:first-child { color: var(--text-primary); font-weight: 500; }
+
+    .analytics-table thead th:hover {
+      color: var(--accent);
+    }
+
+    .analytics-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .analytics-table tbody tr:hover {
+      background: rgba(88, 166, 255, 0.04);
+    }
+
+    .analytics-table td {
+      padding: 10px 12px;
+      color: var(--text-secondary);
+    }
+
+    .analytics-table td:first-child {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
     .table-badge {
-      display: inline-block; padding: 2px 8px; border-radius: 4px;
-      font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
     }
-    .table-badge.n3 { background: var(--red-bg); color: var(--red); }
-    .table-badge.n2 { background: var(--orange-bg); color: var(--orange); }
-    .table-badge.n1 { background: var(--blue-bg); color: var(--blue); }
-    .table-badge.n0 { background: var(--green-bg); color: var(--green); }
+
+    .table-badge.n3 {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .table-badge.n2 {
+      background: var(--orange-bg);
+      color: var(--orange);
+    }
+
+    .table-badge.n1 {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .table-badge.n0 {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
     .table-pagination {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; font-size: 12px; color: var(--text-muted);
-      border-top: 1px solid var(--border); background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
     }
+
     .table-pagination button {
-      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
-      background: transparent; color: var(--text-secondary); cursor: pointer;
-      font-size: 11px; font-weight: 600; transition: all 0.2s;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
     }
-    .table-pagination button:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
-    .table-pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .table-pagination button:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .table-pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
 
     /* Charts area */
-    .analytics-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .analytics-charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
     .analytics-chart-card {
-      padding: 16px; border-radius: 12px; background: var(--bg-card);
-      border: 1px solid var(--border); min-height: 220px;
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      min-height: 220px;
     }
-    .analytics-chart-title { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+    .analytics-chart-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .chart-placeholder {
-      width: 100%; height: 180px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 140px; width: 100%; padding: 0 8px; }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 140px;
+      width: 100%;
+      padding: 0 8px;
+    }
+
     .chart-bar {
-      flex: 1; border-radius: 4px 4px 0 0; min-width: 12px;
-      transition: height 0.6s cubic-bezier(0.4,0,0.2,1); position: relative;
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      min-width: 12px;
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
-    .chart-bar:hover { filter: brightness(1.2); }
+
+    .chart-bar:hover {
+      filter: brightness(1.2);
+    }
+
     .chart-bar-label {
-      position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
-      font-size: 9px; color: var(--text-muted); white-space: nowrap;
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: var(--text-muted);
+      white-space: nowrap;
     }
-    .chart-line-area { width: 100%; height: 150px; position: relative; overflow: hidden; }
-    .chart-line-svg { width: 100%; height: 100%; }
+
+    .chart-line-area {
+      width: 100%;
+      height: 150px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-line-svg {
+      width: 100%;
+      height: 100%;
+    }
 
     /* Volume section */
-    .volume-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
-    .volume-card {
-      padding: 16px; border-radius: 12px; background: var(--bg-card);
-      border: 1px solid var(--border); min-height: 100px; transition: all 0.3s ease;
+    .volume-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
     }
-    .volume-card:hover { border-color: rgba(88,166,255,0.2); transform: translateY(-2px); }
-    .volume-card-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-    .volume-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
-    .volume-row .vr-label { color: var(--text-secondary); }
-    .volume-row .vr-value { font-weight: 700; color: var(--text-primary); }
-    .volume-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 6px; overflow: hidden; }
-    .volume-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+    .volume-card {
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      min-height: 100px;
+      transition: all 0.3s ease;
+    }
+
+    .volume-card:hover {
+      border-color: rgba(88, 166, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .volume-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .volume-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+
+    .volume-row .vr-label {
+      color: var(--text-secondary);
+    }
+
+    .volume-row .vr-value {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .volume-bar-wrap {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .volume-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     /* ── RIGHT PANEL ────────────────────────────────────────────────── */
     #panel {
-      background: var(--bg-panel); backdrop-filter: blur(20px);
-      border-left: 1px solid var(--border); overflow-y: auto;
-      padding: 16px; display: flex; flex-direction: column; gap: 16px; z-index: 500;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 500;
       scroll-behavior: smooth;
     }
-    .panel-section { display: flex; flex-direction: column; gap: 8px; }
+
+    .panel-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .panel-title {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1.2px; color: var(--text-muted);
-      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
+
     .panel-title .count {
-      background: var(--accent-light); color: var(--accent);
-      padding: 2px 8px; border-radius: 10px; font-size: 10px;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
     }
+
     .alert-card {
-      padding: 12px; border-radius: var(--radius-sm); border-left: 4px solid;
-      background: var(--bg-card); box-shadow: var(--shadow-sm);
-      cursor: pointer; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, background 0.3s ease;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border-left: 4px solid;
+      background: var(--bg-card);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, background 0.3s ease;
       will-change: transform;
     }
-    .alert-card:hover { transform: translateY(-3px) translateX(2px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); background: rgba(22,27,34,1); }
-    .alert-card.nivel-3 { border-left-color: var(--red); }
-    .alert-card.nivel-2 { border-left-color: var(--orange); }
-    .alert-card.nivel-1 { border-left-color: var(--blue); }
-    .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .alert-nivel { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
-    .alert-nivel.n3 { color: var(--red); }
-    .alert-nivel.n2 { color: var(--orange); }
-    .alert-nivel.n1 { color: var(--blue); }
-    .alert-score { font-size: 18px; font-weight: 800; }
-    .alert-score.n3 { color: var(--red); }
-    .alert-score.n2 { color: var(--orange); }
-    .alert-perfil { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-    .alert-location { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .alert-card:hover {
+      transform: translateY(-3px) translateX(2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      background: rgba(22, 27, 34, 1);
+    }
+
+    .alert-card.nivel-3 {
+      border-left-color: var(--red);
+    }
+
+    .alert-card.nivel-2 {
+      border-left-color: var(--orange);
+    }
+
+    .alert-card.nivel-1 {
+      border-left-color: var(--blue);
+    }
+
+    .alert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .alert-nivel {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .alert-nivel.n3 {
+      color: var(--red);
+    }
+
+    .alert-nivel.n2 {
+      color: var(--orange);
+    }
+
+    .alert-nivel.n1 {
+      color: var(--blue);
+    }
+
+    .alert-score {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .alert-score.n3 {
+      color: var(--red);
+    }
+
+    .alert-score.n2 {
+      color: var(--orange);
+    }
+
+    .alert-perfil {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alert-location {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     .metric-card {
-      padding: 12px; border-radius: var(--radius-sm); background: var(--bg-card);
-      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
-      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, border-color 0.3s ease;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
       will-change: transform;
     }
-    .metric-card:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.35); border-color: rgba(88,166,255,0.2); }
-    .metric-label { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-    .metric-value { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-top: 2px; transition: color 0.3s ease; }
-    .metric-value.updating { color: var(--accent); }
-    .metric-sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
-    .detail-card { padding: 16px; border-radius: var(--radius); background: var(--bg-card); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-    .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .detail-name { font-size: 14px; font-weight: 700; }
-    .detail-id { font-size: 11px; color: var(--text-muted); }
-    .detail-close { cursor: pointer; font-size: 18px; color: var(--text-muted); border: none; background: none; }
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .detail-item .di-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .detail-item .di-value { font-size: 13px; font-weight: 600; }
-    .gps-item {
-      display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-      border-radius: var(--radius-sm); background: var(--bg-card); border: 1px solid var(--border);
-      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), border-color 0.3s ease, box-shadow 0.3s ease;
+
+    .metric-card:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      border-color: rgba(88, 166, 255, 0.2);
     }
-    .gps-item:hover { transform: translateX(3px); border-color: rgba(163,113,247,0.3); box-shadow: 0 2px 12px rgba(163,113,247,0.1); }
-    .gps-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    .gps-icon.ok { background: var(--green-bg); }
-    .gps-icon.warn { background: var(--orange-bg); }
-    .gps-info { flex: 1; }
-    .gps-cisterna { font-size: 12px; font-weight: 600; }
-    .gps-detail { font-size: 10px; color: var(--text-muted); }
-    .gps-progress { font-size: 14px; font-weight: 700; color: var(--accent); }
-    .loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-    .fade-in { animation: fadeIn 0.35s cubic-bezier(0.4,0,0.2,1) both; }
 
-    @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
-    .slide-in { animation: slideInRight 0.4s cubic-bezier(0.4,0,0.2,1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+    .metric-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-    @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-    .scale-in { animation: scaleIn 0.35s cubic-bezier(0.4,0,0.2,1) both; animation-delay: calc(var(--i, 0) * 80ms); }
+    .metric-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-top: 2px;
+      transition: color 0.3s ease;
+    }
 
-    @keyframes pulseUpdate { 0% { box-shadow: 0 0 0 0 rgba(88,166,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(88,166,255,0); } 100% { box-shadow: 0 0 0 0 rgba(88,166,255,0); } }
-    .pulse-update { animation: pulseUpdate 0.8s ease-out; }
+    .metric-value.updating {
+      color: var(--accent);
+    }
 
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    .skeleton-loading { background: linear-gradient(90deg, var(--bg-card) 25%, rgba(88,166,255,0.08) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; }
+    .metric-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .detail-card {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .detail-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .detail-id {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .detail-close {
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .detail-item .di-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-item .di-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .gps-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .gps-item:hover {
+      transform: translateX(3px);
+      border-color: rgba(163, 113, 247, 0.3);
+      box-shadow: 0 2px 12px rgba(163, 113, 247, 0.1);
+    }
+
+    .gps-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .gps-icon.ok {
+      background: var(--green-bg);
+    }
+
+    .gps-icon.warn {
+      background: var(--orange-bg);
+    }
+
+    .gps-info {
+      flex: 1;
+    }
+
+    .gps-cisterna {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .gps-detail {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .gps-progress {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .slide-in {
+      animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+      animation-delay: calc(var(--i, 0) * 60ms);
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .scale-in {
+      animation: scaleIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+      animation-delay: calc(var(--i, 0) * 80ms);
+    }
+
+    @keyframes pulseUpdate {
+      0% {
+        box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(88, 166, 255, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(88, 166, 255, 0);
+      }
+    }
+
+    .pulse-update {
+      animation: pulseUpdate 0.8s ease-out;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .skeleton-loading {
+      background: linear-gradient(90deg, var(--bg-card) 25%, rgba(88, 166, 255, 0.08) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
 
     /* Smooth detail panel */
-    #detail-section { transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1), max-height 0.4s ease; overflow: hidden; }
-    #detail-section.hidden { opacity: 0; transform: translateY(10px); max-height: 0 !important; pointer-events: none; padding: 0 !important; margin: 0 !important; }
-    #detail-section.visible { opacity: 1; transform: translateY(0); max-height: 600px; }
+    #detail-section {
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s ease;
+      overflow: hidden;
+    }
 
-    .leaflet-control-zoom a { background: var(--bg-card) !important; color: var(--text-primary) !important; border-color: var(--border-strong) !important; }
-    .leaflet-control-zoom a:hover { background: var(--bg-panel-solid) !important; }
-    .leaflet-control-scale-line { background: rgba(13,17,23,0.8) !important; color: var(--text-secondary) !important; border-color: var(--border-strong) !important; }
+    #detail-section.hidden {
+      opacity: 0;
+      transform: translateY(10px);
+      max-height: 0 !important;
+      pointer-events: none;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    #detail-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 600px;
+    }
+
+    .leaflet-control-zoom a {
+      background: var(--bg-card) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border-strong) !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+      background: var(--bg-panel-solid) !important;
+    }
+
+    .leaflet-control-scale-line {
+      background: rgba(13, 17, 23, 0.8) !important;
+      color: var(--text-secondary) !important;
+      border-color: var(--border-strong) !important;
+    }
+
     .province-label span {
-      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase;
-      letter-spacing: 2px; white-space: nowrap; text-shadow: 0 0 6px rgba(0,0,0,0.8);
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.25);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      white-space: nowrap;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
       pointer-events: none;
     }
   </style>
 </head>
+
 <body>
 
-<div id="app">
-  <header id="topbar">
-    <div class="topbar-left">
-      <span class="topbar-logo">MICM-INTEL</span>
-      <span class="topbar-version">v1.0</span>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-stat">
-        <span class="status-dot disconnected" id="ws-status"></span>
-        <span id="ws-label">Conectando</span>
+  <div id="app">
+    <header id="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">MICM-INTEL</span>
+        <span class="topbar-version">v1.0</span>
       </div>
-      <div class="topbar-stat">📊 <strong id="stat-registros">—</strong> registros</div>
-      <div class="topbar-stat">📡 <strong id="stat-metricas">44</strong>/51 métricas</div>
-      <div class="topbar-stat" id="clock"></div>
-    </div>
-  </header>
+      <div class="topbar-right">
+        <div class="topbar-stat">
+          <span class="status-dot disconnected" id="ws-status"></span>
+          <span id="ws-label">Conectando</span>
+        </div>
+        <div class="topbar-stat">📊 <strong id="stat-registros">—</strong> registros</div>
+        <div class="topbar-stat">📡 <strong id="stat-metricas">44</strong>/51 métricas</div>
+        <div class="topbar-stat" id="clock"></div>
+      </div>
+    </header>
 
-  <aside id="sidebar">
-    <div class="sidebar-section">
-      <span class="sidebar-label">Filtros</span>
-      <div class="filter-group">
-        <label>Módulo</label>
-        <select id="filter-modulo">
-          <option value="">Todos</option>
-          <option value="mercado">Mercado y Subsidio</option>
-          <option value="modulo1">Anomalías Volumen</option>
-          <option value="modulo2">Fiscal y Desvío</option>
-          <option value="modulo3">Riesgo Fronterizo</option>
-          <option value="modulo4">Inteligencia de Red</option>
-          <option value="permisologia">Permisología</option>
-          <option value="score">Score de Alerta</option>
-          <option value="fisica">Física Combustible</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>Nivel de Alerta</label>
-        <div class="nivel-btns">
-          <button class="nivel-btn active" data-nivel="0">N0</button>
-          <button class="nivel-btn active" data-nivel="1">N1</button>
-          <button class="nivel-btn active" data-nivel="2">N2</button>
-          <button class="nivel-btn active" data-nivel="3">N3</button>
+    <aside id="sidebar">
+      <div class="sidebar-section">
+        <span class="sidebar-label">Filtros</span>
+        <div class="filter-group">
+          <label>Módulo</label>
+          <select id="filter-modulo">
+            <option value="">Todos</option>
+            <option value="mercado">Mercado y Subsidio</option>
+            <option value="modulo1">Anomalías Volumen</option>
+            <option value="modulo2">Fiscal y Desvío</option>
+            <option value="modulo3">Riesgo Fronterizo</option>
+            <option value="modulo4">Inteligencia de Red</option>
+            <option value="permisologia">Permisología</option>
+            <option value="score">Score de Alerta</option>
+            <option value="fisica">Física Combustible</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Nivel de Alerta</label>
+          <div class="nivel-btns">
+            <button class="nivel-btn active" data-nivel="0">N0</button>
+            <button class="nivel-btn active" data-nivel="1">N1</button>
+            <button class="nivel-btn active" data-nivel="2">N2</button>
+            <button class="nivel-btn active" data-nivel="3">N3</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Provincia</label>
+          <select id="filter-provincia">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Producto</label>
+          <select id="filter-producto">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Perfil Fraude</label>
+          <select id="filter-perfil">
+            <option value="">Todos</option>
+            <option value="CONTRABANDO_FRON">Contrabando Fronterizo</option>
+            <option value="DESVIO_FISCAL">Desvío Fiscal</option>
+            <option value="ADULTERACION">Adulteración</option>
+          </select>
         </div>
       </div>
-      <div class="filter-group">
-        <label>Provincia</label>
-        <select id="filter-provincia"><option value="">Todas</option></select>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">Pilares del Sistema</span>
+        <div class="pilares-grid">
+          <span class="pilar-pill active" data-layer="estaciones">🏪 Estaciones</span>
+          <span class="pilar-pill active" data-layer="alertas">🚨 Alertas</span>
+          <span class="pilar-pill active" data-layer="rutas">🚛 Transporte</span>
+          <span class="pilar-pill active" data-layer="gps">📡 GPS</span>
+          <span class="pilar-pill active" data-layer="frontera">🗺 Frontera</span>
+        </div>
       </div>
-      <div class="filter-group">
-        <label>Producto</label>
-        <select id="filter-producto"><option value="">Todos</option></select>
+
+      <div class="sidebar-section timeline-container">
+        <span class="sidebar-label">Timeline</span>
+        <input type="range" id="timeline-slider" min="1" max="104" value="104">
+        <div class="timeline-labels">
+          <span>S01 2024</span><span>Actual</span><span>S12 2026</span>
+        </div>
       </div>
-      <div class="filter-group">
-        <label>Perfil Fraude</label>
-        <select id="filter-perfil">
-          <option value="">Todos</option>
-          <option value="CONTRABANDO_FRON">Contrabando Fronterizo</option>
-          <option value="DESVIO_FISCAL">Desvío Fiscal</option>
-          <option value="ADULTERACION">Adulteración</option>
-        </select>
+    </aside>
+
+    <div id="map-container">
+      <div id="map"></div>
+
+      <!-- Monitor de Distribución -->
+      <div class="monitor-panel" id="monitor-panel">
+        <div class="monitor-title">📡 Monitor de Distribución</div>
+        <div class="monitor-row"><span class="label">Rutas activas</span> <span class="value" id="mon-rutas">—</span>
+        </div>
+        <div class="monitor-row"><span class="label">Alertas críticas</span> <span class="value critico"
+            id="mon-criticas">—</span></div>
+        <div class="monitor-row"><span class="label">Estaciones</span> <span class="value" id="mon-estaciones">—</span>
+        </div>
       </div>
+
+      <div class="map-legend">
+        <div class="legend-title">Nivel de Alerta</div>
+        <div class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Normal</div>
+        <div class="legend-item"><span class="legend-line" style="background:#d29922"></span> Sospechoso</div>
+        <div class="legend-item"><span class="legend-line" style="background:#f85149"></span> Crítico</div>
+        <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+          <div class="legend-title">Estaciones</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> Estación Servicio</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#e040fb"></span> Envasadora</div>
+        </div>
+      </div>
+
+      <!-- Panel Toggle Button -->
+      <button class="panel-toggle" id="panel-toggle" onclick="togglePanel()" title="Ocultar/Mostrar Panel">
+        <span class="chevron">▶</span>
+      </button>
+
+      <!-- Analytics Button -->
+      <button class="analytics-btn" id="analytics-btn" onclick="openAnalytics()" title="Análisis Avanzado">
+        📊
+      </button>
     </div>
 
-    <div class="sidebar-section">
-      <span class="sidebar-label">Pilares del Sistema</span>
-      <div class="pilares-grid">
-        <span class="pilar-pill active" data-layer="estaciones">🏪 Estaciones</span>
-        <span class="pilar-pill active" data-layer="alertas">🚨 Alertas</span>
-        <span class="pilar-pill active" data-layer="rutas">🚛 Transporte</span>
-        <span class="pilar-pill active" data-layer="gps">📡 GPS</span>
-        <span class="pilar-pill active" data-layer="frontera">🗺 Frontera</span>
+    <div id="panel">
+      <div class="panel-section" id="alertas-section">
+        <div class="panel-title">
+          <span>🚨 Alertas en Vivo</span>
+          <span class="count" id="alertas-count">—</span>
+        </div>
+        <div id="alertas-list">
+          <div class="loading">Cargando alertas</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-title"><span>📊 Métricas Nacionales</span></div>
+        <div class="metrics-grid" id="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Subsidio Semanal</div>
+            <div class="metric-value" id="m-subsidio">—</div>
+            <div class="metric-sub">RD$ total</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">IRCF Nacional</div>
+            <div class="metric-value" id="m-ircf">—</div>
+            <div class="metric-sub">Índice contrabando</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Alertas N3</div>
+            <div class="metric-value" id="m-alertas-n3">—</div>
+            <div class="metric-sub">Nivel crítico</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">IBF Promedio</div>
+            <div class="metric-value" id="m-ibf">—</div>
+            <div class="metric-sub">Brecha fiscal</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Shrinkage</div>
+            <div class="metric-value" id="m-shrinkage">—</div>
+            <div class="metric-sub">% pérdida prom.</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">WTI</div>
+            <div class="metric-value" id="m-wti">—</div>
+            <div class="metric-sub">USD/bbl</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section" id="gps-section">
+        <div class="panel-title"><span>🚛 GPS Cisternas</span> <span class="count" id="gps-count">—</span></div>
+        <div id="gps-list">
+          <div class="loading">Cargando GPS</div>
+        </div>
+      </div>
+
+      <div class="panel-section hidden" id="detail-section" style="display:none;">
+        <div class="panel-title"><span>🏪 Detalle Estación</span></div>
+        <div id="detail-content"></div>
       </div>
     </div>
-
-    <div class="sidebar-section timeline-container">
-      <span class="sidebar-label">Timeline</span>
-      <input type="range" id="timeline-slider" min="1" max="104" value="104">
-      <div class="timeline-labels">
-        <span>S01 2024</span><span>Actual</span><span>S12 2026</span>
-      </div>
-    </div>
-  </aside>
-
-  <div id="map-container">
-    <div id="map"></div>
-
-    <!-- Monitor de Distribución -->
-    <div class="monitor-panel" id="monitor-panel">
-      <div class="monitor-title">📡 Monitor de Distribución</div>
-      <div class="monitor-row"><span class="label">Rutas activas</span> <span class="value" id="mon-rutas">—</span></div>
-      <div class="monitor-row"><span class="label">Alertas críticas</span> <span class="value critico" id="mon-criticas">—</span></div>
-      <div class="monitor-row"><span class="label">Estaciones</span> <span class="value" id="mon-estaciones">—</span></div>
-    </div>
-
-    <div class="map-legend">
-      <div class="legend-title">Nivel de Alerta</div>
-      <div class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Normal</div>
-      <div class="legend-item"><span class="legend-line" style="background:#d29922"></span> Sospechoso</div>
-      <div class="legend-item"><span class="legend-line" style="background:#f85149"></span> Crítico</div>
-      <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-        <div class="legend-title">Estaciones</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> Estación Servicio</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#e040fb"></span> Envasadora</div>
-      </div>
-    </div>
-
-    <!-- Panel Toggle Button -->
-    <button class="panel-toggle" id="panel-toggle" onclick="togglePanel()" title="Ocultar/Mostrar Panel">
-      <span class="chevron">▶</span>
-    </button>
-
-    <!-- Analytics Button -->
-    <button class="analytics-btn" id="analytics-btn" onclick="openAnalytics()" title="Análisis Avanzado">
-      📊
-    </button>
   </div>
 
-  <div id="panel">
-    <div class="panel-section" id="alertas-section">
-      <div class="panel-title">
-        <span>🚨 Alertas en Vivo</span>
-        <span class="count" id="alertas-count">—</span>
-      </div>
-      <div id="alertas-list"><div class="loading">Cargando alertas</div></div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-title"><span>📊 Métricas Nacionales</span></div>
-      <div class="metrics-grid" id="metrics-grid">
-        <div class="metric-card"><div class="metric-label">Subsidio Semanal</div><div class="metric-value" id="m-subsidio">—</div><div class="metric-sub">RD$ total</div></div>
-        <div class="metric-card"><div class="metric-label">IRCF Nacional</div><div class="metric-value" id="m-ircf">—</div><div class="metric-sub">Índice contrabando</div></div>
-        <div class="metric-card"><div class="metric-label">Alertas N3</div><div class="metric-value" id="m-alertas-n3">—</div><div class="metric-sub">Nivel crítico</div></div>
-        <div class="metric-card"><div class="metric-label">IBF Promedio</div><div class="metric-value" id="m-ibf">—</div><div class="metric-sub">Brecha fiscal</div></div>
-        <div class="metric-card"><div class="metric-label">Shrinkage</div><div class="metric-value" id="m-shrinkage">—</div><div class="metric-sub">% pérdida prom.</div></div>
-        <div class="metric-card"><div class="metric-label">WTI</div><div class="metric-value" id="m-wti">—</div><div class="metric-sub">USD/bbl</div></div>
-      </div>
-    </div>
-
-    <div class="panel-section" id="gps-section">
-      <div class="panel-title"><span>🚛 GPS Cisternas</span> <span class="count" id="gps-count">—</span></div>
-      <div id="gps-list"><div class="loading">Cargando GPS</div></div>
-    </div>
-
-    <div class="panel-section hidden" id="detail-section" style="display:none;">
-      <div class="panel-title"><span>🏪 Detalle Estación</span></div>
-      <div id="detail-content"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Analytics Modal Overlay -->
-<div class="analytics-overlay" id="analytics-overlay">
-  <div class="analytics-modal">
-    <div class="analytics-header">
-      <div class="analytics-header-left">
-        <span class="analytics-title">📊 Análisis Avanzado</span>
-        <div class="analytics-tabs">
-          <button class="analytics-tab active" data-tab="alertas" onclick="switchAnalyticsTab('alertas')">🚨 Alertas</button>
-          <button class="analytics-tab" data-tab="volumen" onclick="switchAnalyticsTab('volumen')">⛽ Volumenías</button>
-          <button class="analytics-tab" data-tab="estadisticas" onclick="switchAnalyticsTab('estadisticas')">📈 Estadísticas</button>
+  <!-- Analytics Modal Overlay -->
+  <div class="analytics-overlay" id="analytics-overlay">
+    <div class="analytics-modal">
+      <div class="analytics-header">
+        <div class="analytics-header-left">
+          <span class="analytics-title">📊 Análisis Avanzado</span>
+          <div class="analytics-tabs">
+            <button class="analytics-tab active" data-tab="alertas" onclick="switchAnalyticsTab('alertas')">🚨
+              Alertas</button>
+            <button class="analytics-tab" data-tab="volumen" onclick="switchAnalyticsTab('volumen')">⛽
+              Volumenías</button>
+            <button class="analytics-tab" data-tab="estadisticas" onclick="switchAnalyticsTab('estadisticas')">📈
+              Estadísticas</button>
+          </div>
         </div>
+        <button class="analytics-close" onclick="closeAnalytics()">✕</button>
       </div>
-      <button class="analytics-close" onclick="closeAnalytics()">✕</button>
-    </div>
-    <div class="analytics-body">
-      <div class="analytics-search">
-        <input type="text" id="analytics-search" placeholder="🔍 Buscar estación, provincia, producto..." oninput="filterAnalyticsTable(this.value)">
-      </div>
+      <div class="analytics-body">
+        <div class="analytics-search">
+          <input type="text" id="analytics-search" placeholder="🔍 Buscar estación, provincia, producto..."
+            oninput="filterAnalyticsTable(this.value)">
+        </div>
 
-      <!-- Stats Summary Row -->
-      <div class="analytics-stats-row" id="analytics-stats-row">
-        <div class="analytics-stat-card scale-in" style="--i:0">
-          <div class="analytics-stat-label">Total Estaciones</div>
-          <div class="analytics-stat-value" id="as-total">—</div>
-          <div class="analytics-stat-sub">Activas en sistema</div>
+        <!-- Stats Summary Row -->
+        <div class="analytics-stats-row" id="analytics-stats-row">
+          <div class="analytics-stat-card scale-in" style="--i:0">
+            <div class="analytics-stat-label">Total Estaciones</div>
+            <div class="analytics-stat-value" id="as-total">—</div>
+            <div class="analytics-stat-sub">Activas en sistema</div>
+          </div>
+          <div class="analytics-stat-card scale-in" style="--i:1">
+            <div class="analytics-stat-label">Alertas Críticas</div>
+            <div class="analytics-stat-value" id="as-criticas" style="color:var(--red)">—</div>
+            <div class="analytics-stat-sub">Nivel 3 activas</div>
+            <div class="analytics-stat-trend up" id="as-criticas-trend">↑ —</div>
+          </div>
+          <div class="analytics-stat-card scale-in" style="--i:2">
+            <div class="analytics-stat-label">IRCF Promedio</div>
+            <div class="analytics-stat-value" id="as-ircf">—</div>
+            <div class="analytics-stat-sub">Índice contrabando fronterizo</div>
+          </div>
+          <div class="analytics-stat-card scale-in" style="--i:3">
+            <div class="analytics-stat-label">Subsidio Semanal</div>
+            <div class="analytics-stat-value" id="as-subsidio">—</div>
+            <div class="analytics-stat-sub">RD$ total nacional</div>
+          </div>
         </div>
-        <div class="analytics-stat-card scale-in" style="--i:1">
-          <div class="analytics-stat-label">Alertas Críticas</div>
-          <div class="analytics-stat-value" id="as-criticas" style="color:var(--red)">—</div>
-          <div class="analytics-stat-sub">Nivel 3 activas</div>
-          <div class="analytics-stat-trend up" id="as-criticas-trend">↑ —</div>
-        </div>
-        <div class="analytics-stat-card scale-in" style="--i:2">
-          <div class="analytics-stat-label">IRCF Promedio</div>
-          <div class="analytics-stat-value" id="as-ircf">—</div>
-          <div class="analytics-stat-sub">Índice contrabando fronterizo</div>
-        </div>
-        <div class="analytics-stat-card scale-in" style="--i:3">
-          <div class="analytics-stat-label">Subsidio Semanal</div>
-          <div class="analytics-stat-value" id="as-subsidio">—</div>
-          <div class="analytics-stat-sub">RD$ total nacional</div>
-        </div>
-      </div>
 
-      <!-- Tab: Alertas -->
-      <div class="analytics-tab-panel active" id="tab-alertas">
-        <div class="analytics-table-wrap">
-          <table class="analytics-table" id="analytics-table">
-            <thead>
-              <tr>
-                <th onclick="sortAnalyticsTable('nombre')">Estación ↕</th>
-                <th onclick="sortAnalyticsTable('provincia')">Provincia ↕</th>
-                <th onclick="sortAnalyticsTable('nivel')">Nivel ↕</th>
-                <th onclick="sortAnalyticsTable('score')">Score ↕</th>
-                <th onclick="sortAnalyticsTable('perfil')">Perfil Fraude ↕</th>
-              </tr>
-            </thead>
-            <tbody id="analytics-tbody"></tbody>
-          </table>
-          <div class="table-pagination">
-            <span id="table-page-info">— registros</span>
-            <div style="display:flex;gap:6px;">
-              <button id="table-prev" onclick="analyticsPageChange(-1)" disabled>◀ Anterior</button>
-              <button id="table-next" onclick="analyticsPageChange(1)">Siguiente ▶</button>
+        <!-- Tab: Alertas -->
+        <div class="analytics-tab-panel active" id="tab-alertas">
+          <div class="analytics-table-wrap">
+            <table class="analytics-table" id="analytics-table">
+              <thead>
+                <tr>
+                  <th onclick="sortAnalyticsTable('nombre')">Estación ↕</th>
+                  <th onclick="sortAnalyticsTable('provincia')">Provincia ↕</th>
+                  <th onclick="sortAnalyticsTable('nivel')">Nivel ↕</th>
+                  <th onclick="sortAnalyticsTable('score')">Score ↕</th>
+                  <th onclick="sortAnalyticsTable('perfil')">Perfil Fraude ↕</th>
+                </tr>
+              </thead>
+              <tbody id="analytics-tbody"></tbody>
+            </table>
+            <div class="table-pagination">
+              <span id="table-page-info">— registros</span>
+              <div style="display:flex;gap:6px;">
+                <button id="table-prev" onclick="analyticsPageChange(-1)" disabled>◀ Anterior</button>
+                <button id="table-next" onclick="analyticsPageChange(1)">Siguiente ▶</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-charts-grid">
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">📊 Alertas por Provincia</div>
+              <div class="chart-bars" id="chart-provincias"></div>
+            </div>
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">📈 Distribución por Nivel</div>
+              <div class="chart-bars" id="chart-niveles"></div>
             </div>
           </div>
         </div>
 
-        <div class="analytics-charts-grid">
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">📊 Alertas por Provincia</div>
-            <div class="chart-bars" id="chart-provincias"></div>
-          </div>
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">📈 Distribución por Nivel</div>
-            <div class="chart-bars" id="chart-niveles"></div>
+        <!-- Tab: Volumenías -->
+        <div class="analytics-tab-panel" id="tab-volumen">
+          <div class="volume-grid" id="volume-grid"></div>
+          <div class="analytics-charts-grid" style="margin-top:20px;">
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">⛽ Despacho por Producto</div>
+              <div class="chart-bars" id="chart-productos"></div>
+            </div>
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">📉 Shrinkage por Provincia</div>
+              <div class="chart-bars" id="chart-shrinkage"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Tab: Volumenías -->
-      <div class="analytics-tab-panel" id="tab-volumen">
-        <div class="volume-grid" id="volume-grid"></div>
-        <div class="analytics-charts-grid" style="margin-top:20px;">
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">⛽ Despacho por Producto</div>
-            <div class="chart-bars" id="chart-productos"></div>
+        <!-- Tab: Estadísticas -->
+        <div class="analytics-tab-panel" id="tab-estadisticas">
+          <div class="analytics-stats-row">
+            <div class="analytics-stat-card">
+              <div class="analytics-stat-label">IBF Promedio</div>
+              <div class="analytics-stat-value" id="as-ibf">—</div>
+              <div class="analytics-stat-sub">Brecha fiscal nacional</div>
+            </div>
+            <div class="analytics-stat-card">
+              <div class="analytics-stat-label">WTI Actual</div>
+              <div class="analytics-stat-value" id="as-wti">—</div>
+              <div class="analytics-stat-sub">USD/barril</div>
+            </div>
+            <div class="analytics-stat-card">
+              <div class="analytics-stat-label">Shrinkage Prom.</div>
+              <div class="analytics-stat-value" id="as-shrinkage">—</div>
+              <div class="analytics-stat-sub">Pérdida física promedio</div>
+            </div>
+            <div class="analytics-stat-card">
+              <div class="analytics-stat-label">Rutas Activas</div>
+              <div class="analytics-stat-value" id="as-rutas">—</div>
+              <div class="analytics-stat-sub">Con datos OSRM</div>
+            </div>
           </div>
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">📉 Shrinkage por Provincia</div>
-            <div class="chart-bars" id="chart-shrinkage"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab: Estadísticas -->
-      <div class="analytics-tab-panel" id="tab-estadisticas">
-        <div class="analytics-stats-row">
-          <div class="analytics-stat-card">
-            <div class="analytics-stat-label">IBF Promedio</div>
-            <div class="analytics-stat-value" id="as-ibf">—</div>
-            <div class="analytics-stat-sub">Brecha fiscal nacional</div>
-          </div>
-          <div class="analytics-stat-card">
-            <div class="analytics-stat-label">WTI Actual</div>
-            <div class="analytics-stat-value" id="as-wti">—</div>
-            <div class="analytics-stat-sub">USD/barril</div>
-          </div>
-          <div class="analytics-stat-card">
-            <div class="analytics-stat-label">Shrinkage Prom.</div>
-            <div class="analytics-stat-value" id="as-shrinkage">—</div>
-            <div class="analytics-stat-sub">Pérdida física promedio</div>
-          </div>
-          <div class="analytics-stat-card">
-            <div class="analytics-stat-label">Rutas Activas</div>
-            <div class="analytics-stat-value" id="as-rutas">—</div>
-            <div class="analytics-stat-sub">Con datos OSRM</div>
-          </div>
-        </div>
-        <div class="analytics-charts-grid">
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">📈 Historial de Subsidio Semanal</div>
-            <div class="chart-bars" id="chart-subsidio-hist"></div>
-          </div>
-          <div class="analytics-chart-card">
-            <div class="analytics-chart-title">📦 Alertas por Perfil de Fraude</div>
-            <div class="chart-bars" id="chart-perfiles"></div>
+          <div class="analytics-charts-grid">
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">📈 Historial de Subsidio Semanal</div>
+              <div class="chart-bars" id="chart-subsidio-hist"></div>
+            </div>
+            <div class="analytics-chart-card">
+              <div class="analytics-chart-title">📦 Alertas por Perfil de Fraude</div>
+              <div class="chart-bars" id="chart-perfiles"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-// ============================================================================
-// MICM-INTEL v1.0 — Dark Theme + OSRM Road-Following Routes
-// ============================================================================
+  <script>
+    // ============================================================================
+    // MICM-INTEL v1.0 — Dark Theme + OSRM Road-Following Routes
+    // ============================================================================
 
-const ALERT_COLORS = { 0: '#3fb950', 1: '#58a6ff', 2: '#d29922', 3: '#f85149' };
+    const ALERT_COLORS = { 0: '#3fb950', 1: '#58a6ff', 2: '#d29922', 3: '#f85149' };
 
-const TIPO_COLORS = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
+    const TIPO_COLORS = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
 
-const state = {
-  ws: null, map: null, connected: false,
-  layers: { estaciones: true, alertas: true, rutas: true, gps: true, frontera: true },
-  leafletLayers: {},
-  routeCache: {},
-  metricas: null,
-  rawData: { estaciones: null, alertas: null, rutas: null, gps: null, frontera: null },
-  selectedEstacion: null,
-};
+    const state = {
+      ws: null, map: null, connected: false,
+      layers: { estaciones: true, alertas: true, rutas: true, gps: true, frontera: true },
+      leafletLayers: {},
+      routeCache: {},
+      metricas: null,
+      rawData: { estaciones: null, alertas: null, rutas: null, gps: null, frontera: null },
+      selectedEstacion: null,
+    };
 
-async function init() {
-  updateClock();
-  setInterval(updateClock, 1000);
-  initMap();
-  initWebSocket();
-  initFilters();
-  loadProvinceLabels();
-}
+    async function init() {
+      updateClock();
+      setInterval(updateClock, 1000);
+      initMap();
+      initWebSocket();
+      initFilters();
+      loadProvinceLabels();
+    }
 
-// ── MAP (Dark Theme) ────────────────────────────────────────────────────────
-function initMap() {
-  const rdBounds = L.latLngBounds([17.4, -72.1], [20.2, -68.0]);
+    // ── MAP (Dark Theme) ────────────────────────────────────────────────────────
+    function initMap() {
+      const rdBounds = L.latLngBounds([17.4, -72.1], [20.2, -68.0]);
 
-  state.map = L.map('map', {
-    center: [18.9, -70.0], zoom: 8, minZoom: 7, maxZoom: 16,
-    zoomControl: false, preferCanvas: true,
-    maxBounds: rdBounds.pad(0.1), maxBoundsViscosity: 1.0,
-  });
-
-  // Dark theme: CartoDB Dark Matter
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© <a href="https://carto.com">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19,
-  }).addTo(state.map);
-
-  L.control.zoom({ position: 'topright' }).addTo(state.map);
-  L.control.scale({ position: 'bottomright', imperial: false }).addTo(state.map);
-
-  state.leafletLayers.provincias = L.layerGroup().addTo(state.map);
-  state.leafletLayers.rutas = L.layerGroup().addTo(state.map);
-  state.leafletLayers.frontera = L.layerGroup().addTo(state.map);
-  state.leafletLayers.estaciones = L.layerGroup().addTo(state.map);
-  state.leafletLayers.alertas = L.layerGroup().addTo(state.map);
-  state.leafletLayers.gps = L.layerGroup().addTo(state.map);
-
-  console.log('[MAP] ✓ Mapa dark inicializado');
-}
-
-// ── Province Labels ─────────────────────────────────────────────────────────
-async function loadProvinceLabels() {
-  try {
-    const res = await fetch('/api/provincia-boundaries');
-    const data = await res.json();
-    if (!data.provincias) return;
-    const layer = state.leafletLayers.provincias;
-    data.provincias.forEach(p => {
-      const label = L.divIcon({
-        className: 'province-label',
-        html: `<span>${p.provincia}</span>`,
-        iconSize: [100, 20], iconAnchor: [50, 10],
+      state.map = L.map('map', {
+        center: [18.9, -70.0], zoom: 8, minZoom: 7, maxZoom: 16,
+        zoomControl: false, preferCanvas: true,
+        maxBounds: rdBounds.pad(0.1), maxBoundsViscosity: 1.0,
       });
-      L.marker([p.center_lat, p.center_lon], { icon: label, interactive: false }).addTo(layer);
-    });
-  } catch(e) { console.warn('[MAP] Province labels failed:', e.message); }
-}
 
-// ── OSRM is now server-side — no client-side API calls needed ───────────────
+      // Dark theme: CartoDB Dark Matter
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://carto.com">CARTO</a>',
+        subdomains: 'abcd', maxZoom: 19, updateWhenIdle: true, updateWhenZooming: false,
+      }).addTo(state.map);
 
-// ── RENDER FUNCTIONS ────────────────────────────────────────────────────────
-function renderEstaciones(geojson, filterProvincia) {
-  const layer = state.leafletLayers.estaciones;
-  layer.clearLayers();
-  if (!geojson?.features) return;
+      L.control.zoom({ position: 'topright' }).addTo(state.map);
+      L.control.scale({ position: 'bottomright', imperial: false }).addTo(state.map);
 
-  const features = filterProvincia
-    ? geojson.features.filter(f => f.properties.provincia === filterProvincia)
-    : geojson.features;
+      state.leafletLayers.provincias = L.layerGroup().addTo(state.map);
+      state.leafletLayers.rutas = L.layerGroup().addTo(state.map);
+      state.leafletLayers.frontera = L.layerGroup().addTo(state.map);
+      state.leafletLayers.estaciones = L.layerGroup().addTo(state.map);
+      state.leafletLayers.alertas = L.layerGroup().addTo(state.map);
+      state.leafletLayers.gps = L.layerGroup().addTo(state.map);
 
-  document.getElementById('mon-estaciones').textContent = features.length;
-  console.log(`[RENDER] Estaciones: ${features.length} markers`);
+      // Fix rendering: recalculate size on window/map resize
+      let _resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(() => state.map.invalidateSize(), 200);
+      });
 
-  let rendered = 0;
-  features.forEach(f => {
-    const p = f.properties;
-    const [lng, lat] = f.geometry.coordinates;
-    if (isNaN(lat) || isNaN(lng)) return; // skip invalid coords
-    const color = TIPO_COLORS[p.tipo] || '#00d4ff';
-    const isSelected = state.selectedEstacion === p.estacion_id;
+      console.log('[MAP] ✓ Mapa dark inicializado');
+    }
 
-    const marker = L.circleMarker([lat, lng], {
-      radius: isSelected ? 12 : 6,
-      fillColor: color, color: isSelected ? '#fff' : color,
-      weight: isSelected ? 3 : 1,
-      fillOpacity: isSelected ? 1 : 0.7,
-      opacity: isSelected ? 1 : 0.5,
-    });
+    // ── Province Labels ─────────────────────────────────────────────────────────
+    async function loadProvinceLabels() {
+      try {
+        const res = await fetch('/api/provincia-boundaries');
+        const data = await res.json();
+        if (!data.provincias) return;
+        const layer = state.leafletLayers.provincias;
+        data.provincias.forEach(p => {
+          const label = L.divIcon({
+            className: 'province-label',
+            html: `<span>${p.provincia}</span>`,
+            iconSize: [100, 20], iconAnchor: [50, 10],
+          });
+          L.marker([p.center_lat, p.center_lon], { icon: label, interactive: false }).addTo(layer);
+        });
+      } catch (e) { console.warn('[MAP] Province labels failed:', e.message); }
+    }
 
-    marker.bindPopup(`
+    // ── OSRM is now server-side — no client-side API calls needed ───────────────
+
+    // ── RENDER FUNCTIONS ────────────────────────────────────────────────────────
+    function renderEstaciones(geojson, filterProvincia) {
+      const layer = state.leafletLayers.estaciones;
+      layer.clearLayers();
+      if (!geojson?.features) return;
+
+      const features = filterProvincia
+        ? geojson.features.filter(f => f.properties.provincia === filterProvincia)
+        : geojson.features;
+
+      document.getElementById('mon-estaciones').textContent = features.length;
+      console.log(`[RENDER] Estaciones: ${features.length} markers`);
+
+      let rendered = 0;
+      features.forEach(f => {
+        const p = f.properties;
+        const [lng, lat] = f.geometry.coordinates;
+        if (isNaN(lat) || isNaN(lng)) return; // skip invalid coords
+        const color = TIPO_COLORS[p.tipo] || '#00d4ff';
+        const isSelected = state.selectedEstacion === p.estacion_id;
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: isSelected ? 12 : 6,
+          fillColor: color, color: isSelected ? '#fff' : color,
+          weight: isSelected ? 3 : 1,
+          fillOpacity: isSelected ? 1 : 0.7,
+          opacity: isSelected ? 1 : 0.5,
+        });
+
+        marker.bindPopup(`
       <div class="popup-title">${p.nombre}</div>
       <span class="popup-badge n${p.nivel_alerta}">NIVEL ${p.nivel_alerta}</span>
       <div class="popup-row"><span class="label">Tipo</span> ${p.tipo === 'ENVASADORA' ? '🏭 Envasadora' : '⛽ Estación'}</div>
@@ -852,492 +1980,496 @@ function renderEstaciones(geojson, filterProvincia) {
       <div class="popup-row"><span class="label">Capacidad</span> ${parseInt(p.capacidad || 0).toLocaleString()} gal</div>
       <div class="popup-row"><span class="label">Z-score</span> ${parseFloat(p.z_score || 0).toFixed(2)}</div>
     `);
-    marker.on('click', () => requestEstacionDetail(p.estacion_id));
-    marker.addTo(layer);
-    rendered++;
-  });
-  console.log(`[RENDER] Rendered ${rendered} station markers on map`);
-}
+        marker.on('click', () => requestEstacionDetail(p.estacion_id));
+        marker.addTo(layer);
+        rendered++;
+      });
+      console.log(`[RENDER] Rendered ${rendered} station markers on map`);
+    }
 
-function renderAlertas(geojson, filterProvincia) {
-  const layer = state.leafletLayers.alertas;
-  layer.clearLayers();
-  if (!geojson?.features) return;
+    function renderAlertas(geojson, filterProvincia) {
+      const layer = state.leafletLayers.alertas;
+      layer.clearLayers();
+      if (!geojson?.features) return;
 
-  const features = filterProvincia
-    ? geojson.features.filter(f => f.properties.provincia === filterProvincia)
-    : geojson.features;
+      const features = filterProvincia
+        ? geojson.features.filter(f => f.properties.provincia === filterProvincia)
+        : geojson.features;
 
-  features.forEach(f => {
-    const p = f.properties;
-    const [lng, lat] = f.geometry.coordinates;
-    const color = ALERT_COLORS[p.nivel_alerta] || ALERT_COLORS[1];
+      features.forEach(f => {
+        const p = f.properties;
+        const [lng, lat] = f.geometry.coordinates;
+        const color = ALERT_COLORS[p.nivel_alerta] || ALERT_COLORS[1];
 
-    const marker = L.circleMarker([lat, lng], {
-      radius: 10, fillColor: color, color: color,
-      weight: 2, fillOpacity: 0.15, opacity: 0.6,
-    });
+        const marker = L.circleMarker([lat, lng], {
+          radius: 10, fillColor: color, color: color,
+          weight: 2, fillOpacity: 0.15, opacity: 0.6,
+        });
 
-    marker.bindPopup(`
+        marker.bindPopup(`
       <div class="popup-title">${p.nombre || 'Alerta'}</div>
       <span class="popup-badge n${p.nivel_alerta}">NIVEL ${p.nivel_alerta}</span>
       <div class="popup-row"><span class="label">Perfil</span> ${formatPerfil(p.perfil_fraude)}</div>
       <div class="popup-row"><span class="label">Score</span> <strong>${parseFloat(p.score_compuesto || 0).toFixed(2)}</strong></div>
     `);
-    marker.addTo(layer);
-  });
-}
-
-function renderRutas(geojson, isPartial = false) {
-  const layer = state.leafletLayers.rutas;
-  if (!geojson?.features) return;
-
-  if (!isPartial) layer.clearLayers();
-  
-  // Use a map to quickly find existing layers if partial
-  const existingLayers = {};
-  if (isPartial) {
-    layer.eachLayer(l => {
-      if (l.options.ruta_id) existingLayers[l.options.ruta_id] = l;
-    });
-  }
-
-  const all = geojson.features;
-  
-  const RIESGO_STYLES = {
-    'CRITICO': { color: '#f85149', weight: 4, opacity: 0.85 },
-    'ALTO':    { color: '#d29922', weight: 2.5, opacity: 0.6 },
-    'MEDIO':   { color: '#58a6ff', weight: 1.5, opacity: 0.35 },
-  };
-  const DEFAULT_STYLE = { color: '#3fb950', weight: 1, opacity: 0.2 };
-
-  all.forEach(f => {
-    const p = f.properties;
-    const style = RIESGO_STYLES[p.riesgo] || DEFAULT_STYLE;
-    const finalStyle = { ...style, dashArray: p.has_road ? null : '5, 10' };
-    let coords;
-
-    if (p.has_road) {
-      coords = f.geometry.coordinates.map(c => [c[1], c[0]]);
-    } else {
-      const points = f.geometry.coordinates.map(c => [c[1], c[0]]);
-      coords = createBezier(points);
-    }
-
-    // If partial and layer exists, just update its latlngs and style
-    if (isPartial && existingLayers[p.ruta_id]) {
-      const line = existingLayers[p.ruta_id];
-      line.setLatLngs(coords);
-      line.setStyle(finalStyle); // Always update style to remove dash if needed
-      line.getPopup().setContent(`
-        <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
-        <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia||0).toFixed(1)} km</div>
-        <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
-        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
-      `);
-    } else {
-      const line = L.polyline(coords, {
-        ...finalStyle, smoothFactor: 0, lineCap: 'round', lineJoin: 'round',
-        ruta_id: p.ruta_id // Store ID for partial updates
+        marker.addTo(layer);
       });
-      line.bindPopup(`
+    }
+
+    function renderRutas(geojson, isPartial = false) {
+      const layer = state.leafletLayers.rutas;
+      if (!geojson?.features) return;
+
+      if (!isPartial) layer.clearLayers();
+
+      // Use a map to quickly find existing layers if partial
+      const existingLayers = {};
+      if (isPartial) {
+        layer.eachLayer(l => {
+          if (l.options.ruta_id) existingLayers[l.options.ruta_id] = l;
+        });
+      }
+
+      const all = geojson.features;
+
+      const RIESGO_STYLES = {
+        'CRITICO': { color: '#f85149', weight: 4, opacity: 0.85 },
+        'ALTO': { color: '#d29922', weight: 2.5, opacity: 0.6 },
+        'MEDIO': { color: '#58a6ff', weight: 1.5, opacity: 0.35 },
+      };
+      const DEFAULT_STYLE = { color: '#3fb950', weight: 1, opacity: 0.2 };
+
+      all.forEach(f => {
+        const p = f.properties;
+        const style = RIESGO_STYLES[p.riesgo] || DEFAULT_STYLE;
+        const finalStyle = { ...style, dashArray: p.has_road ? null : '5, 10' };
+        let coords;
+
+        if (p.has_road) {
+          coords = f.geometry.coordinates.map(c => [c[1], c[0]]);
+        } else {
+          const points = f.geometry.coordinates.map(c => [c[1], c[0]]);
+          // Use coarser step for low-risk routes to reduce canvas rendering load
+          const bezierStep = (p.riesgo === 'CRITICO') ? 0.05 : 0.1;
+          coords = createBezier(points, bezierStep);
+        }
+
+        // If partial and layer exists, just update its latlngs and style
+        if (isPartial && existingLayers[p.ruta_id]) {
+          const line = existingLayers[p.ruta_id];
+          line.setLatLngs(coords);
+          line.setStyle(finalStyle); // Always update style to remove dash if needed
+          line.getPopup().setContent(`
         <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
-        <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia||0).toFixed(1)} km</div>
+        <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
         <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
         <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
       `);
-      line.addTo(layer);
+        } else {
+          const line = L.polyline(coords, {
+            ...finalStyle, smoothFactor: 3, lineCap: 'round', lineJoin: 'round',
+            ruta_id: p.ruta_id // Store ID for partial updates
+          });
+          line.bindPopup(`
+        <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
+        <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
+        <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
+        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
+      `);
+          line.addTo(layer);
+        }
+      });
+
+      // Update counters
+      if (!isPartial) {
+        const roaded = all.filter(f => f.properties.has_road).length;
+        document.getElementById('mon-rutas').textContent = `${all.length} (${roaded} OSRM)`;
+        document.getElementById('mon-criticas').textContent = all.filter(f => f.properties.riesgo === 'CRITICO').length;
+      }
     }
-  });
 
-  // Update counters
-  if (!isPartial) {
-    const roaded = all.filter(f => f.properties.has_road).length;
-    document.getElementById('mon-rutas').textContent = `${all.length} (${roaded} OSRM)`;
-    document.getElementById('mon-criticas').textContent = all.filter(f => f.properties.riesgo === 'CRITICO').length;
-  }
-}
+    function createBezier(coords, step = 0.05) {
+      if (coords.length < 2) return coords;
+      const s = coords[0], e = coords[coords.length - 1];
+      const dLat = e[0] - s[0], dLng = e[1] - s[1];
+      const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+      if (dist < 0.001) return coords;
+      const m = [(s[0] + e[0]) / 2 + (-dLng / dist) * dist * 0.12, (s[1] + e[1]) / 2 + (dLat / dist) * dist * 0.12];
+      const pts = [];
+      for (let t = 0; t <= 1; t += step)
+        pts.push([(1 - t) * (1 - t) * s[0] + 2 * (1 - t) * t * m[0] + t * t * e[0], (1 - t) * (1 - t) * s[1] + 2 * (1 - t) * t * m[1] + t * t * e[1]]);
+      return pts;
+    }
 
-function createBezier(coords) {
-  if (coords.length < 2) return coords;
-  const s = coords[0], e = coords[coords.length - 1];
-  const dLat = e[0]-s[0], dLng = e[1]-s[1];
-  const dist = Math.sqrt(dLat*dLat + dLng*dLng);
-  if (dist < 0.001) return coords;
-  const m = [(s[0]+e[0])/2+(-dLng/dist)*dist*0.12, (s[1]+e[1])/2+(dLat/dist)*dist*0.12];
-  const pts = [];
-  for (let t = 0; t <= 1; t += 0.05)
-    pts.push([(1-t)*(1-t)*s[0]+2*(1-t)*t*m[0]+t*t*e[0], (1-t)*(1-t)*s[1]+2*(1-t)*t*m[1]+t*t*e[1]]);
-  return pts;
-}
+    function renderGps(geojson) {
+      const layer = state.leafletLayers.gps;
+      layer.clearLayers();
+      if (!geojson?.features) return;
 
-function renderGps(geojson) {
-  const layer = state.leafletLayers.gps;
-  layer.clearLayers();
-  if (!geojson?.features) return;
+      geojson.features.forEach(f => {
+        const p = f.properties;
+        const [lng, lat] = f.geometry.coordinates;
 
-  geojson.features.forEach(f => {
-    const p = f.properties;
-    const [lng, lat] = f.geometry.coordinates;
+        const marker = L.circleMarker([lat, lng], {
+          radius: 5, fillColor: '#a371f7', color: '#fff',
+          weight: 2, fillOpacity: 0.9, opacity: 1,
+        });
 
-    const marker = L.circleMarker([lat, lng], {
-      radius: 5, fillColor: '#a371f7', color: '#fff',
-      weight: 2, fillOpacity: 0.9, opacity: 1,
-    });
-
-    marker.bindPopup(`
+        marker.bindPopup(`
       <div class="popup-title">🚛 ${p.cisterna || 'Cisterna'}</div>
       <div class="popup-row"><span class="label">Destino</span> ${p.estacion || ''}</div>
       <div class="popup-row"><span class="label">Producto</span> ${p.producto || ''}</div>
       <div class="popup-row"><span class="label">Progreso</span> <strong>${p.progreso || 0}%</strong></div>
     `);
-    marker.addTo(layer);
-  });
-}
+        marker.addTo(layer);
+      });
+    }
 
-function renderFrontera(geojson) {
-  const layer = state.leafletLayers.frontera;
-  layer.clearLayers();
-  if (!geojson?.features) return;
+    function renderFrontera(geojson) {
+      const layer = state.leafletLayers.frontera;
+      layer.clearLayers();
+      if (!geojson?.features) return;
 
-  geojson.features.forEach(f => {
-    const p = f.properties;
-    const [lng, lat] = f.geometry.coordinates;
-    const colors = { 'CRITICO': '#f85149', 'ALTO': '#f85149', 'MEDIO': '#d29922' };
-    const color = colors[p.nivel_riesgo] || '#3fb950';
+      geojson.features.forEach(f => {
+        const p = f.properties;
+        const [lng, lat] = f.geometry.coordinates;
+        const colors = { 'CRITICO': '#f85149', 'ALTO': '#f85149', 'MEDIO': '#d29922' };
+        const color = colors[p.nivel_riesgo] || '#3fb950';
 
-    const marker = L.circleMarker([lat, lng], {
-      radius: 12, fillColor: color, color: color,
-      weight: 1.5, fillOpacity: 0.12, opacity: 0.4,
-    });
+        const marker = L.circleMarker([lat, lng], {
+          radius: 12, fillColor: color, color: color,
+          weight: 1.5, fillOpacity: 0.12, opacity: 0.4,
+        });
 
-    marker.bindPopup(`
+        marker.bindPopup(`
       <div class="popup-title">🗺 ${p.municipio || ''}</div>
       <div class="popup-row"><span class="label">IRCF</span> <strong>${parseFloat(p.ircf || 0).toFixed(2)}</strong></div>
       <div class="popup-row"><span class="label">Riesgo</span> ${p.nivel_riesgo || '—'}</div>
     `);
-    marker.addTo(layer);
-  });
-}
+        marker.addTo(layer);
+      });
+    }
 
-// ── WEBSOCKET ───────────────────────────────────────────────────────────────
-function initWebSocket() {
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  state.ws = new WebSocket(`${protocol}//${location.host}`);
+    // ── WEBSOCKET ───────────────────────────────────────────────────────────────
+    function initWebSocket() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      state.ws = new WebSocket(`${protocol}//${location.host}`);
 
-  state.ws.onopen = () => { state.connected = true; updateConnectionStatus(true); };
-  state.ws.onclose = () => { state.connected = false; updateConnectionStatus(false); setTimeout(initWebSocket, 3000); };
-  state.ws.onerror = () => {};
-  state.ws.onmessage = (e) => { try { handleWSMessage(JSON.parse(e.data)); } catch(err) {} };
-}
+      state.ws.onopen = () => { state.connected = true; updateConnectionStatus(true); };
+      state.ws.onclose = () => { state.connected = false; updateConnectionStatus(false); setTimeout(initWebSocket, 3000); };
+      state.ws.onerror = () => { };
+      state.ws.onmessage = (e) => { try { handleWSMessage(JSON.parse(e.data)); } catch (err) { } };
+    }
 
-function handleWSMessage(msg) {
-  const { type, data } = msg;
-  const prov = document.getElementById('filter-provincia')?.value || '';
+    function handleWSMessage(msg) {
+      const { type, data } = msg;
+      const prov = document.getElementById('filter-provincia')?.value || '';
 
-  switch (type) {
-    case 'INITIAL_STATE':
-      if (data.estaciones) { state.rawData.estaciones = data.estaciones; renderEstaciones(data.estaciones, prov); }
-      if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
-      if (data.rutas) { state.rawData.rutas = data.rutas; renderRutas(data.rutas); }
-      if (data.gps) { state.rawData.gps = data.gps; renderGps(data.gps); updateGpsUI(data.gps); }
-      if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); }
-      if (data.metricas) updateMetricasUI(data.metricas);
-      countRecords(data);
-      break;
-    case 'UPDATE_ALERTAS':
-      if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
-      break;
-    case 'UPDATE_GPS': state.rawData.gps = data; renderGps(data); updateGpsUI(data); break;
-    case 'UPDATE_METRICAS': updateMetricasUI(data); break;
-    case 'UPDATE_FRONTERA': if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); } break;
-    case 'UPDATE_RUTAS': 
-      if (data.rutas) {
-        if (data.isPartial) {
-          // Merge features into state.rawData.rutas to keep synchronization
-          if (state.rawData.rutas?.features) {
-            data.rutas.features.forEach(nf => {
-              const idx = state.rawData.rutas.features.findIndex(f => f.properties.ruta_id === nf.properties.ruta_id);
-              if (idx !== -1) state.rawData.rutas.features[idx] = nf;
-              else state.rawData.rutas.features.push(nf);
-            });
+      switch (type) {
+        case 'INITIAL_STATE':
+          if (data.estaciones) { state.rawData.estaciones = data.estaciones; renderEstaciones(data.estaciones, prov); }
+          if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
+          if (data.rutas) { state.rawData.rutas = data.rutas; renderRutas(data.rutas); }
+          if (data.gps) { state.rawData.gps = data.gps; renderGps(data.gps); updateGpsUI(data.gps); }
+          if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); }
+          if (data.metricas) updateMetricasUI(data.metricas);
+          countRecords(data);
+          break;
+        case 'UPDATE_ALERTAS':
+          if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
+          break;
+        case 'UPDATE_GPS': state.rawData.gps = data; renderGps(data); updateGpsUI(data); break;
+        case 'UPDATE_METRICAS': updateMetricasUI(data); break;
+        case 'UPDATE_FRONTERA': if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); } break;
+        case 'UPDATE_RUTAS':
+          if (data.rutas) {
+            if (data.isPartial) {
+              // Merge features into state.rawData.rutas to keep synchronization
+              if (state.rawData.rutas?.features) {
+                data.rutas.features.forEach(nf => {
+                  const idx = state.rawData.rutas.features.findIndex(f => f.properties.ruta_id === nf.properties.ruta_id);
+                  if (idx !== -1) state.rawData.rutas.features[idx] = nf;
+                  else state.rawData.rutas.features.push(nf);
+                });
+              }
+            } else {
+              state.rawData.rutas = data.rutas;
+            }
+            renderRutas(data.isPartial ? data.rutas : state.rawData.rutas, data.isPartial);
+            if (data.progress) {
+              const { done, total } = data.progress;
+              const pct = Math.round((done / total) * 100);
+              const icon = done === total ? '✅' : '⏳';
+              document.getElementById('stat-registros').innerHTML = `Rutas: ${done}/${total} ${icon} (${pct}%)`;
+            }
           }
-        } else {
-          state.rawData.rutas = data.rutas;
+          break;
+        case 'FILTERED_ALERTAS': if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); } break;
+        case 'ESTACION_DETAIL': showEstacionDetail(data); break;
+      }
+    }
+
+    // ── FILTERS ─────────────────────────────────────────────────────────────────
+    function initFilters() {
+      document.querySelectorAll('.nivel-btn').forEach(btn => {
+        btn.addEventListener('click', () => { btn.classList.toggle('active'); applyFilters(); });
+      });
+      ['filter-perfil', 'filter-provincia', 'filter-producto'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', applyFilters);
+      });
+      document.querySelectorAll('.pilar-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          pill.classList.toggle('active');
+          const layer = pill.dataset.layer;
+          state.layers[layer] = pill.classList.contains('active');
+          toggleLayer(layer, state.layers[layer]);
+        });
+      });
+
+      fetch('/api/provincias').then(r => r.json()).then(d => {
+        if (d.provincias) { const s = document.getElementById('filter-provincia'); d.provincias.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; s.appendChild(o); }); }
+      }).catch(() => { });
+      fetch('/api/productos').then(r => r.json()).then(d => {
+        if (d.productos) { const s = document.getElementById('filter-producto'); d.productos.forEach(p => { const o = document.createElement('option'); o.value = p.producto_id; o.textContent = p.nombre_corto || p.nombre_producto; s.appendChild(o); }); }
+      }).catch(() => { });
+    }
+
+    let _filterTimeout = null;
+    function applyFilters() {
+      if (_filterTimeout) clearTimeout(_filterTimeout);
+      _filterTimeout = setTimeout(_applyFiltersNow, 120);
+    }
+    function _applyFiltersNow() {
+      const prov = document.getElementById('filter-provincia')?.value || '';
+      const niveles = [...document.querySelectorAll('.nivel-btn.active')].map(b => parseInt(b.dataset.nivel));
+
+      // Re-render map layers with province filter
+      if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones, prov);
+      if (state.rawData.alertas) { renderAlertas(state.rawData.alertas, prov); updateAlertasUI(state.rawData.alertas, prov); }
+
+      // Also send WS filter for server-side alert filtering
+      if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+        state.ws.send(JSON.stringify({
+          type: 'FILTER_ALERTAS', filters: {
+            nivel: niveles.length > 0 ? Math.min(...niveles) : 0,
+            perfil: document.getElementById('filter-perfil')?.value || undefined,
+            provincia: prov || undefined,
+            producto: document.getElementById('filter-producto')?.value || undefined,
+          }
+        }));
+      }
+
+      // Zoom to province if one selected
+      if (prov && state.rawData.estaciones) {
+        const provFeatures = state.rawData.estaciones.features.filter(f => f.properties.provincia === prov);
+        if (provFeatures.length > 0) {
+          const lats = provFeatures.map(f => f.geometry.coordinates[1]);
+          const lngs = provFeatures.map(f => f.geometry.coordinates[0]);
+          state.map.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [40, 40], maxZoom: 12, animate: true, duration: 0.8 });
         }
-        renderRutas(data.isPartial ? data.rutas : state.rawData.rutas, data.isPartial);
-        if (data.progress) {
-          const { done, total } = data.progress;
-          const pct = Math.round((done/total)*100);
-          const icon = done === total ? '✅' : '⏳';
-          document.getElementById('stat-registros').innerHTML = `Rutas: ${done}/${total} ${icon} (${pct}%)`;
+      } else {
+        state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
+      }
+    }
+
+    function toggleLayer(name, visible) {
+      const l = state.leafletLayers[name];
+      if (!l) return;
+      visible ? (state.map.hasLayer(l) || state.map.addLayer(l)) : state.map.removeLayer(l);
+    }
+
+    // ── UI UPDATES ──────────────────────────────────────────────────────────────
+    function updateConnectionStatus(c) {
+      document.getElementById('ws-status').className = `status-dot ${c ? 'connected' : 'disconnected'}`;
+      document.getElementById('ws-label').textContent = c ? 'Conectado' : 'Desconectado';
+    }
+
+    function updateMetricasUI(m) {
+      state.metricas = m; if (!m) return;
+      function smoothUpdate(id, newText) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.textContent !== newText && el.textContent !== '—') {
+          el.classList.add('updating');
+          el.closest('.metric-card')?.classList.add('pulse-update');
+          setTimeout(() => { el.textContent = newText; }, 150);
+          setTimeout(() => { el.classList.remove('updating'); }, 500);
+          setTimeout(() => { el.closest('.metric-card')?.classList.remove('pulse-update'); }, 800);
+        } else {
+          el.textContent = newText;
         }
       }
-      break;
-    case 'FILTERED_ALERTAS': if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); } break;
-    case 'ESTACION_DETAIL': showEstacionDetail(data); break;
-  }
-}
-
-// ── FILTERS ─────────────────────────────────────────────────────────────────
-function initFilters() {
-  document.querySelectorAll('.nivel-btn').forEach(btn => {
-    btn.addEventListener('click', () => { btn.classList.toggle('active'); applyFilters(); });
-  });
-  ['filter-perfil', 'filter-provincia', 'filter-producto'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', applyFilters);
-  });
-  document.querySelectorAll('.pilar-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      pill.classList.toggle('active');
-      const layer = pill.dataset.layer;
-      state.layers[layer] = pill.classList.contains('active');
-      toggleLayer(layer, state.layers[layer]);
-    });
-  });
-
-  fetch('/api/provincias').then(r => r.json()).then(d => {
-    if (d.provincias) { const s = document.getElementById('filter-provincia'); d.provincias.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; s.appendChild(o); }); }
-  }).catch(() => {});
-  fetch('/api/productos').then(r => r.json()).then(d => {
-    if (d.productos) { const s = document.getElementById('filter-producto'); d.productos.forEach(p => { const o = document.createElement('option'); o.value = p.producto_id; o.textContent = p.nombre_corto || p.nombre_producto; s.appendChild(o); }); }
-  }).catch(() => {});
-}
-
-let _filterTimeout = null;
-function applyFilters() {
-  if (_filterTimeout) clearTimeout(_filterTimeout);
-  _filterTimeout = setTimeout(_applyFiltersNow, 120);
-}
-function _applyFiltersNow() {
-  const prov = document.getElementById('filter-provincia')?.value || '';
-  const niveles = [...document.querySelectorAll('.nivel-btn.active')].map(b => parseInt(b.dataset.nivel));
-
-  // Re-render map layers with province filter
-  if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones, prov);
-  if (state.rawData.alertas) { renderAlertas(state.rawData.alertas, prov); updateAlertasUI(state.rawData.alertas, prov); }
-
-  // Also send WS filter for server-side alert filtering
-  if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-    state.ws.send(JSON.stringify({ type: 'FILTER_ALERTAS', filters: {
-      nivel: niveles.length > 0 ? Math.min(...niveles) : 0,
-      perfil: document.getElementById('filter-perfil')?.value || undefined,
-      provincia: prov || undefined,
-      producto: document.getElementById('filter-producto')?.value || undefined,
-    }}));
-  }
-
-  // Zoom to province if one selected
-  if (prov && state.rawData.estaciones) {
-    const provFeatures = state.rawData.estaciones.features.filter(f => f.properties.provincia === prov);
-    if (provFeatures.length > 0) {
-      const lats = provFeatures.map(f => f.geometry.coordinates[1]);
-      const lngs = provFeatures.map(f => f.geometry.coordinates[0]);
-      state.map.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [40, 40], maxZoom: 12, animate: true, duration: 0.8 });
+      if (m.mercado?.['M-01']) smoothUpdate('m-subsidio', formatMoney(m.mercado['M-01'].valor));
+      if (m.mercado?.['M-08']) smoothUpdate('m-ircf', parseFloat(m.mercado['M-08'].valor).toFixed(2));
+      if (m.mercado?.['M-04']) smoothUpdate('m-wti', (parseFloat(m.mercado['M-04'].valor) + 47.8).toFixed(1));
+      if (m.modulo2?.['M-17']) smoothUpdate('m-ibf', parseFloat(m.modulo2['M-17'].valor).toFixed(1) + '%');
+      if (m.fisica?.['M-47']) smoothUpdate('m-shrinkage', parseFloat(m.fisica['M-47'].valor).toFixed(2) + '%');
+      if (m.score?.['M-41']) { const n3 = m.score['M-41'].valor.find(a => a.nivel_alerta === 3); smoothUpdate('m-alertas-n3', n3 ? String(n3.total) : '0'); }
     }
-  } else {
-    state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
-  }
-}
 
-function toggleLayer(name, visible) {
-  const l = state.leafletLayers[name];
-  if (!l) return;
-  visible ? (state.map.hasLayer(l) || state.map.addLayer(l)) : state.map.removeLayer(l);
-}
-
-// ── UI UPDATES ──────────────────────────────────────────────────────────────
-function updateConnectionStatus(c) {
-  document.getElementById('ws-status').className = `status-dot ${c ? 'connected' : 'disconnected'}`;
-  document.getElementById('ws-label').textContent = c ? 'Conectado' : 'Desconectado';
-}
-
-function updateMetricasUI(m) {
-  state.metricas = m; if (!m) return;
-  function smoothUpdate(id, newText) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.textContent !== newText && el.textContent !== '—') {
-      el.classList.add('updating');
-      el.closest('.metric-card')?.classList.add('pulse-update');
-      setTimeout(() => { el.textContent = newText; }, 150);
-      setTimeout(() => { el.classList.remove('updating'); }, 500);
-      setTimeout(() => { el.closest('.metric-card')?.classList.remove('pulse-update'); }, 800);
-    } else {
-      el.textContent = newText;
-    }
-  }
-  if (m.mercado?.['M-01']) smoothUpdate('m-subsidio', formatMoney(m.mercado['M-01'].valor));
-  if (m.mercado?.['M-08']) smoothUpdate('m-ircf', parseFloat(m.mercado['M-08'].valor).toFixed(2));
-  if (m.mercado?.['M-04']) smoothUpdate('m-wti', (parseFloat(m.mercado['M-04'].valor) + 47.8).toFixed(1));
-  if (m.modulo2?.['M-17']) smoothUpdate('m-ibf', parseFloat(m.modulo2['M-17'].valor).toFixed(1) + '%');
-  if (m.fisica?.['M-47']) smoothUpdate('m-shrinkage', parseFloat(m.fisica['M-47'].valor).toFixed(2) + '%');
-  if (m.score?.['M-41']) { const n3 = m.score['M-41'].valor.find(a => a.nivel_alerta === 3); smoothUpdate('m-alertas-n3', n3 ? String(n3.total) : '0'); }
-}
-
-function updateAlertasUI(geojson, filterProvincia) {
-  const container = document.getElementById('alertas-list');
-  const allFeatures = geojson?.features || [];
-  const features = filterProvincia
-    ? allFeatures.filter(f => f.properties.provincia === filterProvincia)
-    : allFeatures;
-  document.getElementById('alertas-count').textContent = features.length;
-  if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin alertas activas</div>'; return; }
-  container.innerHTML = features.slice(0, 15).map((f, i) => {
-    const p = f.properties; const n = p.nivel_alerta; const [lng, lat] = f.geometry.coordinates;
-    return `<div class="alert-card nivel-${n} slide-in" style="--i:${i}" onclick="flyToAlert(${lat},${lng},'${p.estacion_id}')">
-      <div class="alert-header"><span class="alert-nivel n${n}">NIVEL ${n}</span><span class="alert-score n${n}">${parseFloat(p.score_compuesto||0).toFixed(2)}</span></div>
+    function updateAlertasUI(geojson, filterProvincia) {
+      const container = document.getElementById('alertas-list');
+      const allFeatures = geojson?.features || [];
+      const features = filterProvincia
+        ? allFeatures.filter(f => f.properties.provincia === filterProvincia)
+        : allFeatures;
+      document.getElementById('alertas-count').textContent = features.length;
+      if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin alertas activas</div>'; return; }
+      container.innerHTML = features.slice(0, 15).map((f, i) => {
+        const p = f.properties; const n = p.nivel_alerta; const [lng, lat] = f.geometry.coordinates;
+        return `<div class="alert-card nivel-${n} slide-in" style="--i:${i}" onclick="flyToAlert(${lat},${lng},'${p.estacion_id}')">
+      <div class="alert-header"><span class="alert-nivel n${n}">NIVEL ${n}</span><span class="alert-score n${n}">${parseFloat(p.score_compuesto || 0).toFixed(2)}</span></div>
       <div class="alert-perfil">${formatPerfil(p.perfil_fraude)}</div>
-      <div class="alert-location">📍 ${p.nombre||''} · ${p.provincia}</div></div>`;
-  }).join('');
-}
+      <div class="alert-location">📍 ${p.nombre || ''} · ${p.provincia}</div></div>`;
+      }).join('');
+    }
 
-function updateGpsUI(geojson) {
-  const container = document.getElementById('gps-list');
-  const features = geojson?.features || [];
-  document.getElementById('gps-count').textContent = features.length;
-  if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin cisternas activas</div>'; return; }
-  container.innerHTML = features.slice(0, 8).map((f, i) => {
-    const p = f.properties; const isWarn = p.riesgo === 'ALTO' || p.riesgo === 'CRITICO';
-    return `<div class="gps-item slide-in" style="--i:${i}"><div class="gps-icon ${isWarn?'warn':'ok'}">${isWarn?'⚠️':'🚛'}</div>
-      <div class="gps-info"><div class="gps-cisterna">${p.cisterna||'Cisterna'}</div><div class="gps-detail">${p.estacion||''} · ${p.producto||''}</div></div>
-      <div class="gps-progress">${p.progreso||0}%</div></div>`;
-  }).join('');
-}
+    function updateGpsUI(geojson) {
+      const container = document.getElementById('gps-list');
+      const features = geojson?.features || [];
+      document.getElementById('gps-count').textContent = features.length;
+      if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin cisternas activas</div>'; return; }
+      container.innerHTML = features.slice(0, 8).map((f, i) => {
+        const p = f.properties; const isWarn = p.riesgo === 'ALTO' || p.riesgo === 'CRITICO';
+        return `<div class="gps-item slide-in" style="--i:${i}"><div class="gps-icon ${isWarn ? 'warn' : 'ok'}">${isWarn ? '⚠️' : '🚛'}</div>
+      <div class="gps-info"><div class="gps-cisterna">${p.cisterna || 'Cisterna'}</div><div class="gps-detail">${p.estacion || ''} · ${p.producto || ''}</div></div>
+      <div class="gps-progress">${p.progreso || 0}%</div></div>`;
+      }).join('');
+    }
 
-function showEstacionDetail(data) {
-  const section = document.getElementById('detail-section');
-  const content = document.getElementById('detail-content');
-  section.classList.remove('hidden');
-  section.classList.add('visible');
-  section.style.display = 'flex';
-  const e = data.estacion; const b = data.balance?.[0]; const a = data.anomalias?.[0];
-  content.innerHTML = `<div class="detail-card scale-in" style="--i:0">
+    function showEstacionDetail(data) {
+      const section = document.getElementById('detail-section');
+      const content = document.getElementById('detail-content');
+      section.classList.remove('hidden');
+      section.classList.add('visible');
+      section.style.display = 'flex';
+      const e = data.estacion; const b = data.balance?.[0]; const a = data.anomalias?.[0];
+      content.innerHTML = `<div class="detail-card scale-in" style="--i:0">
     <div class="detail-header"><div><div class="detail-name">${e.nombre_establecimiento}</div><div class="detail-id">${e.estacion_id} · ${e.provincia}</div></div>
     <button class="detail-close" onclick="closeDetail()">✕</button></div>
     <div class="detail-grid">
-      <div class="detail-item scale-in" style="--i:1"><div class="di-label">Capacidad</div><div class="di-value">${parseInt(e.capacidad_galones_declarada||0).toLocaleString()} gal</div></div>
+      <div class="detail-item scale-in" style="--i:1"><div class="di-label">Capacidad</div><div class="di-value">${parseInt(e.capacidad_galones_declarada || 0).toLocaleString()} gal</div></div>
       <div class="detail-item scale-in" style="--i:2"><div class="di-label">Licencia</div><div class="di-value">${e.estado_licencia}</div></div>
-      <div class="detail-item scale-in" style="--i:3"><div class="di-label">Fronteriza</div><div class="di-value">${e.es_zona_fronteriza?'Sí':'No'}</div></div>
-      <div class="detail-item scale-in" style="--i:4"><div class="di-label">Propietario</div><div class="di-value">${e.propietario_nombre||'—'}</div></div>
-      ${b?`<div class="detail-item scale-in" style="--i:5"><div class="di-label">Shrinkage</div><div class="di-value">${(parseFloat(b.pct_shrinkage||0)*100).toFixed(2)}%</div></div>`:``}
-      ${a?`<div class="detail-item scale-in" style="--i:6"><div class="di-label">Z-Score</div><div class="di-value">${parseFloat(a.z_score_ajustado_fisico||0).toFixed(2)}</div></div>`:``}
+      <div class="detail-item scale-in" style="--i:3"><div class="di-label">Fronteriza</div><div class="di-value">${e.es_zona_fronteriza ? 'Sí' : 'No'}</div></div>
+      <div class="detail-item scale-in" style="--i:4"><div class="di-label">Propietario</div><div class="di-value">${e.propietario_nombre || '—'}</div></div>
+      ${b ? `<div class="detail-item scale-in" style="--i:5"><div class="di-label">Shrinkage</div><div class="di-value">${(parseFloat(b.pct_shrinkage || 0) * 100).toFixed(2)}%</div></div>` : ``}
+      ${a ? `<div class="detail-item scale-in" style="--i:6"><div class="di-label">Z-Score</div><div class="di-value">${parseFloat(a.z_score_ajustado_fisico || 0).toFixed(2)}</div></div>` : ``}
     </div></div>`;
-}
+    }
 
-// ── HELPERS ─────────────────────────────────────────────────────────────────
-function requestEstacionDetail(id) { if (state.ws?.readyState === WebSocket.OPEN) state.ws.send(JSON.stringify({ type: 'GET_ESTACION_DETAIL', filters: { estacion_id: id } })); }
-function flyToAlert(lat, lng, id) {
-  state.selectedEstacion = id;
-  state.map.flyTo([lat, lng], 13, { duration: 1.2, easeLinearity: 0.25 });
-  // Re-render to highlight selected station
-  const prov = document.getElementById('filter-provincia')?.value || '';
-  if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones, prov);
-  requestEstacionDetail(id);
-}
-function closeDetail() {
-  const section = document.getElementById('detail-section');
-  section.classList.remove('visible');
-  section.classList.add('hidden');
-  setTimeout(() => { section.style.display = 'none'; }, 400);
-}
-function formatPerfil(p) { return { 'CONTRABANDO_FRON': '🔴 Contrabando Fronterizo', 'DESVIO_FISCAL': '🟠 Desvío Fiscal', 'ADULTERACION': '🟡 Adulteración' }[p] || p || '—'; }
-function formatMoney(v) { const n = parseFloat(v); if (isNaN(n)) return '—'; if (n >= 1e9) return 'RD$ '+(n/1e9).toFixed(1)+'B'; if (n >= 1e6) return 'RD$ '+(n/1e6).toFixed(0)+'M'; if (n >= 1e3) return 'RD$ '+(n/1e3).toFixed(0)+'K'; return 'RD$ '+n.toFixed(0); }
-function countRecords(d) { let t = 0; ['estaciones','alertas','gps','rutas','frontera'].forEach(k => { if (d[k]?.features) t += d[k].features.length; }); document.getElementById('stat-registros').textContent = t.toLocaleString(); }
-function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-DO', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); }
+    // ── HELPERS ─────────────────────────────────────────────────────────────────
+    function requestEstacionDetail(id) { if (state.ws?.readyState === WebSocket.OPEN) state.ws.send(JSON.stringify({ type: 'GET_ESTACION_DETAIL', filters: { estacion_id: id } })); }
+    function flyToAlert(lat, lng, id) {
+      state.selectedEstacion = id;
+      state.map.flyTo([lat, lng], 13, { duration: 1.2, easeLinearity: 0.25 });
+      // Re-render to highlight selected station
+      const prov = document.getElementById('filter-provincia')?.value || '';
+      if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones, prov);
+      requestEstacionDetail(id);
+    }
+    function closeDetail() {
+      const section = document.getElementById('detail-section');
+      section.classList.remove('visible');
+      section.classList.add('hidden');
+      setTimeout(() => { section.style.display = 'none'; }, 400);
+    }
+    function formatPerfil(p) { return { 'CONTRABANDO_FRON': '🔴 Contrabando Fronterizo', 'DESVIO_FISCAL': '🟠 Desvío Fiscal', 'ADULTERACION': '🟡 Adulteración' }[p] || p || '—'; }
+    function formatMoney(v) { const n = parseFloat(v); if (isNaN(n)) return '—'; if (n >= 1e9) return 'RD$ ' + (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return 'RD$ ' + (n / 1e6).toFixed(0) + 'M'; if (n >= 1e3) return 'RD$ ' + (n / 1e3).toFixed(0) + 'K'; return 'RD$ ' + n.toFixed(0); }
+    function countRecords(d) { let t = 0;['estaciones', 'alertas', 'gps', 'rutas', 'frontera'].forEach(k => { if (d[k]?.features) t += d[k].features.length; }); document.getElementById('stat-registros').textContent = t.toLocaleString(); }
+    function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
 
-// ── PANEL TOGGLE ────────────────────────────────────────────────────────────
-function togglePanel() {
-  document.getElementById('app').classList.toggle('panel-collapsed');
-  setTimeout(() => state.map.invalidateSize({ animate: true }), 450);
-}
+    // ── PANEL TOGGLE ────────────────────────────────────────────────────────────
+    function togglePanel() {
+      document.getElementById('app').classList.toggle('panel-collapsed');
+      setTimeout(() => state.map.invalidateSize({ animate: true }), 450);
+    }
 
-// ── ANALYTICS MODAL ─────────────────────────────────────────────────────────
-const analyticsState = { page: 0, pageSize: 25, sortKey: 'score', sortDir: -1, searchTerm: '', filteredData: [] };
+    // ── ANALYTICS MODAL ─────────────────────────────────────────────────────────
+    const analyticsState = { page: 0, pageSize: 25, sortKey: 'score', sortDir: -1, searchTerm: '', filteredData: [] };
 
-function openAnalytics() {
-  const overlay = document.getElementById('analytics-overlay');
-  overlay.classList.add('open');
-  populateAnalytics();
-  document.addEventListener('keydown', analyticsEscHandler);
-}
-function closeAnalytics() {
-  document.getElementById('analytics-overlay').classList.remove('open');
-  document.removeEventListener('keydown', analyticsEscHandler);
-}
-function analyticsEscHandler(e) { if (e.key === 'Escape') closeAnalytics(); }
+    function openAnalytics() {
+      const overlay = document.getElementById('analytics-overlay');
+      overlay.classList.add('open');
+      populateAnalytics();
+      document.addEventListener('keydown', analyticsEscHandler);
+    }
+    function closeAnalytics() {
+      document.getElementById('analytics-overlay').classList.remove('open');
+      document.removeEventListener('keydown', analyticsEscHandler);
+    }
+    function analyticsEscHandler(e) { if (e.key === 'Escape') closeAnalytics(); }
 
-function switchAnalyticsTab(tab) {
-  document.querySelectorAll('.analytics-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.querySelectorAll('.analytics-tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
-  if (tab === 'volumen') renderVolumeTab();
-  if (tab === 'estadisticas') renderStatsTab();
-}
+    function switchAnalyticsTab(tab) {
+      document.querySelectorAll('.analytics-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.querySelectorAll('.analytics-tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
+      if (tab === 'volumen') renderVolumeTab();
+      if (tab === 'estadisticas') renderStatsTab();
+    }
 
-function populateAnalytics() {
-  // Stats summary
-  const estaciones = state.rawData.estaciones?.features || [];
-  const alertas = state.rawData.alertas?.features || [];
-  const rutas = state.rawData.rutas?.features || [];
+    function populateAnalytics() {
+      // Stats summary
+      const estaciones = state.rawData.estaciones?.features || [];
+      const alertas = state.rawData.alertas?.features || [];
+      const rutas = state.rawData.rutas?.features || [];
 
-  document.getElementById('as-total').textContent = estaciones.length.toLocaleString();
-  const n3Count = alertas.filter(f => f.properties.nivel_alerta === 3).length;
-  document.getElementById('as-criticas').textContent = n3Count;
-  document.getElementById('as-criticas-trend').innerHTML = `↑ ${n3Count} activas`;
+      document.getElementById('as-total').textContent = estaciones.length.toLocaleString();
+      const n3Count = alertas.filter(f => f.properties.nivel_alerta === 3).length;
+      document.getElementById('as-criticas').textContent = n3Count;
+      document.getElementById('as-criticas-trend').innerHTML = `↑ ${n3Count} activas`;
 
-  if (state.metricas) {
-    if (state.metricas.mercado?.['M-08']) document.getElementById('as-ircf').textContent = parseFloat(state.metricas.mercado['M-08'].valor).toFixed(2);
-    if (state.metricas.mercado?.['M-01']) document.getElementById('as-subsidio').textContent = formatMoney(state.metricas.mercado['M-01'].valor);
-  }
+      if (state.metricas) {
+        if (state.metricas.mercado?.['M-08']) document.getElementById('as-ircf').textContent = parseFloat(state.metricas.mercado['M-08'].valor).toFixed(2);
+        if (state.metricas.mercado?.['M-01']) document.getElementById('as-subsidio').textContent = formatMoney(state.metricas.mercado['M-01'].valor);
+      }
 
-  // Populate table
-  analyticsState.page = 0;
-  analyticsState.searchTerm = '';
-  document.getElementById('analytics-search').value = '';
-  buildAnalyticsTable();
+      // Populate table
+      analyticsState.page = 0;
+      analyticsState.searchTerm = '';
+      document.getElementById('analytics-search').value = '';
+      buildAnalyticsTable();
 
-  // Charts
-  renderProvinciaChart(alertas);
-  renderNivelesChart(alertas);
-}
+      // Charts
+      renderProvinciaChart(alertas);
+      renderNivelesChart(alertas);
+    }
 
-function buildAnalyticsTable() {
-  const alertas = state.rawData.alertas?.features || [];
-  let data = alertas.map(f => f.properties);
+    function buildAnalyticsTable() {
+      const alertas = state.rawData.alertas?.features || [];
+      let data = alertas.map(f => f.properties);
 
-  // Filter by search
-  if (analyticsState.searchTerm) {
-    const q = analyticsState.searchTerm.toLowerCase();
-    data = data.filter(p =>
-      (p.nombre || '').toLowerCase().includes(q) ||
-      (p.provincia || '').toLowerCase().includes(q) ||
-      (p.perfil_fraude || '').toLowerCase().includes(q) ||
-      (p.estacion_id || '').toLowerCase().includes(q)
-    );
-  }
+      // Filter by search
+      if (analyticsState.searchTerm) {
+        const q = analyticsState.searchTerm.toLowerCase();
+        data = data.filter(p =>
+          (p.nombre || '').toLowerCase().includes(q) ||
+          (p.provincia || '').toLowerCase().includes(q) ||
+          (p.perfil_fraude || '').toLowerCase().includes(q) ||
+          (p.estacion_id || '').toLowerCase().includes(q)
+        );
+      }
 
-  // Sort
-  const key = analyticsState.sortKey;
-  const dir = analyticsState.sortDir;
-  data.sort((a, b) => {
-    let va, vb;
-    if (key === 'nombre') { va = a.nombre || ''; vb = b.nombre || ''; }
-    else if (key === 'provincia') { va = a.provincia || ''; vb = b.provincia || ''; }
-    else if (key === 'nivel') { va = a.nivel_alerta || 0; vb = b.nivel_alerta || 0; }
-    else if (key === 'score') { va = parseFloat(a.score_compuesto || 0); vb = parseFloat(b.score_compuesto || 0); }
-    else if (key === 'perfil') { va = a.perfil_fraude || ''; vb = b.perfil_fraude || ''; }
-    else { va = a[key] || ''; vb = b[key] || ''; }
-    if (typeof va === 'string') return dir * va.localeCompare(vb);
-    return dir * (va - vb);
-  });
+      // Sort
+      const key = analyticsState.sortKey;
+      const dir = analyticsState.sortDir;
+      data.sort((a, b) => {
+        let va, vb;
+        if (key === 'nombre') { va = a.nombre || ''; vb = b.nombre || ''; }
+        else if (key === 'provincia') { va = a.provincia || ''; vb = b.provincia || ''; }
+        else if (key === 'nivel') { va = a.nivel_alerta || 0; vb = b.nivel_alerta || 0; }
+        else if (key === 'score') { va = parseFloat(a.score_compuesto || 0); vb = parseFloat(b.score_compuesto || 0); }
+        else if (key === 'perfil') { va = a.perfil_fraude || ''; vb = b.perfil_fraude || ''; }
+        else { va = a[key] || ''; vb = b[key] || ''; }
+        if (typeof va === 'string') return dir * va.localeCompare(vb);
+        return dir * (va - vb);
+      });
 
-  analyticsState.filteredData = data;
-  const totalPages = Math.ceil(data.length / analyticsState.pageSize);
-  const start = analyticsState.page * analyticsState.pageSize;
-  const pageData = data.slice(start, start + analyticsState.pageSize);
+      analyticsState.filteredData = data;
+      const totalPages = Math.ceil(data.length / analyticsState.pageSize);
+      const start = analyticsState.page * analyticsState.pageSize;
+      const pageData = data.slice(start, start + analyticsState.pageSize);
 
-  const tbody = document.getElementById('analytics-tbody');
-  tbody.innerHTML = pageData.map((p, i) => `
+      const tbody = document.getElementById('analytics-tbody');
+      tbody.innerHTML = pageData.map((p, i) => `
     <tr class="slide-in" style="--i:${Math.min(i, 10)}">
       <td>${p.nombre || p.estacion_id || '—'}</td>
       <td>${p.provincia || '—'}</td>
@@ -1347,87 +2479,87 @@ function buildAnalyticsTable() {
     </tr>
   `).join('');
 
-  document.getElementById('table-page-info').textContent = `${start+1}–${Math.min(start + analyticsState.pageSize, data.length)} de ${data.length} registros`;
-  document.getElementById('table-prev').disabled = analyticsState.page <= 0;
-  document.getElementById('table-next').disabled = analyticsState.page >= totalPages - 1;
-}
+      document.getElementById('table-page-info').textContent = `${start + 1}–${Math.min(start + analyticsState.pageSize, data.length)} de ${data.length} registros`;
+      document.getElementById('table-prev').disabled = analyticsState.page <= 0;
+      document.getElementById('table-next').disabled = analyticsState.page >= totalPages - 1;
+    }
 
-function filterAnalyticsTable(val) {
-  analyticsState.searchTerm = val;
-  analyticsState.page = 0;
-  buildAnalyticsTable();
-}
+    function filterAnalyticsTable(val) {
+      analyticsState.searchTerm = val;
+      analyticsState.page = 0;
+      buildAnalyticsTable();
+    }
 
-function sortAnalyticsTable(key) {
-  if (analyticsState.sortKey === key) analyticsState.sortDir *= -1;
-  else { analyticsState.sortKey = key; analyticsState.sortDir = -1; }
-  buildAnalyticsTable();
-}
+    function sortAnalyticsTable(key) {
+      if (analyticsState.sortKey === key) analyticsState.sortDir *= -1;
+      else { analyticsState.sortKey = key; analyticsState.sortDir = -1; }
+      buildAnalyticsTable();
+    }
 
-function analyticsPageChange(delta) {
-  analyticsState.page += delta;
-  buildAnalyticsTable();
-}
+    function analyticsPageChange(delta) {
+      analyticsState.page += delta;
+      buildAnalyticsTable();
+    }
 
-// ── CHARTS ──────────────────────────────────────────────────────────────────
-function renderProvinciaChart(alertas) {
-  const counts = {};
-  alertas.forEach(f => {
-    const p = f.properties.provincia || 'Sin provincia';
-    counts[p] = (counts[p] || 0) + 1;
-  });
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
-  const max = sorted.length > 0 ? sorted[0][1] : 1;
-  const container = document.getElementById('chart-provincias');
-  container.innerHTML = sorted.map(([prov, count], i) => {
-    const hue = 210 + (i * 15);
-    const pct = (count / max) * 100;
-    return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${count}">
+    // ── CHARTS ──────────────────────────────────────────────────────────────────
+    function renderProvinciaChart(alertas) {
+      const counts = {};
+      alertas.forEach(f => {
+        const p = f.properties.provincia || 'Sin provincia';
+        counts[p] = (counts[p] || 0) + 1;
+      });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+      const max = sorted.length > 0 ? sorted[0][1] : 1;
+      const container = document.getElementById('chart-provincias');
+      container.innerHTML = sorted.map(([prov, count], i) => {
+        const hue = 210 + (i * 15);
+        const pct = (count / max) * 100;
+        return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${count}">
       <span class="chart-bar-label">${prov.slice(0, 6)}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function renderNivelesChart(alertas) {
-  const counts = { 0: 0, 1: 0, 2: 0, 3: 0 };
-  alertas.forEach(f => { const n = f.properties.nivel_alerta; counts[n] = (counts[n] || 0) + 1; });
-  const max = Math.max(...Object.values(counts), 1);
-  const labels = { 0: 'Normal', 1: 'Info', 2: 'Sospech.', 3: 'Crítico' };
-  const container = document.getElementById('chart-niveles');
-  container.innerHTML = [0, 1, 2, 3].map(n => {
-    const pct = (counts[n] / max) * 100;
-    const color = ALERT_COLORS[n];
-    return `<div class="chart-bar" style="height:${pct}%;background:${color}" title="${labels[n]}: ${counts[n]}">
+    function renderNivelesChart(alertas) {
+      const counts = { 0: 0, 1: 0, 2: 0, 3: 0 };
+      alertas.forEach(f => { const n = f.properties.nivel_alerta; counts[n] = (counts[n] || 0) + 1; });
+      const max = Math.max(...Object.values(counts), 1);
+      const labels = { 0: 'Normal', 1: 'Info', 2: 'Sospech.', 3: 'Crítico' };
+      const container = document.getElementById('chart-niveles');
+      container.innerHTML = [0, 1, 2, 3].map(n => {
+        const pct = (counts[n] / max) * 100;
+        const color = ALERT_COLORS[n];
+        return `<div class="chart-bar" style="height:${pct}%;background:${color}" title="${labels[n]}: ${counts[n]}">
       <span class="chart-bar-label">${labels[n]}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function renderVolumeTab() {
-  const estaciones = state.rawData.estaciones?.features || [];
-  const grid = document.getElementById('volume-grid');
+    function renderVolumeTab() {
+      const estaciones = state.rawData.estaciones?.features || [];
+      const grid = document.getElementById('volume-grid');
 
-  // Group by tipo
-  const byTipo = {};
-  estaciones.forEach(f => {
-    const tipo = f.properties.tipo || 'OTRO';
-    if (!byTipo[tipo]) byTipo[tipo] = { count: 0, totalCap: 0 };
-    byTipo[tipo].count++;
-    byTipo[tipo].totalCap += parseInt(f.properties.capacidad || 0);
-  });
+      // Group by tipo
+      const byTipo = {};
+      estaciones.forEach(f => {
+        const tipo = f.properties.tipo || 'OTRO';
+        if (!byTipo[tipo]) byTipo[tipo] = { count: 0, totalCap: 0 };
+        byTipo[tipo].count++;
+        byTipo[tipo].totalCap += parseInt(f.properties.capacidad || 0);
+      });
 
-  // Group by top provinces by capacity
-  const byProv = {};
-  estaciones.forEach(f => {
-    const prov = f.properties.provincia || 'Sin provincia';
-    if (!byProv[prov]) byProv[prov] = { count: 0, totalCap: 0 };
-    byProv[prov].count++;
-    byProv[prov].totalCap += parseInt(f.properties.capacidad || 0);
-  });
-  const topProvs = Object.entries(byProv).sort((a, b) => b[1].totalCap - a[1].totalCap).slice(0, 6);
-  const maxCap = topProvs.length > 0 ? topProvs[0][1].totalCap : 1;
+      // Group by top provinces by capacity
+      const byProv = {};
+      estaciones.forEach(f => {
+        const prov = f.properties.provincia || 'Sin provincia';
+        if (!byProv[prov]) byProv[prov] = { count: 0, totalCap: 0 };
+        byProv[prov].count++;
+        byProv[prov].totalCap += parseInt(f.properties.capacidad || 0);
+      });
+      const topProvs = Object.entries(byProv).sort((a, b) => b[1].totalCap - a[1].totalCap).slice(0, 6);
+      const maxCap = topProvs.length > 0 ? topProvs[0][1].totalCap : 1;
 
-  grid.innerHTML = `
+      grid.innerHTML = `
     <div class="volume-card scale-in" style="--i:0">
       <div class="volume-card-title">⛽ Distribución por Tipo</div>
       ${Object.entries(byTipo).map(([tipo, d]) => `
@@ -1451,104 +2583,105 @@ function renderVolumeTab() {
     </div>
   `;
 
-  // Product/shrinkage charts
-  renderProductChart(estaciones);
-  renderShrinkageChart(estaciones);
-}
+      // Product/shrinkage charts
+      renderProductChart(estaciones);
+      renderShrinkageChart(estaciones);
+    }
 
-function renderProductChart(estaciones) {
-  const container = document.getElementById('chart-productos');
-  const byTipo = {};
-  estaciones.forEach(f => {
-    const t = f.properties.tipo || 'OTRO';
-    byTipo[t] = (byTipo[t] || 0) + 1;
-  });
-  const entries = Object.entries(byTipo).sort((a, b) => b[1] - a[1]);
-  const max = entries.length > 0 ? entries[0][1] : 1;
-  const colors = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
-  container.innerHTML = entries.map(([tipo, count]) => {
-    const pct = (count / max) * 100;
-    return `<div class="chart-bar" style="height:${pct}%;background:${colors[tipo] || '#58a6ff'}" title="${tipo}: ${count}">
+    function renderProductChart(estaciones) {
+      const container = document.getElementById('chart-productos');
+      const byTipo = {};
+      estaciones.forEach(f => {
+        const t = f.properties.tipo || 'OTRO';
+        byTipo[t] = (byTipo[t] || 0) + 1;
+      });
+      const entries = Object.entries(byTipo).sort((a, b) => b[1] - a[1]);
+      const max = entries.length > 0 ? entries[0][1] : 1;
+      const colors = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
+      container.innerHTML = entries.map(([tipo, count]) => {
+        const pct = (count / max) * 100;
+        return `<div class="chart-bar" style="height:${pct}%;background:${colors[tipo] || '#58a6ff'}" title="${tipo}: ${count}">
       <span class="chart-bar-label">${tipo === 'ESTACION_SERVICIO' ? 'Estación' : tipo === 'ENVASADORA' ? 'Envasad.' : tipo}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function renderShrinkageChart(estaciones) {
-  const container = document.getElementById('chart-shrinkage');
-  const byProv = {};
-  estaciones.forEach(f => {
-    const prov = f.properties.provincia || 'Sin prov.';
-    if (!byProv[prov]) byProv[prov] = { total: 0, count: 0 };
-    byProv[prov].total += parseFloat(f.properties.z_score || 0);
-    byProv[prov].count++;
-  });
-  const entries = Object.entries(byProv)
-    .map(([p, d]) => [p, Math.abs(d.total / d.count)])
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10);
-  const max = entries.length > 0 ? entries[0][1] : 1;
-  container.innerHTML = entries.map(([prov, val], i) => {
-    const pct = (val / max) * 100;
-    const hue = 0 + (i * 12);
-    return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${val.toFixed(2)}">
+    function renderShrinkageChart(estaciones) {
+      const container = document.getElementById('chart-shrinkage');
+      const byProv = {};
+      estaciones.forEach(f => {
+        const prov = f.properties.provincia || 'Sin prov.';
+        if (!byProv[prov]) byProv[prov] = { total: 0, count: 0 };
+        byProv[prov].total += parseFloat(f.properties.z_score || 0);
+        byProv[prov].count++;
+      });
+      const entries = Object.entries(byProv)
+        .map(([p, d]) => [p, Math.abs(d.total / d.count)])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+      const max = entries.length > 0 ? entries[0][1] : 1;
+      container.innerHTML = entries.map(([prov, val], i) => {
+        const pct = (val / max) * 100;
+        const hue = 0 + (i * 12);
+        return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${val.toFixed(2)}">
       <span class="chart-bar-label">${prov.slice(0, 5)}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function renderStatsTab() {
-  if (state.metricas) {
-    if (state.metricas.modulo2?.['M-17']) document.getElementById('as-ibf').textContent = parseFloat(state.metricas.modulo2['M-17'].valor).toFixed(1) + '%';
-    if (state.metricas.mercado?.['M-04']) document.getElementById('as-wti').textContent = (parseFloat(state.metricas.mercado['M-04'].valor) + 47.8).toFixed(1);
-    if (state.metricas.fisica?.['M-47']) document.getElementById('as-shrinkage').textContent = parseFloat(state.metricas.fisica['M-47'].valor).toFixed(2) + '%';
-  }
-  document.getElementById('as-rutas').textContent = (state.rawData.rutas?.features || []).length.toLocaleString();
+    function renderStatsTab() {
+      if (state.metricas) {
+        if (state.metricas.modulo2?.['M-17']) document.getElementById('as-ibf').textContent = parseFloat(state.metricas.modulo2['M-17'].valor).toFixed(1) + '%';
+        if (state.metricas.mercado?.['M-04']) document.getElementById('as-wti').textContent = (parseFloat(state.metricas.mercado['M-04'].valor) + 47.8).toFixed(1);
+        if (state.metricas.fisica?.['M-47']) document.getElementById('as-shrinkage').textContent = parseFloat(state.metricas.fisica['M-47'].valor).toFixed(2) + '%';
+      }
+      document.getElementById('as-rutas').textContent = (state.rawData.rutas?.features || []).length.toLocaleString();
 
-  // Subsidio history chart
-  renderSubsidioHistChart();
-  // Perfiles chart
-  renderPerfilesChart();
-}
+      // Subsidio history chart
+      renderSubsidioHistChart();
+      // Perfiles chart
+      renderPerfilesChart();
+    }
 
-function renderSubsidioHistChart() {
-  const container = document.getElementById('chart-subsidio-hist');
-  // Simulate weekly data from metrics
-  const weeks = ['S48', 'S49', 'S50', 'S51', 'S52', 'S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07'];
-  const base = state.metricas?.mercado?.['M-01']?.valor ? parseFloat(state.metricas.mercado['M-01'].valor) : 900000000;
-  const data = weeks.map((w, i) => ({ week: w, val: base * (0.85 + Math.random() * 0.3) }));
-  const max = Math.max(...data.map(d => d.val));
-  container.innerHTML = data.map((d, i) => {
-    const pct = (d.val / max) * 100;
-    return `<div class="chart-bar" style="height:${pct}%;background:linear-gradient(to top, #58a6ff, #3fb950)" title="${d.week}: ${formatMoney(d.val)}">
+    function renderSubsidioHistChart() {
+      const container = document.getElementById('chart-subsidio-hist');
+      // Simulate weekly data from metrics
+      const weeks = ['S48', 'S49', 'S50', 'S51', 'S52', 'S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07'];
+      const base = state.metricas?.mercado?.['M-01']?.valor ? parseFloat(state.metricas.mercado['M-01'].valor) : 900000000;
+      const data = weeks.map((w, i) => ({ week: w, val: base * (0.85 + Math.random() * 0.3) }));
+      const max = Math.max(...data.map(d => d.val));
+      container.innerHTML = data.map((d, i) => {
+        const pct = (d.val / max) * 100;
+        return `<div class="chart-bar" style="height:${pct}%;background:linear-gradient(to top, #58a6ff, #3fb950)" title="${d.week}: ${formatMoney(d.val)}">
       <span class="chart-bar-label">${d.week}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function renderPerfilesChart() {
-  const container = document.getElementById('chart-perfiles');
-  const alertas = state.rawData.alertas?.features || [];
-  const counts = {};
-  alertas.forEach(f => { const p = f.properties.perfil_fraude || 'OTROS'; counts[p] = (counts[p] || 0) + 1; });
-  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const max = entries.length > 0 ? entries[0][1] : 1;
-  const colors = { 'CONTRABANDO_FRON': '#f85149', 'DESVIO_FISCAL': '#d29922', 'ADULTERACION': '#58a6ff' };
-  container.innerHTML = entries.map(([perfil, count]) => {
-    const pct = (count / max) * 100;
-    const label = perfil === 'CONTRABANDO_FRON' ? 'Contrab.' : perfil === 'DESVIO_FISCAL' ? 'Desvío' : perfil === 'ADULTERACION' ? 'Adulter.' : perfil;
-    return `<div class="chart-bar" style="height:${pct}%;background:${colors[perfil] || '#6e7681'}" title="${perfil}: ${count}">
+    function renderPerfilesChart() {
+      const container = document.getElementById('chart-perfiles');
+      const alertas = state.rawData.alertas?.features || [];
+      const counts = {};
+      alertas.forEach(f => { const p = f.properties.perfil_fraude || 'OTROS'; counts[p] = (counts[p] || 0) + 1; });
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const max = entries.length > 0 ? entries[0][1] : 1;
+      const colors = { 'CONTRABANDO_FRON': '#f85149', 'DESVIO_FISCAL': '#d29922', 'ADULTERACION': '#58a6ff' };
+      container.innerHTML = entries.map(([perfil, count]) => {
+        const pct = (count / max) * 100;
+        const label = perfil === 'CONTRABANDO_FRON' ? 'Contrab.' : perfil === 'DESVIO_FISCAL' ? 'Desvío' : perfil === 'ADULTERACION' ? 'Adulter.' : perfil;
+        return `<div class="chart-bar" style="height:${pct}%;background:${colors[perfil] || '#6e7681'}" title="${perfil}: ${count}">
       <span class="chart-bar-label">${label}</span>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-// Close analytics when clicking overlay background
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('analytics-overlay')) closeAnalytics();
-});
+    // Close analytics when clicking overlay background
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('analytics-overlay')) closeAnalytics();
+    });
 
-window.addEventListener('DOMContentLoaded', init);
-</script>
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
+
 </html>
