@@ -1,0 +1,30 @@
+=== Duplicate Coordinates (synthetic indicator) ===
+
+=== Random Sample (check precision/realism) ===
+  Elías Piña/Comendador: lat=18.943050 lon=-71.736200 (Envasadora Santa Teresa)
+  Santo Domingo/Santo Domingo Oeste: lat=18.531090 lon=-70.110590 (Tropigas Km 12)
+  Espaillat/Moca: lat=19.339110 lon=-70.408990 (Estación de servicios EL HIGUERITO ESHSRL)
+  San Juan/Las Matas de Farfán: lat=18.774580 lon=-71.440780 (Estación de servicios Juan De Dios)
+  San Cristóbal/Villa Altagracia: lat=18.773570 lon=-70.088560 (Propagas Villa Altagracia)
+  Monseñor Nouel/Bonao: lat=18.942990 lon=-70.336010 (Envasadora Credigas Bonao)
+  Santiago/Santiago de los Caballeros: lat=19.564560 lon=-70.594670 (Propagas Nibaje)
+  Santiago/Santiago de los Caballeros: lat=19.432750 lon=-70.781110 (Estación Texaco La Antillana)
+  Azua/Sabana Yegua: lat=18.625650 lon=-70.666650 (ESTACIÓN de servicios VLADIMIR)
+  El Seibo/El Seibo: lat=18.877500 lon=-68.927510 (Sunix El Seibo)
+  La Vega/La Vega: lat=19.286850 lon=-70.445840 (PetromóvilLa VegaGRANADA)
+  San Pedro de Macorís/Juan Dolio: lat=18.432780 lon=-69.380900 (Estación De Servicios Eco Autovía Del Este)
+  Santo Domingo/Santo Domingo Oeste: lat=18.569080 lon=-69.969990 (TotalEnergies San Miguel)
+  Azua/Azua: lat=18.528330 lon=-70.748710 (Agramonte Gas)
+  La Vega/Jarabacoa: lat=19.126950 lon=-70.738960 (GAS ESCALANTE SRL)
+
+=== Province Coordinate Spread ===
+  Santo Domingo (377): lat[18.360-18.703] lon[-70.204--69.484] spread: 0.343x0.720
+  Santiago (251): lat[19.227-19.611] lon[-70.922--70.484] spread: 0.384x0.437
+  Distrito Nacional (139): lat[18.368-18.606] lon[-70.047--69.815] spread: 0.238x0.232
+  La Vega (110): lat[18.806-19.339] lon[-70.810--70.335] spread: 0.533x0.475
+  San Cristóbal (108): lat[18.235-18.774] lon[-70.288--69.932] spread: 0.539x0.355
+  La Altagracia (77): lat[18.343-18.740] lon[-68.826--68.577] spread: 0.397x0.249
+  Puerto Plata (75): lat[19.564-19.986] lon[-71.159--70.407] spread: 0.422x0.752
+  Duarte (70): lat[19.017-19.409] lon[-70.363--69.838] spread: 0.391x0.525
+  Espaillat (58): lat[19.279-19.693] lon[-70.641--70.162] spread: 0.414x0.479
+  San Pedro de Macorís (56): lat[18.319-18.694] lon[-69.603--69.139] spread: 0.375x0.464

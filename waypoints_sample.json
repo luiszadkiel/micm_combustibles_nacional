@@ -1,0 +1,74 @@
+[
+  {
+    "estacion_id": "EST-0001",
+    "waypoints_json": [
+      {
+        "lat": 18.415,
+        "lon": -70.02,
+        "nodo": "HAINA",
+        "tipo": "ORIGEN",
+        "orden": 1
+      },
+      {
+        "lat": 18.57,
+        "lon": -69.92,
+        "nodo": "SD_NORTE",
+        "tipo": "NODO_INTERMEDIO",
+        "orden": 2
+      },
+      {
+        "nodo": "EST-0001",
+        "tipo": "DESTINO",
+        "orden": 3
+      }
+    ]
+  },
+  {
+    "estacion_id": "EST-0002",
+    "waypoints_json": [
+      {
+        "lat": 18.415,
+        "lon": -70.02,
+        "nodo": "HAINA",
+        "tipo": "ORIGEN",
+        "orden": 1
+      },
+      {
+        "lat": 19.8,
+        "lon": -70.688,
+        "nodo": "PUERTO_PLATA",
+        "tipo": "NODO_INTERMEDIO",
+        "orden": 2
+      },
+      {
+        "nodo": "EST-0002",
+        "tipo": "DESTINO",
+        "orden": 3
+      }
+    ]
+  },
+  {
+    "estacion_id": "EST-0003",
+    "waypoints_json": [
+      {
+        "lat": 18.415,
+        "lon": -70.02,
+        "nodo": "HAINA",
+        "tipo": "ORIGEN",
+        "orden": 1
+      },
+      {
+        "lat": 18.57,
+        "lon": -69.92,
+        "nodo": "SD_NORTE",
+        "tipo": "NODO_INTERMEDIO",
+        "orden": 2
+      },
+      {
+        "nodo": "EST-0003",
+        "tipo": "DESTINO",
+        "orden": 3
+      }
+    ]
+  }
+]

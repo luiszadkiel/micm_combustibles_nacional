@@ -1,0 +1,142 @@
+--- v_mapa_calor_municipio ---
+ SELECT g.municipio,
+    g.provincia,
+    g.geo_id,
+    g.lat,
+    g.lon,
+    g.es_frontera_haiti,
+    count(DISTINCT e.estacion_id) AS estaciones,
+    round(avg(re.pct_perdida_esperada), 4) AS pct_evap_promedio,
+    round(avg(re.temperatura_media_c), 1) AS temp_media_c,
+    round(avg(a.z_score_ajustado_fisico), 4) AS z_score_promedio,
+    count(a.anomalia_id) FILTER (WHERE a.nivel_alerta >= 2) AS alertas_activas,
+    round(sum(rf.vol_despachado_gal), 0) AS vol_total_frontera_gal,
+    round(avg(rf.ircf), 4) AS ircf_promedio,
+        CASE
+            WHEN avg(a.z_score_ajustado_fisico) > 3::numeric OR avg(rf.ircf) > 0.45 THEN 5
+            WHEN avg(a.z_score_ajustado_fisico) > 2::numeric OR avg(rf.ircf) > 0.35 THEN 4
+            WHEN avg(a.z_score_ajustado_fisico) > 1.5 THEN 3
+            WHEN avg(a.z_score_ajustado_fisico) > 1::numeric THEN 2
+            ELSE 1
+        END AS escala_riesgo_1a5
+   FROM dim_geografia g
+     JOIN dim_estacion e ON e.geo_id::text = g.geo_id::text
+     LEFT JOIN fact_ruta_evaporacion re ON re.estacion_id::text = e.estacion_id::text
+     LEFT JOIN fact_anomalias_volumen a ON a.estacion_id::text = e.estacion_id::text
+     LEFT JOIN fact_riesgo_fronterizo rf ON rf.geo_id::text = g.geo_id::text
+  WHERE g.nivel::text = 'Municipio'::text
+  GROUP BY g.municipio, g.provincia, g.geo_id, g.lat, g.lon, g.es_frontera_haiti
+  ORDER BY (
+        CASE
+            WHEN avg(a.z_score_ajustado_fisico) > 3::numeric OR avg(rf.ircf) > 0.45 THEN 5
+            WHEN avg(a.z_score_ajustado_fisico) > 2::numeric OR avg(rf.ircf) > 0.35 THEN 4
+            WHEN avg(a.z_score_ajustado_fisico) > 1.5 THEN 3
+            WHEN avg(a.z_score_ajustado_fisico) > 1::numeric THEN 2
+            ELSE 1
+        END) DESC;
+--- v_gps_temperatura_evaporacion ---
+ SELECT d.despacho_id,
+    d.numero_cisterna,
+    d.fecha_despacho,
+    d.hora_despacho,
+    d.estacion_id,
+    e.nombre_establecimiento,
+    e.provincia,
+    e.es_zona_fronteriza,
+    d.producto_id,
+    d.volumen_despachado_gal,
+    re.temperatura_media_c,
+    re.temperatura_max_c,
+    re.delta_t,
+    re.zona_climatica,
+    re.ruta_nombre,
+    re.distancia_total_km,
+    re.tiempo_transporte_hrs,
+    re.evap_transporte_gal AS evap_esperada_gal,
+    re.perdida_legitima_gal,
+    re.pct_perdida_esperada,
+    re.nivel_riesgo_evap,
+    b.evap_transporte_gal AS evap_real_medida_gal,
+    b.pct_shrinkage AS pct_perdida_real,
+        CASE
+            WHEN b.pct_shrinkage > (re.pct_perdida_esperada * 2::numeric) THEN '🚨 PÉRDIDA NO EXPLICADA POR TEMPERATURA'::text
+            WHEN b.pct_shrinkage > (re.pct_perdida_esperada * 1.5) THEN '⚠️ PÉRDIDA ELEVADA - REVISAR'::text
+            ELSE '✅ DENTRO DE RANGO FÍSICO'::text
+        END AS alerta_evaporacion
+   FROM fact_despacho_volumen d
+     JOIN dim_estacion e ON e.estacion_id::text = d.estacion_id::text
+     JOIN fact_ruta_evaporacion re ON re.estacion_id::text = d.estacion_id::text AND re.producto_id::text = d.producto_id::text AND re.mes::numeric = EXTRACT(month FROM d.fecha_despacho)
+     LEFT JOIN fact_balance_fisico b ON b.estacion_id::text = d.estacion_id::text AND b.producto_id::text = d.producto_id::text AND b.periodo_inicio = d.fecha_despacho;
+--- EXPLAIN v_mapa_calor_municipio ---
+Subquery Scan on v_mapa_calor_municipio  (cost=665343.62..665345.61 rows=159 width=194) (actual time=10138.864..10138.943 rows=126 loops=1)
+  ->  Sort  (cost=665343.62..665344.02 rows=159 width=226) (actual time=10138.861..10138.882 rows=126 loops=1)
+        Sort Key: (CASE WHEN ((avg(a.z_score_ajustado_fisico) > '3'::numeric) OR (avg(rf.ircf) > 0.45)) THEN 5 WHEN ((avg(a.z_score_ajustado_fisico) > '2'::numeric) OR (avg(rf.ircf) > 0.35)) THEN 4 WHEN (avg(a.z_score_ajustado_fisico) > 1.5) THEN 3 WHEN (avg(a.z_score_ajustado_fisico) > '1'::numeric) THEN 2 ELSE 1 END) DESC
+        Sort Method: quicksort  Memory: 44kB
+        ->  GroupAggregate  (cost=342867.44..665337.81 rows=159 width=226) (actual time=3506.109..10138.395 rows=126 loops=1)
+              Group Key: g.geo_id
+              ->  Merge Left Join  (cost=342867.44..485629.79 rows=8985043 width=89) (actual time=3505.921..6595.691 rows=1548864 loops=1)
+                    Merge Cond: ((g.geo_id)::text = (rf.geo_id)::text)
+                    ->  Sort  (cost=342784.23..346777.58 rows=1597341 width=84) (actual time=3503.807..4901.930 rows=1548864 loops=1)
+                          Sort Key: g.geo_id
+                          Sort Method: external merge  Disk: 158160kB
+                          ->  Hash Right Join  (cost=3231.54..25327.27 rows=1597341 width=84) (actual time=76.259..528.933 rows=1548864 loops=1)
+                                Hash Cond: ((a.estacion_id)::text = (e.estacion_id)::text)
+                                ->  Seq Scan on fact_anomalias_volumen a  (cost=0.00..2364.76 rows=77376 width=26) (actual time=0.026..26.918 rows=77376 loops=1)
+                                ->  Hash  (cost=2250.77..2250.77 rows=40462 width=67) (actual time=75.526..75.534 rows=35112 loops=1)
+                                      Buckets: 65536  Batches: 2  Memory Usage: 2333kB
+                                      ->  Hash Join  (cost=128.49..2250.77 rows=40462 width=67) (actual time=2.073..55.986 rows=35112 loops=1)
+                                            Hash Cond: ((e.geo_id)::text = (g.geo_id)::text)
+                                            ->  Hash Right Join  (cost=119.10..2110.29 rows=48864 width=29) (actual time=1.791..41.708 rows=48864 loops=1)
+                                                  Hash Cond: ((re.estacion_id)::text = (e.estacion_id)::text)
+                                                  ->  Seq Scan on fact_ruta_evaporacion re  (cost=0.00..1862.64 rows=48864 width=21) (actual time=0.023..9.372 rows=48864 loops=1)
+                                                  ->  Hash  (cost=94.60..94.60 rows=1960 width=17) (actual time=1.615..1.616 rows=1960 loops=1)
+                                                        Buckets: 2048  Batches: 1  Memory Usage: 111kB
+                                                        ->  Seq Scan on dim_estacion e  (cost=0.00..94.60 rows=1960 width=17) (actual time=0.024..1.033 rows=1960 loops=1)
+                                            ->  Hash  (cost=7.40..7.40 rows=159 width=46) (actual time=0.236..0.237 rows=159 loops=1)
+                                                  Buckets: 1024  Batches: 1  Memory Usage: 21kB
+                                                  ->  Seq Scan on dim_geografia g  (cost=0.00..7.40 rows=159 width=46) (actual time=0.045..0.163 rows=159 loops=1)
+                                                        Filter: ((lat IS NOT NULL) AND (lon IS NOT NULL) AND ((nivel)::text = 'Municipio'::text))
+                                                        Rows Removed by Filter: 33
+                    ->  Sort  (cost=83.21..85.91 rows=1080 width=12) (actual time=2.061..2.062 rows=1 loops=1)
+                          Sort Key: rf.geo_id
+                          Sort Method: quicksort  Memory: 99kB
+                          ->  Seq Scan on fact_riesgo_fronterizo rf  (cost=0.00..28.80 rows=1080 width=12) (actual time=0.111..0.717 rows=1080 loops=1)
+Planning Time: 13.086 ms
+Execution Time: 10211.930 ms
+--- EXPLAIN v_gps... ---
+Limit  (cost=15938.24..15961.24 rows=200 width=77) (actual time=407.094..417.513 rows=200 loops=1)
+  ->  Gather Merge  (cost=15938.24..16099.47 rows=1402 width=77) (actual time=407.092..417.498 rows=200 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        ->  Sort  (cost=14938.23..14941.74 rows=1402 width=77) (actual time=367.456..367.473 rows=140 loops=2)
+              Sort Key: d.fecha_despacho DESC, d.hora_despacho DESC
+              Sort Method: top-N heapsort  Memory: 75kB
+              Worker 0:  Sort Method: top-N heapsort  Memory: 72kB
+              ->  Hash Left Join  (cost=6905.04..14877.64 rows=1402 width=77) (actual time=111.680..286.564 rows=38714 loops=2)
+                    Hash Cond: ((d.estacion_id)::text = (r.estacion_id)::text)
+                    ->  Hash Join  (cost=6728.94..14682.26 rows=1402 width=77) (actual time=108.311..263.481 rows=38714 loops=2)
+                          Hash Cond: ((e_1.estacion_id)::text = (e.estacion_id)::text)
+                          ->  Parallel Hash Left Join  (cost=6609.84..14559.47 rows=1402 width=95) (actual time=106.293..242.293 rows=38714 loops=2)
+                                Hash Cond: (((d.estacion_id)::text = (b.estacion_id)::text) AND ((d.producto_id)::text = (b.producto_id)::text) AND (d.fecha_despacho = b.periodo_inicio))
+                                ->  Parallel Hash Join  (cost=2359.18..9662.97 rows=1402 width=107) (actual time=46.656..145.000 rows=38714 loops=2)
+                                      Hash Cond: (((d.estacion_id)::text = (e_1.estacion_id)::text) AND ((d.producto_id)::text = (re.producto_id)::text) AND (EXTRACT(month FROM d.fecha_despacho) = (re.mes)::numeric))
+                                      ->  Parallel Seq Scan on fact_despacho_volumen d  (cost=0.00..2687.15 rows=45515 width=49) (actual time=0.017..11.386 rows=38688 loops=2)
+                                      ->  Parallel Hash  (cost=1856.16..1856.16 rows=28744 width=74) (actual time=46.054..46.056 rows=24432 loops=2)
+                                            Buckets: 65536  Batches: 1  Memory Usage: 5856kB
+                                            ->  Hash Join  (cost=119.10..1856.16 rows=28744 width=74) (actual time=2.302..23.605 rows=24432 loops=2)
+                                                  Hash Cond: ((re.estacion_id)::text = (e_1.estacion_id)::text)
+                                                  ->  Parallel Seq Scan on fact_ruta_evaporacion re  (cost=0.00..1661.44 rows=28744 width=25) (actual time=0.016..4.830 rows=24432 loops=2)
+                                                  ->  Hash  (cost=94.60..94.60 rows=1960 width=49) (actual time=2.254..2.255 rows=1960 loops=2)
+                                                        Buckets: 2048  Batches: 1  Memory Usage: 174kB
+                                                        ->  Seq Scan on dim_estacion e_1  (cost=0.00..94.60 rows=1960 width=49) (actual time=0.028..1.095 rows=1960 loops=2)
+                                ->  Parallel Hash  (cost=3454.15..3454.15 rows=45515 width=25) (actual time=58.750..58.751 rows=38688 loops=2)
+                                      Buckets: 131072  Batches: 1  Memory Usage: 5792kB
+                                      ->  Parallel Seq Scan on fact_balance_fisico b  (cost=0.00..3454.15 rows=45515 width=25) (actual time=0.026..29.770 rows=38688 loops=2)
+                          ->  Hash  (cost=94.60..94.60 rows=1960 width=9) (actual time=1.898..1.899 rows=1960 loops=2)
+                                Buckets: 2048  Batches: 1  Memory Usage: 95kB
+                                ->  Seq Scan on dim_estacion e  (cost=0.00..94.60 rows=1960 width=9) (actual time=0.486..1.309 rows=1960 loops=2)
+                    ->  Hash  (cost=151.60..151.60 rows=1960 width=9) (actual time=3.329..3.329 rows=1960 loops=2)
+                          Buckets: 2048  Batches: 1  Memory Usage: 95kB
+                          ->  Seq Scan on dim_ruta_distribucion r  (cost=0.00..151.60 rows=1960 width=9) (actual time=0.570..2.505 rows=1960 loops=2)
+Planning Time: 28.897 ms
+Execution Time: 418.066 ms

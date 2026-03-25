@@ -1,0 +1,20 @@
+{
+  "name": "micm-intel",
+  "version": "1.0.0",
+  "description": "MICM-INTEL v1.0 — Sistema Nacional de Inteligencia de Combustibles",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "pg": "^8.13.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

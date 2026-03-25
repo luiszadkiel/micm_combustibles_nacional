@@ -1,0 +1,64 @@
+=== Southernmost Municipalities (prone to ocean) ===
+  Pedernales/Oviedo: lat=17.8 lon=-71.41
+  Barahona/Enriquillo: lat=17.9 lon=-71.24
+  Barahona/Paraíso: lat=17.97 lon=-71.16
+  Barahona/La Ciénaga: lat=18.02 lon=-71.08
+  Pedernales/Pedernales: lat=18.038 lon=-71.744
+  Barahona/Polo: lat=18.07 lon=-71.04
+  Barahona/Jaquimeyes: lat=18.15 lon=-71.16
+  Peravia/Nizao: lat=18.16 lon=-70.2
+  Barahona/Santa Cruz de Barahona: lat=18.208 lon=-71.105
+  Barahona/Las Salinas: lat=18.22 lon=-70.89
+  San Cristóbal/Palenque: lat=18.24 lon=-70.14
+  Barahona/Cabral: lat=18.25 lon=-71.22
+  Peravia/Baní: lat=18.28 lon=-70.332
+  San Cristóbal/Sabana Grande de Palenque: lat=18.29 lon=-70.19
+  Azua/Las Charcas: lat=18.29 lon=-70.68
+  Barahona/Fundación: lat=18.32 lon=-71.12
+  San Cristóbal/San Gregorio de Nigua: lat=18.35 lon=-70.05
+  Peravia/Villarpando: lat=18.35 lon=-70.45
+  Independencia/Duvergé: lat=18.37 lon=-71.52
+  Independencia/Cristóbal: lat=18.39 lon=-71.88
+  Barahona/Vicente Noble: lat=18.39 lon=-71.18
+  La Romana/Caleta: lat=18.39 lon=-69.18
+  San Cristóbal/Bajos de Haina: lat=18.41 lon=-70.02
+  San Cristóbal/San Cristóbal: lat=18.418 lon=-70.108
+  Azua/Pueblo Viejo: lat=18.42 lon=-70.81
+  San Pedro de Macorís/Guayacanes: lat=18.42 lon=-69.39
+  Independencia/Postrer Río: lat=18.42 lon=-71.7
+  La Romana/La Romana: lat=18.427 lon=-68.973
+  La Altagracia/San Rafael del Yuma: lat=18.43 lon=-68.67
+  San Pedro de Macorís/Ramón Santana: lat=18.44 lon=-69.22
+  Santo Domingo/Boca Chica: lat=18.45 lon=-69.6
+  Azua/Azua de Compostela: lat=18.455 lon=-70.734
+  Santo Domingo/La Caleta: lat=18.46 lon=-69.72
+  Azua/Estebanía: lat=18.46 lon=-70.59
+  San Pedro de Macorís/San Pedro de Macorís: lat=18.46 lon=-69.3
+  San Cristóbal/Cambita Garabitos: lat=18.46 lon=-70.18
+  San José de Ocoa/Sabana Larga: lat=18.48 lon=-70.56
+  Distrito Nacional/Santo Domingo de Guzmán: lat=18.4861 lon=-69.9312
+  Independencia/Jimaní: lat=18.49 lon=-71.85
+  Baoruco/Villa Jaragua: lat=18.49 lon=-71.33
+
+=== Municipalities with stations below lat 18.35 ===
+  Pedernales/Oviedo: min_lat=17.8062 avg=17.8069 (2 stations)
+  Barahona/Barahona: min_lat=17.8945 avg=18.1415 (13 stations)
+  Barahona/Enriquillo: min_lat=17.8952 avg=17.9016 (4 stations)
+  Barahona/La Ciénega: min_lat=17.9027 avg=18.0603 (2 stations)
+  Barahona/Paraíso: min_lat=17.9624 avg=17.9663 (3 stations)
+  Pedernales/Pedernales: min_lat=18.0324 avg=18.0414 (3 stations)
+  Barahona/Jaquimeyes: min_lat=18.1461 avg=18.1479 (2 stations)
+  Peravia/Matanzas: min_lat=18.1533 avg=18.2424 (5 stations)
+  Peravia/Nizao: min_lat=18.1546 avg=18.1615 (7 stations)
+  Peravia/Bani: min_lat=18.1615 avg=18.1615 (1 stations)
+  Barahona/Santa Cruz de Barahona: min_lat=18.2090 avg=18.2123 (2 stations)
+  San Cristóbal/Palenque: min_lat=18.2363 avg=18.2417 (2 stations)
+  Barahona/Cabral: min_lat=18.2423 avg=18.2479 (3 stations)
+  San Cristóbal/san Cristobal: min_lat=18.2440 avg=18.2440 (1 stations)
+  Peravia/Baní: min_lat=18.2722 avg=18.2798 (35 stations)
+  San Cristóbal/Sabana Grande de Palenque: min_lat=18.2822 avg=18.2867 (4 stations)
+  San Cristóbal/Yaguate: min_lat=18.2846 avg=18.4081 (5 stations)
+  Azua/Las Charcas: min_lat=18.2853 avg=18.2863 (2 stations)
+  Azua/Azua: min_lat=18.2893 avg=18.5073 (25 stations)
+  San Cristóbal/San Gregorio de Nigua: min_lat=18.3423 avg=18.3523 (9 stations)
+  Peravia/Paya: min_lat=18.3439 avg=18.3439 (1 stations)
