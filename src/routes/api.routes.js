@@ -196,5 +196,28 @@ router.get('/geografia', async (req, res) => {
     res.status(500).json({ status: 'error', error: err.message });
   }
 });
+// ── GET /api/rutas-nombres ──────────────────────────────────────────────────
+router.get('/rutas-nombres', async (req, res) => {
+  try {
+    const nombres = await rutasService.getDistinctRutas();
+    res.json({ status: 'ok', rutas: nombres });
+  } catch (err) {
+    console.error('[API] Error en /rutas-nombres:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/ruta-evaporacion?ruta=NOMBRE ───────────────────────────────────
+router.get('/ruta-evaporacion', async (req, res) => {
+  try {
+    const { ruta } = req.query;
+    if (!ruta) return res.status(400).json({ status: 'error', error: 'Parámetro ruta requerido' });
+    const data = await rutasService.getEvaporacionByRuta(ruta);
+    res.json({ status: 'ok', data });
+  } catch (err) {
+    console.error('[API] Error en /ruta-evaporacion:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
 
 module.exports = router;

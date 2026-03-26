@@ -55,6 +55,7 @@ function toGeoJSON(datos) {
       geometry: { type: 'Point', coordinates: [parseFloat(d.lon), parseFloat(d.lat)] },
       properties: {
         provincia: d.provincia,
+        municipio: d.municipio,
         ircf: parseFloat(d.ircf || 0),
         exceso_pct: parseFloat(d.exceso_pct || 0),
         nivel_riesgo: d.nivel_riesgo,

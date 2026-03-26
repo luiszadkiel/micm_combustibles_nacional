@@ -1,7 +1,83 @@
 // ============================================================================
 // MICM-INTEL v1.0 — Servicio de Geografía (Drill-Down por Zoom)
+// 3 Macro-Regiones: NORTE (CIBAO) | SUROESTE | SURESTE
 // ============================================================================
 const db = require('../db');
+
+// ── Mapeo Provincia → Macro-Región ──────────────────────────────────────────
+// Basado en la división geográfica estándar de República Dominicana
+const MACRO_REGION_MAP = {
+  // NORTE (CIBAO) — toda la zona norte
+  'SANTIAGO':                'NORTE (CIBAO)',
+  'LA VEGA':                 'NORTE (CIBAO)',
+  'PUERTO PLATA':            'NORTE (CIBAO)',
+  'DUARTE':                  'NORTE (CIBAO)',
+  'ESPAILLAT':               'NORTE (CIBAO)',
+  'VALVERDE':                'NORTE (CIBAO)',
+  'MONTECRISTI':             'NORTE (CIBAO)',
+  'MONTE CRISTI':            'NORTE (CIBAO)',
+  'SAMANÁ':                  'NORTE (CIBAO)',
+  'SAMANA':                  'NORTE (CIBAO)',
+  'MARÍA TRINIDAD SÁNCHEZ':  'NORTE (CIBAO)',
+  'MARIA TRINIDAD SANCHEZ':  'NORTE (CIBAO)',
+  'HERMANAS MIRABAL':        'NORTE (CIBAO)',
+  'SALCEDO':                 'NORTE (CIBAO)',
+  'SÁNCHEZ RAMÍREZ':         'NORTE (CIBAO)',
+  'SANCHEZ RAMIREZ':         'NORTE (CIBAO)',
+  'SANTIAGO RODRÍGUEZ':      'NORTE (CIBAO)',
+  'SANTIAGO RODRIGUEZ':      'NORTE (CIBAO)',
+  'DAJABÓN':                 'NORTE (CIBAO)',
+  'DAJABON':                 'NORTE (CIBAO)',
+  'MONTE PLATA':             'NORTE (CIBAO)',
+  'MONSEÑOR NOUEL':          'NORTE (CIBAO)',
+  'MONSENOR NOUEL':          'NORTE (CIBAO)',
+  'LA ESTRELLETA':           'NORTE (CIBAO)',
+
+  // SUROESTE — Enriquillo + El Valle + parte central-sur
+  'SAN JUAN':                'SUROESTE',
+  'SAN JUAN DE LA MAGUANA':  'SUROESTE',
+  'BARAHONA':                'SUROESTE',
+  'AZUA':                    'SUROESTE',
+  'INDEPENDENCIA':           'SUROESTE',
+  'PEDERNALES':              'SUROESTE',
+  'ELÍAS PIÑA':              'SUROESTE',
+  'ELIAS PIÑA':              'SUROESTE',
+  'ELIAS PINA':              'SUROESTE',
+  'BAORUCO':                 'SUROESTE',
+  'BAHORUCO':                'SUROESTE',
+  'SAN JOSÉ DE OCOA':        'SUROESTE',
+  'SAN JOSE DE OCOA':        'SUROESTE',
+  'PERAVIA':                 'SUROESTE',
+
+  // SURESTE — Ozama + Higuamo + Yuma + Valdesia
+  'SANTO DOMINGO':           'SURESTE',
+  'DISTRITO NACIONAL':       'SURESTE',
+  'SAN CRISTÓBAL':           'SURESTE',
+  'SAN CRISTOBAL':           'SURESTE',
+  'LA ROMANA':               'SURESTE',
+  'SAN PEDRO DE MACORÍS':    'SURESTE',
+  'SAN PEDRO DE MACORIS':    'SURESTE',
+  'LA ALTAGRACIA':           'SURESTE',
+  'EL SEIBO':                'SURESTE',
+  'EL SEYBO':                'SURESTE',
+  'HATO MAYOR':              'SURESTE',
+};
+
+// Coordenadas centrales fijas para cada macro-región (para GeoJSON Point)
+const MACRO_REGION_CENTROIDS = {
+  'NORTE (CIBAO)': { lat: 19.45, lon: -70.70 },
+  'SUROESTE':      { lat: 18.50, lon: -71.30 },
+  'SURESTE':       { lat: 18.55, lon: -69.50 },
+};
+
+/**
+ * Obtiene la macro-región de una provincia (case-insensitive, quita acentos)
+ */
+function getMacroRegion(provincia) {
+  if (!provincia) return 'SURESTE'; // fallback
+  const key = provincia.toUpperCase().trim();
+  return MACRO_REGION_MAP[key] || 'SURESTE'; // fallback a SURESTE
+}
 
 /**
  * Retorna los 3 niveles geográficos con métricas agregadas.
@@ -58,47 +134,64 @@ async function getGeografia() {
   });
 
   // 4. Build GeoJSON for each level
-  // Regiones: aggregate metrics across all provincias in the region
-  const regiones = buildRegionGeoJSON(niveles['Región'], geoRows, estMap, alertMap);
+  // Macro-regiones: aggregate all provincias into 3 groups
+  const regiones = buildRegionGeoJSON(niveles['Provincia'], estMap, alertMap);
   const provincias = buildProvinciaGeoJSON(niveles['Provincia'], estMap, alertMap);
   const municipios = buildMunicipioGeoJSON(niveles['Municipio'], estMap, alertMap);
 
   return { regiones, provincias, municipios };
 }
 
-function buildRegionGeoJSON(regionRows, allRows, estMap, alertMap) {
-  // For each region, aggregate metrics from all provincias in that region
-  const regionProvincias = {};
-  allRows.filter(r => r.nivel === 'Provincia').forEach(r => {
-    if (!regionProvincias[r.region_fedomu]) regionProvincias[r.region_fedomu] = [];
-    regionProvincias[r.region_fedomu].push(r.provincia);
+/**
+ * Construye GeoJSON de 3 macro-regiones agregando métricas de todas las provincias.
+ * Ya no depende de los rows de nivel 'Región' en dim_geografia.
+ */
+function buildRegionGeoJSON(provRows, estMap, alertMap) {
+  // Agrupar provincias por macro-región
+  const regionData = {};
+  Object.keys(MACRO_REGION_CENTROIDS).forEach(mr => {
+    regionData[mr] = { estaciones: 0, alertas: 0, criticas: 0, zScoreSum: 0, zCount: 0, poblacion: 0, area: 0, frontera: false, provCount: 0 };
+  });
+
+  provRows.forEach(r => {
+    const mr = getMacroRegion(r.provincia);
+    if (!regionData[mr]) return;
+    const data = regionData[mr];
+    data.provCount++;
+    data.poblacion += parseInt(r.poblacion_aprox || 0);
+    data.area += parseFloat(r.area_km2 || 0);
+    if (r.es_frontera_haiti) data.frontera = true;
+
+    const e = estMap[r.provincia];
+    const a = alertMap[r.provincia];
+    if (e) {
+      data.estaciones += e.estaciones;
+      if (e.z_score_avg) { data.zScoreSum += e.z_score_avg; data.zCount++; }
+    }
+    if (a) {
+      data.alertas += a.alertas_activas;
+      data.criticas += a.alertas_criticas;
+    }
   });
 
   return {
     type: 'FeatureCollection',
-    features: regionRows.map(r => {
-      const provs = regionProvincias[r.region_fedomu] || [];
-      let estaciones = 0, alertas = 0, criticas = 0, zScoreSum = 0, zCount = 0;
-      provs.forEach(p => {
-        const e = estMap[p];
-        const a = alertMap[p];
-        if (e) { estaciones += e.estaciones; if (e.z_score_avg) { zScoreSum += e.z_score_avg; zCount++; } }
-        if (a) { alertas += a.alertas_activas; criticas += a.alertas_criticas; }
-      });
+    features: Object.entries(regionData).map(([nombre, d]) => {
+      const centroid = MACRO_REGION_CENTROIDS[nombre];
       return {
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: [r.lon, r.lat] },
+        geometry: { type: 'Point', coordinates: [centroid.lon, centroid.lat] },
         properties: {
-          geo_id: r.geo_id,
-          nombre: r.region_fedomu,
+          nombre,
           nivel: 'Región',
-          estaciones,
-          alertas_activas: alertas,
-          alertas_criticas: criticas,
-          z_score_avg: zCount > 0 ? +(zScoreSum / zCount).toFixed(2) : 0,
-          poblacion: r.poblacion_aprox,
-          area_km2: r.area_km2,
-          es_frontera: r.es_frontera_haiti,
+          estaciones: d.estaciones,
+          alertas_activas: d.alertas,
+          alertas_criticas: d.criticas,
+          z_score_avg: d.zCount > 0 ? +(d.zScoreSum / d.zCount).toFixed(2) : 0,
+          poblacion: d.poblacion,
+          area_km2: +d.area.toFixed(1),
+          es_frontera: d.frontera,
+          provincias: d.provCount,
         },
       };
     }),
@@ -118,7 +211,7 @@ function buildProvinciaGeoJSON(provRows, estMap, alertMap) {
           geo_id: r.geo_id,
           nombre: r.provincia,
           nivel: 'Provincia',
-          region: r.region_fedomu,
+          region: getMacroRegion(r.provincia),
           estaciones: e.estaciones || 0,
           alertas_activas: a.alertas_activas || 0,
           alertas_criticas: a.alertas_criticas || 0,
@@ -147,7 +240,7 @@ function buildMunicipioGeoJSON(munRows, estMap, alertMap) {
           nombre: r.municipio,
           nivel: 'Municipio',
           provincia: r.provincia,
-          region: r.region_fedomu,
+          region: getMacroRegion(r.provincia),
           estaciones: e.estaciones || 0,
           alertas_activas: a.alertas_activas || 0,
           alertas_criticas: a.alertas_criticas || 0,
@@ -161,4 +254,4 @@ function buildMunicipioGeoJSON(munRows, estMap, alertMap) {
   };
 }
 
-module.exports = { getGeografia };
+module.exports = { getGeografia, getMacroRegion, MACRO_REGION_MAP };

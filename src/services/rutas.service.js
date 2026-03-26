@@ -174,4 +174,58 @@ async function startBackgroundOSRM(rows) {
   }
 }
 
-module.exports = { getRutas, toGeoJSON };
+/**
+ * Retorna nombres de ruta distintos para poblar el dropdown.
+ */
+async function getDistinctRutas() {
+  const sql = `
+    SELECT DISTINCT ruta_principal_nombre
+    FROM dim_ruta_distribucion
+    WHERE activo = true AND ruta_principal_nombre IS NOT NULL
+    ORDER BY ruta_principal_nombre
+  `;
+  const result = await db.query(sql);
+  return result.rows.map(r => r.ruta_principal_nombre);
+}
+
+/**
+ * Datos de evaporación agregados para una ruta específica.
+ * Incluye temperatura, distancia, % pérdida, y conteo de estaciones.
+ */
+async function getEvaporacionByRuta(rutaNombre) {
+  const sql = `
+    SELECT
+      re.ruta_nombre,
+      COUNT(DISTINCT re.estacion_id)::int AS estaciones,
+      ROUND(AVG(re.temperatura_media_c)::numeric, 1) AS temp_media_c,
+      ROUND(AVG(re.temperatura_max_c)::numeric, 1) AS temp_max_c,
+      ROUND(AVG(re.humedad_pct)::numeric, 0) AS humedad_pct,
+      ROUND(AVG(re.distancia_total_km)::numeric, 1) AS distancia_km,
+      ROUND(AVG(re.tiempo_transporte_hrs)::numeric, 2) AS tiempo_hrs,
+      ROUND(AVG(re.velocidad_kmh)::numeric, 1) AS velocidad_kmh,
+      ROUND(AVG(re.pct_perdida_esperada * 100)::numeric, 3) AS pct_evap_promedio,
+      ROUND(AVG(re.perdida_legitima_gal)::numeric, 2) AS perdida_gal_promedio,
+      ROUND(AVG(re.factor_llenado)::numeric, 3) AS factor_llenado,
+      ROUND(AVG(re.delta_t)::numeric, 1) AS delta_t,
+      ROUND(SUM(re.perdida_valor_rd)::numeric, 0) AS perdida_valor_total_rd,
+      MODE() WITHIN GROUP (ORDER BY re.nivel_riesgo_evap) AS nivel_riesgo_predominante,
+      MODE() WITHIN GROUP (ORDER BY re.zona_climatica) AS zona_climatica,
+      BOOL_OR(re.es_ruta_fronteriza) AS es_fronteriza,
+      jsonb_agg(DISTINCT jsonb_build_object(
+        'mes', re.mes,
+        'temp', ROUND(re.temperatura_media_c::numeric, 1),
+        'evap_pct', ROUND((re.pct_perdida_esperada * 100)::numeric, 3)
+      ) ORDER BY jsonb_build_object(
+        'mes', re.mes,
+        'temp', ROUND(re.temperatura_media_c::numeric, 1),
+        'evap_pct', ROUND((re.pct_perdida_esperada * 100)::numeric, 3)
+      )) AS detalle_mensual
+    FROM fact_ruta_evaporacion re
+    WHERE re.ruta_nombre = $1
+    GROUP BY re.ruta_nombre
+  `;
+  const result = await db.query(sql, [rutaNombre]);
+  return result.rows[0] || null;
+}
+
+module.exports = { getRutas, toGeoJSON, getDistinctRutas, getEvaporacionByRuta };

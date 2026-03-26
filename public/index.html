@@ -1125,6 +1125,80 @@
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* ── METRICS MODULE DISPLAY ─────────────────────────────────── */
+    .metrics-module {
+      margin-bottom: 24px;
+    }
+    .metrics-module-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .metrics-module-header:hover { filter: brightness(1.1); }
+    .metrics-module-icon { font-size: 20px; }
+    .metrics-module-name { font-size: 14px; font-weight: 800; color: #fff; flex: 1; }
+    .metrics-module-count {
+      font-size: 10px; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
+    }
+    .metrics-module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      padding-left: 8px;
+    }
+    .metric-module-card {
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .metric-module-card:hover {
+      border-color: rgba(88, 166, 255, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .metric-module-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .metric-module-code {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .metric-module-code.mercado { background: rgba(88,166,255,0.15); color: #58a6ff; }
+    .metric-module-code.modulo1 { background: rgba(210,153,34,0.15); color: #d29922; }
+    .metric-module-code.modulo2 { background: rgba(248,81,73,0.15); color: #f85149; }
+    .metric-module-code.modulo3 { background: rgba(163,113,247,0.15); color: #a371f7; }
+    .metric-module-code.modulo4 { background: rgba(219,171,255,0.15); color: #dbabff; }
+    .metric-module-code.permisologia { background: rgba(63,185,80,0.15); color: #3fb950; }
+    .metric-module-code.score { background: rgba(255,123,114,0.15); color: #ff7b72; }
+    .metric-module-code.fisica { background: rgba(121,192,255,0.15); color: #79c0ff; }
+    .metric-module-value {
+      font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1;
+    }
+    .metric-module-value.small { font-size: 14px; font-weight: 600; }
+    .metric-module-name {
+      font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    }
+    .metric-module-unit {
+      font-size: 10px; color: var(--text-muted);
+    }
+    .metric-module-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px;
+    }
+    .metric-module-badge.ok { background: var(--green-bg); color: var(--green); }
+    .metric-module-badge.warn { background: var(--orange-bg); color: var(--orange); }
+    .metric-module-badge.alert { background: var(--red-bg); color: var(--red); }
+
     /* ── RIGHT PANEL ────────────────────────────────────────────────── */
     #panel {
       background: var(--bg-panel);
@@ -1548,6 +1622,80 @@
       text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
       pointer-events: none;
     }
+
+    /* ── Route Detail Panel ──────────────────────────────────────── */
+    .ruta-detail-panel {
+      margin-top: 10px;
+      background: rgba(30, 40, 55, 0.95);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .ruta-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .ruta-detail-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #58a6ff;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ruta-detail-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #555;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .ruta-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .ruta-detail-extra {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ruta-detail-item {
+      background: rgba(255,255,255,0.04);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ruta-detail-item.wide {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ruta-detail-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+    .ruta-detail-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e6edf3;
+    }
   </style>
 </head>
 
@@ -1597,6 +1745,15 @@
           </div>
         </div>
         <div class="filter-group">
+          <label>🗺️ Macro-Región</label>
+          <select id="filter-region">
+            <option value="">Todas</option>
+            <option value="NORTE (CIBAO)">Norte (Cibao)</option>
+            <option value="SUROESTE">Suroeste</option>
+            <option value="SURESTE">Sureste</option>
+          </select>
+        </div>
+        <div class="filter-group">
           <label>Provincia</label>
           <select id="filter-provincia">
             <option value="">Todas</option>
@@ -1616,6 +1773,55 @@
             <option value="DESVIO_FISCAL">Desvío Fiscal</option>
             <option value="ADULTERACION">Adulteración</option>
           </select>
+        </div>
+        <div class="filter-group">
+          <label>🛣️ Ruta de Distribución</label>
+          <select id="filter-ruta">
+            <option value="">Todas las rutas</option>
+          </select>
+        </div>
+        <!-- Panel detalle de ruta seleccionada -->
+        <div id="ruta-detail-panel" class="ruta-detail-panel" style="display:none;">
+          <div class="ruta-detail-header">
+            <span class="ruta-detail-title" id="ruta-detail-title">—</span>
+            <span class="ruta-detail-badge" id="ruta-detail-badge">—</span>
+          </div>
+          <div class="ruta-detail-grid">
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">📏 Distancia</span>
+              <span class="ruta-detail-value" id="rd-distancia">—</span>
+            </div>
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">⏱️ Tiempo</span>
+              <span class="ruta-detail-value" id="rd-tiempo">—</span>
+            </div>
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">🌡️ Temp. Media</span>
+              <span class="ruta-detail-value" id="rd-temp">—</span>
+            </div>
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">💧 Evaporación</span>
+              <span class="ruta-detail-value" id="rd-evap">—</span>
+            </div>
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">🏪 Estaciones</span>
+              <span class="ruta-detail-value" id="rd-estaciones">—</span>
+            </div>
+            <div class="ruta-detail-item">
+              <span class="ruta-detail-label">🚛 Velocidad</span>
+              <span class="ruta-detail-value" id="rd-velocidad">—</span>
+            </div>
+          </div>
+          <div class="ruta-detail-extra">
+            <div class="ruta-detail-item wide">
+              <span class="ruta-detail-label">🌍 Zona Climática</span>
+              <span class="ruta-detail-value" id="rd-zona">—</span>
+            </div>
+            <div class="ruta-detail-item wide">
+              <span class="ruta-detail-label">💰 Pérdida Valor Total</span>
+              <span class="ruta-detail-value" id="rd-valor">—</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1744,6 +1950,8 @@
         <div class="analytics-header-left">
           <span class="analytics-title">📊 Análisis Avanzado</span>
           <div class="analytics-tabs">
+            <button class="analytics-tab" data-tab="metricas51" onclick="switchAnalyticsTab('metricas51')">📋
+              51 Métricas</button>
             <button class="analytics-tab active" data-tab="alertas" onclick="switchAnalyticsTab('alertas')">🚨
               Alertas</button>
             <button class="analytics-tab" data-tab="volumen" onclick="switchAnalyticsTab('volumen')">⛽
@@ -1871,6 +2079,11 @@
             </div>
           </div>
         </div>
+
+        <!-- Tab: 51 Métricas -->
+        <div class="analytics-tab-panel" id="tab-metricas51">
+          <div id="metricas51-content"><div class="loading">Cargando 51 métricas...</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1942,6 +2155,35 @@
       // Click map background to reset polygon selection
       state.map.on('click', () => { if (typeof resetGeoSelection === 'function') resetGeoSelection(); });
 
+      // Double-click map → reset ALL filters + return to initial view
+      state.map.doubleClickZoom.disable(); // disable default zoom on dblclick
+      state.map.on('dblclick', () => {
+        // Reset all filter dropdowns
+        ['filter-provincia', 'filter-producto', 'filter-perfil', 'filter-modulo', 'filter-ruta', 'filter-region'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        // Reset nivel buttons to all active
+        document.querySelectorAll('.nivel-btn').forEach(b => b.classList.add('active'));
+
+        // Hide route detail panel
+        if (typeof hideRutaDetail === 'function') hideRutaDetail();
+
+        // Reset polygon selection
+        if (typeof resetGeoSelection === 'function') resetGeoSelection();
+
+        // Re-render all layers without filters
+        if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones);
+        if (state.rawData.alertas) { renderAlertas(state.rawData.alertas); updateAlertasUI(state.rawData.alertas); }
+        if (state.rawData.rutas) renderRutas(state.rawData.rutas, false);
+        if (state.rawData.gps) { renderGps(state.rawData.gps); updateGpsUI(state.rawData.gps); }
+        if (state.rawData.frontera) renderFrontera(state.rawData.frontera);
+
+        // Fly to initial national view
+        state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
+        console.log('[MAP] ✓ Doble-clic → Vista inicial restaurada');
+      });
+
       // Fix rendering: recalculate size on window/map resize
       let _resizeTimer = null;
       window.addEventListener('resize', () => {
@@ -1972,10 +2214,8 @@
 
     // ── GEOGRAPHIC DRILL-DOWN (Polygon Choropleth) ─────────────────────────────
     // 3 distinct palettes — one per zoom level
-    const REGION_COLORS = [
-      '#e6550d','#fd8d3c','#fdae6b','#fdd0a2','#c6dbef',
-      '#9ecae1','#6baed6','#3182bd','#e377c2','#bcbd22',
-    ];
+    // 3 colores MUY diferenciados para macro-regiones: NORTE(CIBAO), SUROESTE, SURESTE
+    const REGION_COLORS = ['#4fc3f7', '#ff9800', '#66bb6a'];
     const PROVINCE_COLORS = [
       '#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e',
       '#e6ab02','#a6761d','#666666','#8dd3c7','#ffffb3',
@@ -2010,15 +2250,46 @@
 
         state.geoData = { provGeo, munGeo, metrics };
 
-        // Build province → region mapping from API metrics
+        // ── Hardcoded GeoJSON NAME_1 → Macro-Región ──
+        // Usa los nombres EXACTOS del GeoJSON (CamelCase sin espacios)
+        const GEOJSON_MACRO_REGION = {
+          // NORTE (CIBAO)
+          'Santiago': 'NORTE (CIBAO)', 'LaVega': 'NORTE (CIBAO)', 'PuertoPlata': 'NORTE (CIBAO)',
+          'Duarte': 'NORTE (CIBAO)', 'Espaillat': 'NORTE (CIBAO)', 'Valverde': 'NORTE (CIBAO)',
+          'MonteCristi': 'NORTE (CIBAO)', 'Samaná': 'NORTE (CIBAO)', 'Salcedo': 'NORTE (CIBAO)',
+          'MaríaTrinidadSánchez': 'NORTE (CIBAO)', 'SánchezRamírez': 'NORTE (CIBAO)',
+          'SantiagoRodríguez': 'NORTE (CIBAO)', 'Dajabón': 'NORTE (CIBAO)',
+          'MontePlata': 'NORTE (CIBAO)', 'MonseñorNouel': 'NORTE (CIBAO)',
+          'LaEstrelleta': 'NORTE (CIBAO)',
+          // SUROESTE
+          'SanJuan': 'SUROESTE', 'Barahona': 'SUROESTE', 'Azua': 'SUROESTE',
+          'Independencia': 'SUROESTE', 'Pedernales': 'SUROESTE', 'Bahoruco': 'SUROESTE',
+          'SanJosédeOcoa': 'SUROESTE', 'Peravia': 'SUROESTE',
+          // SURESTE
+          'SantoDomingo': 'SURESTE', 'DistritoNacional': 'SURESTE', 'SanCristóbal': 'SURESTE',
+          'LaRomana': 'SURESTE', 'SanPedrodeMacorís': 'SURESTE', 'LaAltagracia': 'SURESTE',
+          'ElSeybo': 'SURESTE', 'HatoMayor': 'SURESTE',
+        };
+
+        // Build provToRegion from GeoJSON names
         const provToRegion = {};
         const regionSet = new Set();
+        if (provGeo?.features) {
+          provGeo.features.forEach(f => {
+            const name1 = f.properties.NAME_1 || '';
+            const region = GEOJSON_MACRO_REGION[name1];
+            if (region) {
+              provToRegion[name1.toUpperCase()] = region;
+              regionSet.add(region);
+            }
+          });
+        }
+        // Also add API province names for popup lookups
         if (metrics.provincias?.features) {
           metrics.provincias.features.forEach(f => {
             const p = f.properties;
             if (p.region && p.nombre) {
               provToRegion[p.nombre.toUpperCase()] = p.region;
-              regionSet.add(p.region);
             }
           });
         }
@@ -2072,56 +2343,93 @@
       }
     }
 
-    // Render province polygons colored by REGION group
+    // Render province polygons colored by REGION group — DEFAULT: Grey, COLOR on hover/click
     function renderRegionLayer(layer, provGeo, provToRegion, regionList, regMetrics) {
       layer.clearLayers();
       const regionColorMap = {};
       regionList.forEach((r, i) => { regionColorMap[r] = REGION_COLORS[i % REGION_COLORS.length]; });
 
+      // Grey palette for default state (different shades per region)
+      const GREY_SHADES = ['#3a3f4a', '#4a4f5a', '#2e3340'];
+
       const geoLayer = L.geoJSON(provGeo, {
         style: feature => {
           const provName = (feature.properties.NAME_1 || '').toUpperCase();
           const region = provToRegion[provName] || 'OTRO';
+          const ri = regionList.indexOf(region);
           return {
-            fillColor: regionColorMap[region] || '#888',
-            fillOpacity: 0.40,
-            color: 'rgba(255,255,255,0.6)',
-            weight: 2,
-            opacity: 0.8,
+            fillColor: GREY_SHADES[ri % GREY_SHADES.length] || '#3a3f4a',
+            fillOpacity: 0.45,
+            color: 'rgba(255,255,255,0.25)',
+            weight: 1.5,
+            opacity: 0.6,
           };
         },
         onEachFeature: (feature, featureLayer) => {
           const provName = (feature.properties.NAME_1 || '').toUpperCase();
           const region = provToRegion[provName] || 'Desconocida';
           const m = regMetrics[region.toUpperCase()] || {};
-          const origColor = regionColorMap[region] || '#888';
+          const realColor = regionColorMap[region] || '#888';
+          const ri = regionList.indexOf(region);
 
-          // Store original style for reset
-          featureLayer._origStyle = {
-            fillColor: origColor, fillOpacity: 0.40,
-            color: 'rgba(255,255,255,0.6)', weight: 2, opacity: 0.8,
+          // Store both grey (default) and real color styles
+          featureLayer._greyStyle = {
+            fillColor: GREY_SHADES[ri % GREY_SHADES.length] || '#3a3f4a',
+            fillOpacity: 0.45, color: 'rgba(255,255,255,0.25)', weight: 1.5, opacity: 0.6,
+          };
+          featureLayer._origStyle = featureLayer._greyStyle; // origStyle = grey for reset
+          featureLayer._colorStyle = {
+            fillColor: realColor, fillOpacity: 0.55,
+            color: 'rgba(255,255,255,0.8)', weight: 2.5, opacity: 0.9,
           };
 
           featureLayer.bindPopup(`
             <div class="popup-title">${region}</div>
-            <span class="popup-badge n0">Región</span>
+            <span class="popup-badge n0">Macro-Región</span>
             <div class="popup-row"><span class="label">Provincia</span> ${feature.properties.NAME_1}</div>
+            <div class="popup-row"><span class="label">Provincias en región</span> ${m.provincias || '—'}</div>
             <div class="popup-row"><span class="label">Estaciones</span> ${m.estaciones || 0}</div>
             <div class="popup-row"><span class="label">Alertas activas</span> ${m.alertas_activas || 0}</div>
             <div class="popup-row"><span class="label">Alertas críticas</span> <strong style="color:#f85149">${m.alertas_criticas || 0}</strong></div>
           `);
+
+          // Store region name for group hover
+          featureLayer._region = region;
+
           featureLayer.on('mouseover', function () {
-            this.setStyle({ fillOpacity: 0.65, weight: 3, color: '#fff' });
+            if (this._selected) return;
+            // Highlight ALL provinces with the same region
+            geoLayer.eachLayer(fl => {
+              if (fl._region === region && !fl._selected) {
+                fl.setStyle({ ...fl._colorStyle, fillOpacity: 0.60, weight: 2.5, color: 'rgba(255,255,255,0.7)' });
+              }
+            });
+            // Make the hovered one a bit brighter
+            this.setStyle({ ...this._colorStyle, fillOpacity: 0.75, weight: 3, color: '#fff' });
           });
           featureLayer.on('mouseout', function () {
-            const s = this._selected ? { fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: this._origStyle.fillColor }
-              : (this._dimmed ? { fillColor: '#333', fillOpacity: 0.15, color: 'rgba(255,255,255,0.2)', weight: 1 }
-              : this._origStyle);
-            this.setStyle(s);
+            // Reset ALL provinces with the same region back to grey (unless selected/dimmed)
+            geoLayer.eachLayer(fl => {
+              if (fl._region === region) {
+                if (fl._selected) {
+                  fl.setStyle({ ...fl._colorStyle, fillOpacity: 0.70, weight: 3, color: '#fff' });
+                } else if (fl._dimmed) {
+                  fl.setStyle({ fillColor: '#222', fillOpacity: 0.10, color: 'rgba(255,255,255,0.1)', weight: 0.5 });
+                } else {
+                  fl.setStyle(fl._greyStyle);
+                }
+              }
+            });
           });
           featureLayer.on('click', function () {
+            // Set region filter dropdown and apply filters
+            const regionSel = document.getElementById('filter-region');
+            if (regionSel) regionSel.value = region;
+            // Clear province filter (region is higher level)
+            const provSel = document.getElementById('filter-provincia');
+            if (provSel) provSel.value = '';
             isolatePolygon(geoLayer, this);
-            state.map.flyToBounds(this.getBounds(), { padding: [30, 30], duration: 0.6 });
+            applyFilters();
           });
         },
         interactive: true,
@@ -2130,7 +2438,7 @@
       layer._geoLayer = geoLayer;
     }
 
-    // Render polygons with categorical (distinct) colors per feature
+    // Render polygons with categorical colors — DEFAULT: Grey, COLOR on hover/click
     function renderCategoricalLayer(layer, geojson, metricsMap, nameExtractor, palette, nivelLabel, baseOpacity) {
       layer.clearLayers();
       if (!geojson?.features) return;
@@ -2146,15 +2454,19 @@
         }
       });
 
+      // Grey shades for default (cycling through subtle variations)
+      const GREY_CAT = ['#353a44', '#3d424d', '#2f343e', '#414650', '#393e48'];
+
       const geoLayer = L.geoJSON(geojson, {
-        style: feature => {
+        style: (feature, idx) => {
           const name = nameExtractor(feature);
+          const gi = Object.keys(nameColorMap).indexOf(name);
           return {
-            fillColor: nameColorMap[name] || '#888',
-            fillOpacity: baseOpacity,
-            color: 'rgba(255,255,255,0.45)',
-            weight: 1.2,
-            opacity: 0.7,
+            fillColor: GREY_CAT[gi % GREY_CAT.length],
+            fillOpacity: 0.35,
+            color: 'rgba(255,255,255,0.2)',
+            weight: 1,
+            opacity: 0.5,
           };
         },
         onEachFeature: (feature, featureLayer) => {
@@ -2162,10 +2474,16 @@
           const displayName = feature.properties.NAME_2 || feature.properties.NAME_1 || name;
           const m = metricsMap[name] || {};
           const badgeLevel = m.alertas_criticas > 0 ? 3 : m.alertas_activas > 0 ? 1 : 0;
-          const origColor = nameColorMap[name] || '#888';
+          const realColor = nameColorMap[name] || '#888';
+          const gi = Object.keys(nameColorMap).indexOf(name);
 
-          featureLayer._origStyle = {
-            fillColor: origColor, fillOpacity: baseOpacity,
+          featureLayer._greyStyle = {
+            fillColor: GREY_CAT[gi % GREY_CAT.length],
+            fillOpacity: 0.35, color: 'rgba(255,255,255,0.2)', weight: 1, opacity: 0.5,
+          };
+          featureLayer._origStyle = featureLayer._greyStyle;
+          featureLayer._colorStyle = {
+            fillColor: realColor, fillOpacity: baseOpacity,
             color: 'rgba(255,255,255,0.45)', weight: 1.2, opacity: 0.7,
           };
 
@@ -2174,22 +2492,35 @@
             <span class="popup-badge n${badgeLevel}">${nivelLabel}</span>
             <div class="popup-row"><span class="label">Estaciones</span> ${m.estaciones || 0}</div>
             <div class="popup-row"><span class="label">Alertas activas</span> ${m.alertas_activas || 0}</div>
-            <div class="popup-row"><span class="label">Alertas críticas</span> <strong style="color:#f85149">${m.alertas_criticas || 0}</strong></div>
+            <div class="popup-row"><span class="label">Alertas cr\u00edticas</span> <strong style="color:#f85149">${m.alertas_criticas || 0}</strong></div>
             <div class="popup-row"><span class="label">Z-score prom.</span> ${m.z_score_avg || 0}</div>
           `);
 
           featureLayer.on('mouseover', function () {
-            this.setStyle({ fillOpacity: baseOpacity + 0.25, weight: 2.5, color: '#fff' });
+            if (!this._selected) this.setStyle({ ...this._colorStyle, fillOpacity: baseOpacity + 0.25, weight: 2.5, color: '#fff' });
           });
           featureLayer.on('mouseout', function () {
-            const s = this._selected ? { fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: this._origStyle.fillColor }
-              : (this._dimmed ? { fillColor: '#333', fillOpacity: 0.15, color: 'rgba(255,255,255,0.2)', weight: 0.8 }
-              : this._origStyle);
-            this.setStyle(s);
+            if (this._selected) {
+              this.setStyle({ ...this._colorStyle, fillOpacity: 0.70, weight: 3, color: '#fff' });
+            } else if (this._dimmed) {
+              this.setStyle({ fillColor: '#222', fillOpacity: 0.10, color: 'rgba(255,255,255,0.1)', weight: 0.5 });
+            } else {
+              this.setStyle(this._greyStyle);
+            }
           });
           featureLayer.on('click', function () {
+            // Determine if this is a province or municipality click
+            const provName = feature.properties.NAME_1 || '';
+            if (nivelLabel === 'Provincia' && provName) {
+              const provSel = document.getElementById('filter-provincia');
+              if (provSel) {
+                // Find option matching this province (case-insensitive)
+                const opt = [...provSel.options].find(o => o.value.toUpperCase() === provName.toUpperCase());
+                if (opt) provSel.value = opt.value;
+              }
+            }
             isolatePolygon(geoLayer, this);
-            state.map.flyToBounds(this.getBounds(), { padding: [30, 30], duration: 0.6 });
+            applyFilters();
           });
         },
         interactive: true,
@@ -2208,7 +2539,9 @@
         if (fl === selectedLayer) {
           fl._selected = true;
           fl._dimmed = false;
-          fl.setStyle({ fillOpacity: 0.70, weight: 3, color: '#fff', fillColor: fl._origStyle.fillColor });
+          // Show real color for selected polygon
+          const cs = fl._colorStyle || fl._origStyle;
+          fl.setStyle({ ...cs, fillOpacity: 0.70, weight: 3, color: '#fff' });
           fl.bringToFront();
         } else {
           fl._selected = false;
@@ -2287,7 +2620,7 @@
       if (state.rawData.gps) updateGpsUI(state.rawData.gps);
     }
 
-    // Reset all polygon layers to original colors + restore hidden markers/routes + restore panel
+    // Reset all polygon layers to GREY defaults + restore hidden markers/routes + restore panel
     function resetGeoSelection() {
       ['geoRegiones', 'geoProvincia', 'geoMunicipios'].forEach(key => {
         const lg = state.leafletLayers[key];
@@ -2295,7 +2628,8 @@
           lg._geoLayer.eachLayer(fl => {
             fl._selected = false;
             fl._dimmed = false;
-            if (fl._origStyle) fl.setStyle(fl._origStyle);
+            if (fl._greyStyle) fl.setStyle(fl._greyStyle);
+            else if (fl._origStyle) fl.setStyle(fl._origStyle);
           });
         }
       });
@@ -2309,12 +2643,17 @@
       const zoom = state.map.getZoom();
       const map = state.map;
 
-      // ≤7: Regiones | 8-9: Provincias | 10+: Municipios
-      if (zoom <= 7) {
+      // ≤8: Macro-Regiones | 9-10: Provincias | 11-12: Municipios | 13+: Sin polígonos (vista limpia)
+      if (zoom >= 13) {
+        // Extreme zoom: remove all polygons for clean visibility
+        if (map.hasLayer(state.leafletLayers.geoRegiones)) map.removeLayer(state.leafletLayers.geoRegiones);
+        if (map.hasLayer(state.leafletLayers.geoProvincia)) map.removeLayer(state.leafletLayers.geoProvincia);
+        if (map.hasLayer(state.leafletLayers.geoMunicipios)) map.removeLayer(state.leafletLayers.geoMunicipios);
+      } else if (zoom <= 8) {
         if (!map.hasLayer(state.leafletLayers.geoRegiones)) map.addLayer(state.leafletLayers.geoRegiones);
         if (map.hasLayer(state.leafletLayers.geoProvincia)) map.removeLayer(state.leafletLayers.geoProvincia);
         if (map.hasLayer(state.leafletLayers.geoMunicipios)) map.removeLayer(state.leafletLayers.geoMunicipios);
-      } else if (zoom <= 9) {
+      } else if (zoom <= 10) {
         if (map.hasLayer(state.leafletLayers.geoRegiones)) map.removeLayer(state.leafletLayers.geoRegiones);
         if (!map.hasLayer(state.leafletLayers.geoProvincia)) map.addLayer(state.leafletLayers.geoProvincia);
         if (map.hasLayer(state.leafletLayers.geoMunicipios)) map.removeLayer(state.leafletLayers.geoMunicipios);
@@ -2562,16 +2901,24 @@
           if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
           if (data.rutas) { state.rawData.rutas = data.rutas; renderRutas(data.rutas); }
           if (data.gps) { state.rawData.gps = data.gps; renderGps(data.gps); updateGpsUI(data.gps); }
-          if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); }
+          if (data.frontera) { state.rawData.frontera = data.frontera; }
           if (data.metricas) updateMetricasUI(data.metricas);
           countRecords(data);
+          applyFilters(); // apply current filters to all layers including frontera
           break;
         case 'UPDATE_ALERTAS':
           if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
           break;
-        case 'UPDATE_GPS': state.rawData.gps = data; renderGps(data); updateGpsUI(data); break;
+        case 'UPDATE_GPS':
+          state.rawData.gps = data;
+          applyFilters(); // re-render with current filters
+          break;
         case 'UPDATE_METRICAS': updateMetricasUI(data); break;
-        case 'UPDATE_FRONTERA': if (data.frontera) { state.rawData.frontera = data.frontera; renderFrontera(data.frontera); } break;
+        case 'UPDATE_FRONTERA':
+          if (data.frontera) { state.rawData.frontera = data.frontera; }
+          if (data.mapaCalor) { state.rawData.mapaCalor = data.mapaCalor; }
+          applyFilters(); // re-render with current filters
+          break;
         case 'UPDATE_RUTAS':
           if (data.rutas) {
             if (data.isPartial) {
@@ -2605,7 +2952,7 @@
       document.querySelectorAll('.nivel-btn').forEach(btn => {
         btn.addEventListener('click', () => { btn.classList.toggle('active'); applyFilters(); });
       });
-      ['filter-perfil', 'filter-provincia', 'filter-producto'].forEach(id => {
+      ['filter-perfil', 'filter-provincia', 'filter-producto', 'filter-ruta', 'filter-region'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', applyFilters);
       });
       document.querySelectorAll('.pilar-pill').forEach(pill => {
@@ -2623,6 +2970,76 @@
       fetch('/api/productos').then(r => r.json()).then(d => {
         if (d.productos) { const s = document.getElementById('filter-producto'); d.productos.forEach(p => { const o = document.createElement('option'); o.value = p.producto_id; o.textContent = p.nombre_corto || p.nombre_producto; s.appendChild(o); }); }
       }).catch(() => { });
+      // Poblar dropdown de rutas
+      populateRutaDropdown();
+    }
+
+    // ── RUTA FILTER HELPERS ───────────────────────────────────────────────────
+    function populateRutaDropdown() {
+      fetch('/api/rutas-nombres').then(r => r.json()).then(d => {
+        if (d.rutas) {
+          const sel = document.getElementById('filter-ruta');
+          d.rutas.forEach(r => {
+            const o = document.createElement('option');
+            o.value = r;
+            o.textContent = r;
+            sel.appendChild(o);
+          });
+        }
+      }).catch(() => {});
+    }
+
+    async function showRutaDetail(rutaNombre) {
+      const panel = document.getElementById('ruta-detail-panel');
+      panel.style.display = 'block';
+      document.getElementById('ruta-detail-title').textContent = rutaNombre;
+      document.getElementById('ruta-detail-badge').textContent = '⏳';
+
+      // Set basic info from route data on map
+      const rutaFeatures = state.rawData.rutas?.features?.filter(f => f.properties.ruta === rutaNombre) || [];
+      const estCount = new Set(rutaFeatures.map(f => f.properties.estacion_id)).size;
+      document.getElementById('rd-estaciones').textContent = estCount || '—';
+
+      if (rutaFeatures.length > 0) {
+        const avgDist = rutaFeatures.reduce((s, f) => s + (f.properties.distancia || 0), 0) / rutaFeatures.length;
+        const avgTime = rutaFeatures.reduce((s, f) => s + (f.properties.tiempo_hrs || 0), 0) / rutaFeatures.length;
+        document.getElementById('rd-distancia').textContent = avgDist.toFixed(1) + ' km';
+        document.getElementById('rd-tiempo').textContent = avgTime.toFixed(1) + ' hrs';
+      }
+
+      // Fetch evaporation data from API
+      try {
+        const res = await fetch(`/api/ruta-evaporacion?ruta=${encodeURIComponent(rutaNombre)}`);
+        const json = await res.json();
+        if (json.data) {
+          const d = json.data;
+          document.getElementById('rd-temp').textContent = (d.temp_media_c || '—') + '°C';
+          document.getElementById('rd-evap').textContent = (d.pct_evap_promedio || '—') + '%';
+          document.getElementById('rd-velocidad').textContent = (d.velocidad_kmh || '—') + ' km/h';
+          document.getElementById('rd-zona').textContent = d.zona_climatica || '—';
+          document.getElementById('rd-valor').textContent = d.perdida_valor_total_rd ? 'RD$ ' + parseInt(d.perdida_valor_total_rd).toLocaleString() : '—';
+          document.getElementById('rd-distancia').textContent = (d.distancia_km || '—') + ' km';
+          document.getElementById('rd-tiempo').textContent = (d.tiempo_hrs || '—') + ' hrs';
+          document.getElementById('rd-estaciones').textContent = d.estaciones || '—';
+
+          const riesgoColors = { 'BAJO': '#3fb950', 'MEDIO': '#58a6ff', 'ALTO': '#d29922', 'CRITICO': '#f85149' };
+          const riesgo = (d.nivel_riesgo_predominante || 'BAJO').toUpperCase();
+          const badge = document.getElementById('ruta-detail-badge');
+          badge.textContent = riesgo;
+          badge.style.background = riesgoColors[riesgo] || '#666';
+          badge.style.color = '#fff';
+        } else {
+          document.getElementById('ruta-detail-badge').textContent = 'Sin datos';
+          document.getElementById('ruta-detail-badge').style.background = '#555';
+        }
+      } catch (e) {
+        console.warn('[RUTA] Error fetching evaporacion:', e.message);
+        document.getElementById('ruta-detail-badge').textContent = 'Error';
+      }
+    }
+
+    function hideRutaDetail() {
+      document.getElementById('ruta-detail-panel').style.display = 'none';
     }
 
     let _filterTimeout = null;
@@ -2631,12 +3048,118 @@
       _filterTimeout = setTimeout(_applyFiltersNow, 120);
     }
     function _applyFiltersNow() {
+      const regionFilter = document.getElementById('filter-region')?.value || '';
       const prov = document.getElementById('filter-provincia')?.value || '';
       const niveles = [...document.querySelectorAll('.nivel-btn.active')].map(b => parseInt(b.dataset.nivel));
+      const rutaFilter = document.getElementById('filter-ruta')?.value || '';
 
-      // Re-render map layers with province filter
-      if (state.rawData.estaciones) renderEstaciones(state.rawData.estaciones, prov);
-      if (state.rawData.alertas) { renderAlertas(state.rawData.alertas, prov); updateAlertasUI(state.rawData.alertas, prov); }
+      // Build province-to-region map for filtering
+      const REGION_PROVINCES = {
+        'NORTE (CIBAO)': ['Santiago','La Vega','Puerto Plata','Duarte','Espaillat','Valverde','Montecristi','Samaná','Hermanas Mirabal','María Trinidad Sánchez','Sánchez Ramírez','Santiago Rodríguez','Dajabón','Monte Plata','Monseñor Nouel','Elías Piña'],
+        'SUROESTE': ['San Juan','Barahona','Azua','Independencia','Pedernales','Bahoruco','San José de Ocoa','Peravia'],
+        'SURESTE': ['Santo Domingo','Distrito Nacional','San Cristóbal','La Romana','San Pedro de Macorís','La Altagracia','El Seibo','Hato Mayor'],
+      };
+
+      // Determine active provinces based on region filter
+      let activeProvs = null; // null = all
+      if (regionFilter && REGION_PROVINCES[regionFilter]) {
+        activeProvs = REGION_PROVINCES[regionFilter].map(p => p.toUpperCase());
+      }
+
+      // Province filter helper: matches if province is in region (or no region filter)
+      const matchesProv = (provincia) => {
+        if (!provincia) return true;
+        const up = provincia.toUpperCase();
+        if (prov && up !== prov.toUpperCase()) return false;
+        if (activeProvs && !activeProvs.some(ap => up.includes(ap) || ap.includes(up))) return false;
+        return true;
+      };
+
+      // Re-render estaciones with province+region filter
+      if (state.rawData.estaciones) {
+        if (activeProvs && !prov) {
+          const filtered = {
+            type: 'FeatureCollection',
+            features: state.rawData.estaciones.features.filter(f => matchesProv(f.properties.provincia))
+          };
+          renderEstaciones(filtered);
+        } else {
+          renderEstaciones(state.rawData.estaciones, prov);
+        }
+      }
+      if (state.rawData.alertas) {
+        if (activeProvs && !prov) {
+          const filtered = {
+            type: 'FeatureCollection',
+            features: state.rawData.alertas.features.filter(f => matchesProv(f.properties.provincia))
+          };
+          renderAlertas(filtered);
+          updateAlertasUI(filtered);
+        } else {
+          renderAlertas(state.rawData.alertas, prov);
+          updateAlertasUI(state.rawData.alertas, prov);
+        }
+      }
+
+      // Filter routes by province/region AND/OR ruta name
+      if (state.rawData.rutas) {
+        let rutaFeatures = state.rawData.rutas.features;
+
+        // Apply region/province filter to routes
+        rutaFeatures = rutaFeatures.filter(f => matchesProv(f.properties.provincia));
+        // Apply ruta name filter
+        if (rutaFilter) {
+          rutaFeatures = rutaFeatures.filter(f => f.properties.ruta === rutaFilter);
+        }
+
+        const filtered = { type: 'FeatureCollection', features: rutaFeatures };
+        renderRutas(filtered, false);
+
+        // Fly to filtered route bounds
+        if ((rutaFilter || prov || regionFilter) && rutaFeatures.length > 0) {
+          const allCoords = rutaFeatures.flatMap(f => f.geometry.coordinates);
+          const lats = allCoords.map(c => c[1]);
+          const lngs = allCoords.map(c => c[0]);
+          state.map.fitBounds(
+            [[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]],
+            { padding: [60, 60], maxZoom: 11, animate: true, duration: 0.8 }
+          );
+        }
+
+        if (rutaFilter) {
+          showRutaDetail(rutaFilter);
+        } else {
+          hideRutaDetail();
+        }
+      }
+
+      // Filter GPS by province/region
+      if (state.rawData.gps) {
+        if (prov || activeProvs) {
+          const filtered = {
+            type: 'FeatureCollection',
+            features: (state.rawData.gps.features || []).filter(f => matchesProv(f.properties.provincia))
+          };
+          renderGps(filtered);
+          updateGpsUI(filtered);
+        } else {
+          renderGps(state.rawData.gps);
+          updateGpsUI(state.rawData.gps);
+        }
+      }
+
+      // Filter Frontera by province/region
+      if (state.rawData.frontera) {
+        if (prov || activeProvs) {
+          const filtered = {
+            type: 'FeatureCollection',
+            features: (state.rawData.frontera.features || []).filter(f => matchesProv(f.properties.provincia))
+          };
+          renderFrontera(filtered);
+        } else {
+          renderFrontera(state.rawData.frontera);
+        }
+      }
 
       // Also send WS filter for server-side alert filtering
       if (state.ws && state.ws.readyState === WebSocket.OPEN) {
@@ -2650,16 +3173,18 @@
         }));
       }
 
-      // Zoom to province if one selected
-      if (prov && state.rawData.estaciones) {
-        const provFeatures = state.rawData.estaciones.features.filter(f => f.properties.provincia === prov);
-        if (provFeatures.length > 0) {
-          const lats = provFeatures.map(f => f.geometry.coordinates[1]);
-          const lngs = provFeatures.map(f => f.geometry.coordinates[0]);
-          state.map.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [40, 40], maxZoom: 12, animate: true, duration: 0.8 });
+      // Zoom to province if one selected (only if no ruta selected)
+      if (!rutaFilter) {
+        if (prov && state.rawData.estaciones) {
+          const provFeatures = state.rawData.estaciones.features.filter(f => f.properties.provincia === prov);
+          if (provFeatures.length > 0) {
+            const lats = provFeatures.map(f => f.geometry.coordinates[1]);
+            const lngs = provFeatures.map(f => f.geometry.coordinates[0]);
+            state.map.fitBounds([[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]], { padding: [40, 40], maxZoom: 12, animate: true, duration: 0.8 });
+          }
+        } else {
+          state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
         }
-      } else {
-        state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
       }
     }
 
@@ -2795,6 +3320,7 @@
       document.querySelectorAll('.analytics-tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
       if (tab === 'volumen') renderVolumeTab();
       if (tab === 'estadisticas') renderStatsTab();
+      if (tab === 'metricas51') renderMetricas51Tab();
     }
 
     function populateAnalytics() {
@@ -3064,6 +3590,192 @@
       <span class="chart-bar-label">${label}</span>
     </div>`;
       }).join('');
+    }
+
+    // ── 51 METRICS TAB ──────────────────────────────────────────────────────────
+    const MODULOS_META = [
+      { key: 'mercado', icon: '💰', name: 'Mercado y Subsidio', color: '#1a3a5c', metrics: [
+        { code: 'M-01', name: 'Subsidio semanal total', desc: 'RD$ que el Estado paga esta semana' },
+        { code: 'M-02', name: 'Subsidio por producto', desc: 'Desglosado por GLP, Gasoil, etc.' },
+        { code: 'M-03', name: 'Diferencial subsidio/galón', desc: 'Incentivo al fraude por galón' },
+        { code: 'M-04', name: 'Brecha WTI vs presupuesto', desc: 'WTI real vs USD 47.8/bbl presupuesto' },
+        { code: 'M-05', name: 'Precio paridad CIF', desc: 'Costo real antes del subsidio' },
+        { code: 'M-06', name: 'Proyección precio 4 sem', desc: 'Forecast Prophet (pendiente ML)' },
+        { code: 'M-07', name: 'Brecha fiscal anual', desc: 'Subsidio real vs presupuestado 2026' },
+        { code: 'M-08', name: 'IRCF Nacional', desc: 'Índice Riesgo Contrabando Fiscal' },
+      ]},
+      { key: 'modulo1', icon: '📊', name: 'Anomalías de Volumen', color: '#4a3708', metrics: [
+        { code: 'M-09', name: 'Z-score volumen', desc: 'Desv. estándar del despacho semanal' },
+        { code: 'M-10', name: 'Ratio volumen/capacidad', desc: '>1.0 = alerta capacidad' },
+        { code: 'M-11', name: 'Volumen sin destino', desc: 'Sin trazabilidad REFIDOMSA→DGII' },
+        { code: 'M-12', name: 'Variación sem-a-sem', desc: 'Cambio % respecto semana anterior' },
+        { code: 'M-13', name: 'Top 20 anomalía', desc: 'Ranking accionable para CECCOM' },
+        { code: 'M-14', name: 'Despachos fuera horario', desc: 'Fuera del horario declarado' },
+        { code: 'M-15', name: 'Exceso zona fronteriza', desc: 'Despacho > consumo local frontera' },
+        { code: 'M-16', name: 'Ajuste base temperatura', desc: 'Corrección Z-score por evaporación' },
+      ]},
+      { key: 'modulo2', icon: '🔴', name: 'Fiscal y Desvío', color: '#4a1a18', metrics: [
+        { code: 'M-17', name: 'IBF Promedio', desc: 'Proporción combustible no declarado' },
+        { code: 'M-18', name: 'Impuesto evadido', desc: 'Pérdida fiscal en RD$' },
+        { code: 'M-19', name: 'Exento sospechoso', desc: 'Exención sin destino verificable' },
+        { code: 'M-20', name: 'Exención vs actividad', desc: 'Volumen exento vs actividad BCRD' },
+        { code: 'M-21', name: 'IBF rolling 12 sem', desc: 'IBF acumulado detecta fraude crónico' },
+        { code: 'M-22', name: 'Top 10 empresas IBF', desc: 'Lista prioritaria DGII/DGA' },
+        { code: 'M-23', name: 'Subsidio GLP capturado', desc: 'RD$ GLP apropiado por desvío' },
+      ]},
+      { key: 'modulo3', icon: '🗺', name: 'Riesgo Fronterizo', color: '#2d1f4e', metrics: [
+        { code: 'M-24', name: 'IRCF por provincia', desc: 'Riesgo semanal por provincia fronteriza' },
+        { code: 'M-25', name: 'Exceso fronterizo %', desc: '% combustible sobre demanda local' },
+        { code: 'M-26', name: 'Demanda local esperada', desc: 'Consumo legítimo por provincia' },
+        { code: 'M-27', name: 'Tendencia IRCF 12 sem', desc: 'Slope indica si sube el incentivo' },
+        { code: 'M-28', name: 'Mapa calor municipio', desc: 'Visualización CESFRONT por zona' },
+      ]},
+      { key: 'modulo4', icon: '🕸', name: 'Inteligencia de Red', color: '#3d2558', metrics: [
+        { code: 'M-29', name: 'Score comunidad', desc: 'Louvain detecta redes coordinadas' },
+        { code: 'M-30', name: 'Entidades en red', desc: '3=incidente, 15+=crimen organizado' },
+        { code: 'M-31', name: 'Z-score red simultáneo', desc: 'Picos simultáneos = coordinación' },
+        { code: 'M-32', name: 'Superposición redes', desc: 'Nexos entre múltiples redes' },
+        { code: 'M-33', name: 'Coincidencia propietario', desc: 'Fuzzy match estaciones mismo dueño' },
+      ]},
+      { key: 'permisologia', icon: '📋', name: 'Permisología y Cumplimiento', color: '#1a3d1f', metrics: [
+        { code: 'M-34', name: '% licencia vigente', desc: 'KPI cumplimiento regulatorio' },
+        { code: 'M-35', name: 'Permiso vencido', desc: 'Lista infractores MICM/CECCOM' },
+        { code: 'M-36', name: 'Días demora renovación', desc: 'Rezago sistémico del control' },
+        { code: 'M-37', name: 'Correlación permiso+anomalía', desc: 'Permiso vencido → más irregularidades' },
+      ]},
+      { key: 'score', icon: '🎯', name: 'Score de Alerta Compuesto', color: '#4a2020', metrics: [
+        { code: 'M-38', name: 'Score contrabando', desc: 'Z 35% + IRCF 30% + IBF 15%...' },
+        { code: 'M-39', name: 'Score desvío fiscal', desc: 'IBF 45% priorizado' },
+        { code: 'M-40', name: 'Score adulteración', desc: 'Z-score 40% + horario 15%' },
+        { code: 'M-41', name: 'Alertas por nivel/semana', desc: 'KPI operativo del sistema' },
+        { code: 'M-42', name: 'Tasa confirmación', desc: 'Precisión: confirmadas/emitidas >60%' },
+      ]},
+      { key: 'fisica', icon: '🔬', name: 'Física del Combustible', color: '#1a3040', metrics: [
+        { code: 'M-43', name: 'Expansión térmica ΔV', desc: 'V × 0.00095 × ΔT' },
+        { code: 'M-44', name: 'Evaporación estación', desc: 'k1 × V_vacío × ΔT' },
+        { code: 'M-45', name: 'Evaporación transporte', desc: 'k2 × (d/v) × ΔT × (1-φ)' },
+        { code: 'M-46', name: 'Balance CORE', desc: 'Inv_ini + Entradas − Ventas − Inv_fin' },
+        { code: 'M-47', name: '% Shrinkage', desc: 'Normal 0.1-0.5%, Alerta >1%' },
+        { code: 'M-48', name: 'Despacho vs recepción', desc: 'Diferencia ≈ E_transporte' },
+        { code: 'M-49', name: 'Desviación real vs esperada', desc: 'Pérdida anómala no explicada' },
+        { code: 'M-50', name: 'Vol corregido 15°C', desc: 'Ajuste a temperatura estándar' },
+        { code: 'M-51', name: 'Subsidio/galón base', desc: 'Precio_CIF − Precio_oficial' },
+      ]},
+    ];
+
+    async function renderMetricas51Tab() {
+      const container = document.getElementById('metricas51-content');
+      container.innerHTML = '<div class="loading">Cargando 51 métricas del motor...</div>';
+
+      // Use cached metrics or fetch
+      let m = state.metricas;
+      if (!m) {
+        try {
+          const res = await fetch('/api/metricas');
+          const data = await res.json();
+          if (data.status === 'ok') { m = data.metricas; state.metricas = m; }
+        } catch (e) { console.warn('[METRICS] Fetch failed:', e.message); }
+      }
+      if (!m) { container.innerHTML = '<div class="loading">No se pudieron cargar métricas. Verifica la conexión.</div>'; return; }
+
+      let html = '';
+      let totalMetrics = 0;
+      let computedMetrics = 0;
+
+      MODULOS_META.forEach((mod, mi) => {
+        const moduleData = m[mod.key] || {};
+        const metricCards = mod.metrics.map((metric, idx) => {
+          totalMetrics++;
+          const mData = moduleData[metric.code];
+          const hasValue = mData && mData.valor !== undefined && mData.valor !== null && mData.valor !== '';
+          if (hasValue) computedMetrics++;
+
+          let displayValue = '—';
+          let displayUnit = '';
+          let badgeClass = '';
+          let badgeText = '';
+          let isSmall = false;
+
+          if (hasValue) {
+            const v = mData.valor;
+            displayUnit = mData.unidad || '';
+
+            if (Array.isArray(v)) {
+              // Array values (lists like M-02, M-13, M-22)
+              displayValue = `${v.length} registros`;
+              isSmall = true;
+              badgeClass = 'ok';
+              badgeText = 'DATOS ✓';
+            } else if (typeof v === 'string') {
+              displayValue = v.length > 40 ? v.substring(0, 37) + '...' : v;
+              isSmall = true;
+              badgeClass = 'ok';
+              badgeText = 'ACTIVO';
+            } else if (typeof v === 'number') {
+              if (displayUnit === 'RD$' || Math.abs(v) > 1000000) {
+                displayValue = formatMoney(v);
+              } else if (displayUnit === '%') {
+                displayValue = v.toFixed(1) + '%';
+              } else if (displayUnit === 'gal') {
+                displayValue = v >= 1000 ? (v / 1000).toFixed(1) + 'K' : v.toFixed(1);
+                displayUnit = 'galones';
+              } else if (displayUnit === 'USD/bbl') {
+                displayValue = v.toFixed(1);
+              } else {
+                displayValue = v >= 10 ? Math.round(v).toLocaleString() : v.toFixed(v < 1 ? 4 : 2);
+              }
+              // Status badge based on metric type
+              if (metric.code === 'M-47') {
+                badgeClass = v > 1 ? 'alert' : v > 0.5 ? 'warn' : 'ok';
+                badgeText = v > 1 ? 'ALERTA' : v > 0.5 ? 'REVISIÓN' : 'NORMAL';
+              } else if (metric.code === 'M-08' || metric.code.startsWith('M-24')) {
+                badgeClass = v > 0.6 ? 'alert' : v > 0.3 ? 'warn' : 'ok';
+                badgeText = v > 0.6 ? 'ALTO' : v > 0.3 ? 'MEDIO' : 'BAJO';
+              } else {
+                badgeClass = 'ok';
+                badgeText = 'ACTIVO';
+              }
+            }
+          } else {
+            badgeClass = 'warn';
+            badgeText = 'PENDIENTE';
+            if (['M-06','M-11','M-16','M-20','M-29','M-30','M-32','M-36'].includes(metric.code)) {
+              badgeText = 'REQUIERE ML/DATOS';
+            }
+          }
+
+          return `<div class="metric-module-card scale-in" style="--i:${idx}">
+            <div class="metric-module-card-header">
+              <span class="metric-module-code ${mod.key}">${metric.code}</span>
+              ${badgeText ? `<span class="metric-module-badge ${badgeClass}">${badgeText}</span>` : ''}
+            </div>
+            <div class="metric-module-value${isSmall ? ' small' : ''}">${displayValue}</div>
+            <div class="metric-module-name">${metric.name}</div>
+            <div class="metric-module-unit">${metric.desc}</div>
+          </div>`;
+        }).join('');
+
+        html += `<div class="metrics-module">
+          <div class="metrics-module-header" style="background:${mod.color}">
+            <span class="metrics-module-icon">${mod.icon}</span>
+            <span class="metrics-module-name">${mod.name}</span>
+            <span class="metrics-module-count">${mod.metrics.length} métricas</span>
+          </div>
+          <div class="metrics-module-grid">${metricCards}</div>
+        </div>`;
+      });
+
+      // Header summary
+      const headerHtml = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;border-radius:12px;background:linear-gradient(135deg,rgba(88,166,255,0.1),rgba(63,185,80,0.1));border:1px solid var(--border)">
+        <div style="font-size:32px;font-weight:900;background:linear-gradient(135deg,#58a6ff,#3fb950);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">${computedMetrics}/${totalMetrics}</div>
+        <div><div style="font-size:14px;font-weight:700;color:var(--text-primary)">Métricas Computadas</div>
+        <div style="font-size:11px;color:var(--text-secondary)">Motor de inteligencia activo · 8 módulos · Regla maestra de pérdida técnica</div></div>
+        <div style="margin-left:auto;padding:8px 16px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);font-size:11px;color:var(--text-muted);text-align:center">
+          <div style="font-size:18px;font-weight:800;color:var(--green)">${((computedMetrics/totalMetrics)*100).toFixed(0)}%</div>Cobertura
+        </div>
+      </div>`;
+
+      container.innerHTML = headerHtml + html;
     }
 
     // Close analytics when clicking overlay background
