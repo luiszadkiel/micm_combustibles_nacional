@@ -1095,21 +1095,24 @@
     }
 
     .analytics-chart-card {
-      padding: 16px;
+      padding: 20px;
       border-radius: 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: linear-gradient(165deg, rgba(18,18,22,0.95), rgba(14,14,18,0.98));
+      border: 1px solid rgba(255,255,255,0.04);
       min-height: 220px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
 
     .analytics-chart-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .chart-placeholder {
@@ -1133,14 +1136,16 @@
 
     .chart-bar {
       flex: 1;
-      border-radius: 4px 4px 0 0;
+      border-radius: 3px 3px 0 0;
       min-width: 12px;
-      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
       position: relative;
+      opacity: 0.85;
     }
 
     .chart-bar:hover {
-      filter: brightness(1.2);
+      opacity: 1;
+      filter: brightness(1.1);
     }
 
     .chart-bar-label {
@@ -1148,9 +1153,11 @@
       bottom: -18px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 9px;
-      color: var(--text-muted);
+      font-size: 8px;
+      color: rgba(255,255,255,0.30);
       white-space: nowrap;
+      letter-spacing: 0.3px;
+      font-weight: 500;
     }
 
     .chart-line-area {
@@ -1169,61 +1176,68 @@
     .volume-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 14px;
       margin-top: 20px;
     }
 
     .volume-card {
-      padding: 16px;
-      border-radius: 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      padding: 18px;
+      border-radius: 10px;
+      background: linear-gradient(165deg, rgba(18,18,22,0.95), rgba(14,14,18,0.98));
+      border: 1px solid rgba(255,255,255,0.04);
       min-height: 100px;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
 
     .volume-card:hover {
-      border-color: rgba(88, 166, 255, 0.2);
-      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
     }
 
     .volume-card-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: rgba(255,255,255,0.40);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
     }
 
     .volume-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 0;
+      padding: 5px 0;
       font-size: 12px;
     }
 
     .volume-row .vr-label {
-      color: var(--text-secondary);
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
     }
 
     .volume-row .vr-value {
       font-weight: 700;
-      color: var(--text-primary);
+      color: rgba(255,255,255,0.85);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
     }
 
     .volume-bar-wrap {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 3px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 2px;
       margin-top: 6px;
       overflow: hidden;
     }
 
     .volume-bar-fill {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 2px;
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -2416,6 +2430,230 @@
       max-height: 40px;
       opacity: 1;
       margin-top: 16px;
+    }
+    /* ── AI CHAT BUBBLE & PANEL ─────────────────────────── */
+    .chat-fab {
+      position: fixed;
+      bottom: 160px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      z-index: 9999;
+      background: rgba(12,12,16,0.85);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fabPulse 3s ease-in-out infinite alternate;
+      padding: 0;
+      overflow: hidden;
+    }
+    .chat-fab:hover {
+      transform: translateX(-50%) scale(1.08);
+      box-shadow: 0 6px 32px rgba(110,161,212,0.25), 0 0 0 1px rgba(110,161,212,0.15);
+    }
+    .chat-fab img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(110,161,212,0.2));
+    }
+    .chat-fab.active {
+      background: rgba(110,161,212,0.15);
+      box-shadow: 0 0 0 2px rgba(110,161,212,0.3), 0 4px 24px rgba(0,0,0,0.4);
+      animation: none;
+    }
+    @keyframes fabPulse {
+      0%   { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06); }
+      100% { box-shadow: 0 4px 24px rgba(110,161,212,0.2), 0 0 0 1px rgba(110,161,212,0.1); }
+    }
+
+    /* Chat panel — replaces sidebar content */
+    .chat-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      background: transparent;
+    }
+    .chat-panel.open {
+      display: flex;
+      animation: chatSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes chatSlideIn {
+      0%   { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      flex-shrink: 0;
+    }
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-header-logo {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(110,161,212,0.3));
+    }
+    .chat-header-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
+    }
+    .chat-header-sub {
+      font-size: 9px;
+      color: rgba(110,161,212,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+    .chat-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .chat-close:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 3px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .chat-msg {
+      max-width: 92%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+    .chat-msg-user {
+      align-self: flex-end;
+      background: rgba(110,161,212,0.12);
+      border: 1px solid rgba(110,161,212,0.15);
+      color: var(--text-primary);
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg-bot {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.80);
+      border-bottom-left-radius: 4px;
+    }
+    .chat-msg-bot strong { color: var(--text-primary); }
+    .chat-msg-bot ul, .chat-msg-bot ol { padding-left: 16px; margin: 6px 0; }
+    .chat-msg-bot li { margin-bottom: 3px; }
+
+    .chat-typing {
+      align-self: flex-start;
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+    }
+    .chat-typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(110,161,212,0.4);
+      animation: typingBounce 1.4s ease-in-out infinite;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      max-height: 80px;
+      min-height: 38px;
+    }
+    .chat-input:focus {
+      border-color: rgba(110,161,212,0.25);
+    }
+    .chat-input::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+    .chat-send {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, rgba(110,161,212,0.2), rgba(56,139,253,0.2));
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .chat-send:hover {
+      background: linear-gradient(135deg, rgba(110,161,212,0.35), rgba(56,139,253,0.35));
+      transform: scale(1.05);
+    }
+    .chat-send:disabled {
+      opacity: 0.3;
+      cursor: default;
+      transform: none;
+    }
+    .chat-send svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Sidebar sections hidden when chat is active */
+    #sidebar.chat-mode .sidebar-section {
+      display: none !important;
     }
   </style>
 </head>
@@ -4697,10 +4935,10 @@
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
       const max = sorted.length > 0 ? sorted[0][1] : 1;
       const container = document.getElementById('chart-provincias');
+      const PRO_PALETTE = ['#64748b','#6b7a8d','#5c7080','#4e6373','#8b9aab','#7d8fa0','#6e8294','#8899aa','#5a6f80','#7a8c9d','#4a5e6f','#9aa8b5'];
       container.innerHTML = sorted.map(([prov, count], i) => {
-        const hue = 210 + (i * 15);
         const pct = (count / max) * 100;
-        return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${count}">
+        return `<div class="chart-bar" style="height:${pct}%;background:${PRO_PALETTE[i % PRO_PALETTE.length]}" title="${prov}: ${count}">
       <span class="chart-bar-label">${prov.slice(0, 6)}</span>
     </div>`;
       }).join('');
@@ -4757,11 +4995,11 @@
       <div class="volume-card-title">Top Provincias por Capacidad</div>
       ${topProvs.map(([prov, d]) => `
         <div class="volume-row"><span class="vr-label">${prov}</span> <span class="vr-value">${(d.totalCap / 1000).toFixed(0)}K gal</span></div>
-        <div class="volume-bar-wrap"><div class="volume-bar-fill" style="width:${(d.totalCap / maxCap * 100).toFixed(0)}%;background:linear-gradient(90deg,#58a6ff,#3fb950)"></div></div>
+        <div class="volume-bar-wrap"><div class="volume-bar-fill" style="width:${(d.totalCap / maxCap * 100).toFixed(0)}%;background:linear-gradient(90deg,#4a6580,#64849e)"></div></div>
       `).join('')}
     </div>
     <div class="volume-card scale-in" style="--i:2">
-      <div class="volume-card-title">📊 Resumen Nacional</div>
+      <div class="volume-card-title">Resumen Nacional</div>
       <div class="volume-row"><span class="vr-label">Total estaciones</span> <span class="vr-value">${estaciones.length.toLocaleString()}</span></div>
       <div class="volume-row"><span class="vr-label">Provincias cubiertas</span> <span class="vr-value">${Object.keys(byProv).length}</span></div>
       <div class="volume-row"><span class="vr-label">Capacidad nacional</span> <span class="vr-value">${(Object.values(byProv).reduce((s, d) => s + d.totalCap, 0) / 1e6).toFixed(1)}M gal</span></div>
@@ -4783,7 +5021,7 @@
       });
       const entries = Object.entries(byTipo).sort((a, b) => b[1] - a[1]);
       const max = entries.length > 0 ? entries[0][1] : 1;
-      const colors = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
+      const colors = { 'ESTACION_SERVICIO': '#5a8aab', 'ENVASADORA': '#8b7a9e' };
       container.innerHTML = entries.map(([tipo, count]) => {
         const pct = (count / max) * 100;
         return `<div class="chart-bar" style="height:${pct}%;background:${colors[tipo] || '#58a6ff'}" title="${tipo}: ${count}">
@@ -4806,10 +5044,10 @@
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
       const max = entries.length > 0 ? entries[0][1] : 1;
+      const SHRINK_PAL = ['#8b5c5c','#7d6363','#6e5a5a','#806060','#8a6e6e','#755555','#6b4e4e','#7a5858','#605050','#8c7070'];
       container.innerHTML = entries.map(([prov, val], i) => {
         const pct = (val / max) * 100;
-        const hue = 0 + (i * 12);
-        return `<div class="chart-bar" style="height:${pct}%;background:hsl(${hue},70%,55%)" title="${prov}: ${val.toFixed(2)}">
+        return `<div class="chart-bar" style="height:${pct}%;background:${SHRINK_PAL[i % SHRINK_PAL.length]}" title="${prov}: ${val.toFixed(2)}">
       <span class="chart-bar-label">${prov.slice(0, 5)}</span>
     </div>`;
       }).join('');
@@ -4838,7 +5076,7 @@
       const max = Math.max(...data.map(d => d.val));
       container.innerHTML = data.map((d, i) => {
         const pct = (d.val / max) * 100;
-        return `<div class="chart-bar" style="height:${pct}%;background:linear-gradient(to top, #58a6ff, #3fb950)" title="${d.week}: ${formatMoney(d.val)}">
+        return `<div class="chart-bar" style="height:${pct}%;background:linear-gradient(to top, #3d5a73, #5a7a93)" title="${d.week}: ${formatMoney(d.val)}">
       <span class="chart-bar-label">${d.week}</span>
     </div>`;
       }).join('');
@@ -4851,7 +5089,7 @@
       alertas.forEach(f => { const p = f.properties.perfil_fraude || 'OTROS'; counts[p] = (counts[p] || 0) + 1; });
       const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
       const max = entries.length > 0 ? entries[0][1] : 1;
-      const colors = { 'CONTRABANDO_FRON': '#f85149', 'DESVIO_FISCAL': '#d29922', 'ADULTERACION': '#58a6ff' };
+      const colors = { 'CONTRABANDO_FRON': '#8b5c5c', 'DESVIO_FISCAL': '#8b8050', 'ADULTERACION': '#5a7a8b' };
       container.innerHTML = entries.map(([perfil, count]) => {
         const pct = (count / max) * 100;
         const label = perfil === 'CONTRABANDO_FRON' ? 'Contrab.' : perfil === 'DESVIO_FISCAL' ? 'Desvío' : perfil === 'ADULTERACION' ? 'Adulter.' : perfil;
@@ -5589,6 +5827,296 @@
           { transform: 'translateX(8px)' },
           { transform: 'translateX(0)' }
         ], { duration: 350, easing: 'ease-in-out' });
+      }
+    }
+  </script>
+
+  <!-- ── CHAT FAB BUTTON ──────────────────────────────────── -->
+  <button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Asistente de Inteligencia">
+    <img src="img/noticias/IATLAS-ISOTIPO.png" alt="Chat">
+  </button>
+
+  <script>
+    // ── AI CHAT LOGIC ─────────────────────────────────────────
+    const chatHistory = [];
+    let chatOpen = false;
+    let chatPanelInjected = false;
+
+    function injectChatPanel() {
+      if (chatPanelInjected) return;
+      const sidebar = document.getElementById('sidebar');
+      const panelHTML = `
+        <div class="chat-panel" id="chat-panel">
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <img src="img/noticias/IATLAS-ISOTIPO.png" class="chat-header-logo" alt="">
+              <div>
+                <div class="chat-header-title">Analista MICM</div>
+                <div class="chat-header-sub">Inteligencia de Combustibles</div>
+              </div>
+            </div>
+            <button class="chat-close" onclick="toggleChat()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg chat-msg-bot">Bienvenido al <strong>Asistente de Inteligencia MICM</strong>. Tengo acceso a todas las estaciones, alertas, rutas, métricas y noticias del sistema. ¿En qué puedo ayudarte?</div>
+          </div>
+          <div class="chat-input-bar">
+            <textarea class="chat-input" id="chat-input" placeholder="Pregunta sobre el sistema..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+            <button class="chat-send" id="chat-send-btn" onclick="sendChatMsg()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      `;
+      sidebar.insertAdjacentHTML('beforeend', panelHTML);
+      chatPanelInjected = true;
+    }
+
+    function toggleChat() {
+      const sidebar = document.getElementById('sidebar');
+      const fab = document.getElementById('chat-fab');
+      injectChatPanel();
+      const panel = document.getElementById('chat-panel');
+
+      chatOpen = !chatOpen;
+
+      if (chatOpen) {
+        // Enter chat mode: hide sidebar sections, show chat
+        sidebar.classList.add('chat-mode');
+        panel.classList.add('open');
+        fab.classList.add('active');
+        // Auto-focus input
+        setTimeout(() => document.getElementById('chat-input')?.focus(), 350);
+      } else {
+        // Exit chat mode: restore sidebar
+        sidebar.classList.remove('chat-mode');
+        panel.classList.remove('open');
+        fab.classList.remove('active');
+      }
+    }
+
+    async function sendChatMsg() {
+      const input = document.getElementById('chat-input');
+      const messages = document.getElementById('chat-messages');
+      const sendBtn = document.getElementById('chat-send-btn');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Add user message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'chat-msg chat-msg-user';
+      userDiv.textContent = text;
+      messages.appendChild(userDiv);
+
+      // Track history
+      chatHistory.push({ role: 'user', content: text });
+
+      // Clear input
+      input.value = '';
+      input.style.height = 'auto';
+
+      // Show typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'chat-typing';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      messages.appendChild(typingDiv);
+      messages.scrollTop = messages.scrollHeight;
+
+      // Disable send
+      sendBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: chatHistory.slice(-20) }),
+        });
+        const data = await res.json();
+
+        // Remove typing
+        typingDiv.remove();
+
+        const reply = data.reply || data.error || 'Sin respuesta';
+        const actions = data.actions || [];
+
+        // Format reply (basic markdown to HTML)
+        const formatted = reply
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/### (.*?)(\n|$)/g, '<strong style="font-size:13px;display:block;margin:8px 0 4px">$1</strong>')
+          .replace(/\n- /g, '<br>• ')
+          .replace(/\n\d+\. /g, (m) => '<br>' + m.trim() + ' ')
+          .replace(/\n/g, '<br>');
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'chat-msg chat-msg-bot';
+        botDiv.innerHTML = formatted;
+        messages.appendChild(botDiv);
+
+        chatHistory.push({ role: 'assistant', content: reply });
+
+        // Execute map actions
+        if (actions.length > 0) {
+          executeChatActions(actions);
+          // Show action indicator
+          const actionDiv = document.createElement('div');
+          actionDiv.className = 'chat-msg chat-msg-bot';
+          actionDiv.style.cssText = 'font-size:10px;opacity:0.5;padding:6px 12px;border:none;background:none;';
+          actionDiv.innerHTML = '🗺️ <em>Mapa actualizado</em>';
+          messages.appendChild(actionDiv);
+        }
+      } catch (err) {
+        typingDiv.remove();
+        const errDiv = document.createElement('div');
+        errDiv.className = 'chat-msg chat-msg-bot';
+        errDiv.textContent = 'Error de conexión: ' + err.message;
+        messages.appendChild(errDiv);
+      }
+
+      sendBtn.disabled = false;
+      messages.scrollTop = messages.scrollHeight;
+      input.focus();
+    }
+
+    // ── EXECUTE MAP ACTIONS FROM CHAT ─────────────────────────────────────────
+    function executeChatActions(actions) {
+      let needsApplyFilters = false;
+      let pendingFlyTo = null;
+
+      for (const action of actions) {
+        switch (action.type) {
+          case 'fly_to': {
+            if (action.lat && action.lng) {
+              pendingFlyTo = { lat: action.lat, lng: action.lng, zoom: action.zoom || 10 };
+            }
+            break;
+          }
+
+          case 'filter_province': {
+            const select = document.getElementById('filter-provincia');
+            if (select && action.province) {
+              const target = action.province.toUpperCase();
+              const regionSel = document.getElementById('filter-region');
+              if (regionSel) regionSel.value = '';
+              let found = false;
+              for (const opt of select.options) {
+                if (opt.value && opt.value.toUpperCase() === target) {
+                  select.value = opt.value;
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                for (const opt of select.options) {
+                  if (opt.value && (opt.value.toUpperCase().includes(target) || target.includes(opt.value.toUpperCase()))) {
+                    select.value = opt.value;
+                    break;
+                  }
+                }
+              }
+              needsApplyFilters = true;
+            }
+            break;
+          }
+
+          case 'filter_region': {
+            const select = document.getElementById('filter-region');
+            if (select && action.region) {
+              select.value = action.region;
+              const provSelect = document.getElementById('filter-provincia');
+              if (provSelect) provSelect.value = '';
+              needsApplyFilters = true;
+            }
+            break;
+          }
+
+          case 'filter_alerts': {
+            if (Array.isArray(action.levels)) {
+              document.querySelectorAll('.nivel-btn').forEach(btn => {
+                const nivel = parseInt(btn.dataset.nivel);
+                if (action.levels.includes(nivel)) {
+                  btn.classList.add('active');
+                } else {
+                  btn.classList.remove('active');
+                }
+              });
+              if (!state.layers.alertas) {
+                state.layers.alertas = true;
+                const toggle = document.querySelector('[data-layer="alertas"]');
+                if (toggle) toggle.classList.add('active');
+              }
+              needsApplyFilters = true;
+            }
+            break;
+          }
+
+          case 'filter_route': {
+            const select = document.getElementById('filter-ruta');
+            if (select && action.route) {
+              let found = false;
+              for (const opt of select.options) {
+                if (opt.value === action.route || opt.textContent === action.route) {
+                  select.value = opt.value;
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                const target = action.route.toUpperCase();
+                for (const opt of select.options) {
+                  if (opt.value && opt.value.toUpperCase().includes(target)) {
+                    select.value = opt.value;
+                    break;
+                  }
+                }
+              }
+              if (!state.layers.rutas) {
+                state.layers.rutas = true;
+                const toggle = document.querySelector('[data-layer="rutas"]');
+                if (toggle) toggle.classList.add('active');
+              }
+              needsApplyFilters = true;
+            }
+            break;
+          }
+
+          case 'show_station': {
+            const select = document.getElementById('filter-estacion');
+            if (select && action.station_id) {
+              select.value = action.station_id;
+              if (!state.layers.estaciones) {
+                state.layers.estaciones = true;
+                const toggle = document.querySelector('[data-layer="estaciones"]');
+                if (toggle) toggle.classList.add('active');
+              }
+              needsApplyFilters = true;
+            }
+            break;
+          }
+
+          case 'reset_filters': {
+            ['filter-region', 'filter-provincia', 'filter-ruta', 'filter-estacion', 'filter-politico'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = '';
+            });
+            document.querySelectorAll('.nivel-btn').forEach(btn => btn.classList.add('active'));
+            needsApplyFilters = true;
+            break;
+          }
+        }
+      }
+
+      // Apply filters with debounce delay — DOM values are readable even when hidden
+      if (needsApplyFilters) {
+        setTimeout(() => applyFilters(), 150);
+      }
+
+      // Execute fly_to AFTER applyFilters settles
+      if (pendingFlyTo) {
+        setTimeout(() => {
+          state.map.flyTo([pendingFlyTo.lat, pendingFlyTo.lng], pendingFlyTo.zoom, { duration: 1.2, easeLinearity: 0.25 });
+        }, 500);
       }
     }
   </script>

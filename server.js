@@ -10,6 +10,7 @@ const path    = require('path');
 const config       = require('./src/config');
 const db           = require('./src/db');
 const apiRoutes    = require('./src/routes/api.routes');
+const chatRoute    = require('./src/routes/chat.route');
 const wsServer     = require('./src/websocket/ws.server');
 const wsPolling    = require('./src/websocket/ws.polling');
 const alertasService  = require('./src/services/alertas.service');
@@ -37,6 +38,7 @@ app.get('/api/config', (req, res) => {
 
 // Montar rutas API
 app.use('/api', apiRoutes);
+app.use('/api', chatRoute);
 
 // Exponer wsClientCount para /api/health
 app.locals.wsClientCount = 0;
