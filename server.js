@@ -50,6 +50,27 @@ setInterval(() => {
   app.locals.wsClientCount = wsServer.clientCount();
 }, 5000);
 
+// Refrescar Vista Materializada cada 10 minutos
+setInterval(async () => {
+  try {
+    await db.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY micm_intel.mv_mapa_calor_municipio;`);
+    console.log('[DB] Vista de Mapa Calor refrescada concurrentemente.');
+    // Trigger update for clients
+    const fronteraService = require('./src/services/frontera.service');
+    const config = require('./src/config');
+    const [fronteraRaw, mapaCalor] = await Promise.all([
+      fronteraService.getFrontera(),
+      fronteraService.getMapaCalor()
+    ]);
+    wsServer.broadcast(config.wsTypes.UPDATE_FRONTERA, {
+      frontera: fronteraService.toGeoJSON(fronteraRaw),
+      mapaCalor: fronteraService.mapaCalorGeoJSON(mapaCalor),
+    });
+  } catch(e) {
+    console.error('[DB] Error refrescando mapa de calor:', e.message);
+  }
+}, config.polling.frontera);
+
 // ── LISTEN/NOTIFY handler ───────────────────────────────────────────────────
 async function onDBNotification(channel, payload) {
   console.log(`[NOTIFY] Canal: ${channel}`);

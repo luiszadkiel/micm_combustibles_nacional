@@ -2,12 +2,16 @@
 // MICM-INTEL v1.0 — Motor de Métricas (44 de 51 calculables en PostgreSQL)
 // ============================================================================
 const db = require('../db');
+const cache = require('../utils/cache');
 
 /**
  * Calcula todas las métricas agrupadas por módulo.
  * Retorna un objeto con 8 secciones.
  */
 async function calcularMetricas() {
+  const cached = cache.get('metricas_all');
+  if (cached) return cached;
+
   const [mercado, modulo1, modulo2, modulo3, modulo4, permisologia, score, fisica] =
     await Promise.all([
       calcMercado(),
@@ -20,7 +24,9 @@ async function calcularMetricas() {
       calcFisica(),
     ]);
 
-  return { mercado, modulo1, modulo2, modulo3, modulo4, permisologia, score, fisica };
+  const result = { mercado, modulo1, modulo2, modulo3, modulo4, permisologia, score, fisica };
+  cache.set('metricas_all', result, 120);
+  return result;
 }
 
 // ── MERCADO Y SUBSIDIO (M-01 a M-08) ───────────────────────────────────────
@@ -320,6 +326,10 @@ async function calcFisica() {
  * @param {string[]} provincias - Array de nombres de provincia
  */
 async function calcularMetricasRegional(provincias) {
+  const cacheKey = 'metricas_reg_' + (provincias ? provincias.join('_') : 'all');
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   if (!provincias || provincias.length === 0) {
     // Sin filtro → devolver nacionales
     return calcularMetricasKPI();
@@ -391,7 +401,7 @@ async function calcularMetricasRegional(provincias) {
   ]);
 
   const s = subsidioWti.rows[0];
-  return {
+  const result = {
     subsidio: parseFloat(s.subsidio_total || 0),
     ircf_nacional: parseFloat(s.ircf_nacional || 0),
     wti: parseFloat(s.wti || 0),
@@ -401,6 +411,8 @@ async function calcularMetricasRegional(provincias) {
     shrinkage: parseFloat(shrinkage.rows[0]?.shrinkage_pct || 0),
     es_filtrado: true,
   };
+  cache.set(cacheKey, result, 120);
+  return result;
 }
 
 /**

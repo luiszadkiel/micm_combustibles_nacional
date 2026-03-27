@@ -3368,15 +3368,13 @@
         const isSelected = state.selectedEstacion === p.estacion_id;
         const size = isSelected ? 28 : 18;
 
-        // SVG fuel-pump icon marker
-        const svgIcon = L.divIcon({
-          className: '',
-          html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${isSelected ? 2.5 : 1.8}" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.6))${isSelected ? ';filter:drop-shadow(0 0 6px '+color+')' : ''}"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 6"/><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="12" y2="9"/></svg>`,
-          iconSize: [size, size],
-          iconAnchor: [size/2, size/2],
+        const marker = L.circleMarker([lat, lng], {
+          radius: isSelected ? 7 : 4.5,
+          fillColor: color,
+          color: isSelected ? '#fff' : color,
+          weight: isSelected ? 2 : 1,
+          fillOpacity: isSelected ? 1 : 0.6,
         });
-
-        const marker = L.marker([lat, lng], { icon: svgIcon });
 
         marker.bindPopup(`
       <div class="popup-title">${p.nombre}</div>

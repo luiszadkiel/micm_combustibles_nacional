@@ -2,11 +2,15 @@
 // MICM-INTEL v1.0 — Servicio de Riesgo Fronterizo
 // ============================================================================
 const db = require('../db');
+const cache = require('../utils/cache');
 
 /**
  * IRCF actual por provincia fronteriza con coordenadas para Mapbox.
  */
 async function getFrontera() {
+  const cached = cache.get('frontera_all');
+  if (cached) return cached;
+
   const sql = `
     SELECT
       rf.riesgo_id, rf.semana_inicio, rf.anio, rf.semana_iso,
@@ -23,13 +27,18 @@ async function getFrontera() {
     )
     ORDER BY rf.ircf DESC
   `;
-  return (await db.query(sql)).rows;
+  const result = (await db.query(sql)).rows;
+  cache.set('frontera_all', result, 600);
+  return result;
 }
 
 /**
  * Mapa de calor por municipio para heatmap layer.
  */
 async function getMapaCalor() {
+  const cached = cache.get('mapa_calor_mv');
+  if (cached) return cached;
+
   const sql = `
     SELECT
       municipio, provincia, geo_id, lat, lon,
@@ -37,11 +46,13 @@ async function getMapaCalor() {
       z_score_promedio, alertas_activas,
       ircf_promedio, escala_riesgo_1a5,
       pct_evap_promedio, temp_media_c
-    FROM v_mapa_calor_municipio
+    FROM micm_intel.mv_mapa_calor_municipio
     WHERE lat IS NOT NULL AND lon IS NOT NULL
     ORDER BY escala_riesgo_1a5 DESC
   `;
-  return (await db.query(sql)).rows;
+  const result = (await db.query(sql)).rows;
+  cache.set('mapa_calor_mv', result, 600);
+  return result;
 }
 
 /**

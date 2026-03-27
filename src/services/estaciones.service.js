@@ -2,11 +2,15 @@
 // MICM-INTEL v1.0 — Servicio de Estaciones
 // ============================================================================
 const db = require('../db');
+const cache = require('../utils/cache');
 
 /**
  * Todas las estaciones activas como GeoJSON para Mapbox.
  */
 async function getAll() {
+  const cached = cache.get('estaciones_all');
+  if (cached) return cached;
+
   const sql = `
     WITH ultimas_anomalias AS (
       SELECT DISTINCT ON (estacion_id)
@@ -27,7 +31,9 @@ async function getAll() {
     ORDER BY COALESCE(a.nivel_alerta, 0) DESC
   `;
   const result = await db.query(sql);
-  return toGeoJSON(result.rows);
+  const geojson = toGeoJSON(result.rows);
+  cache.set('estaciones_all', geojson, 300); // 5 minutes TTL
+  return geojson;
 }
 
 /**

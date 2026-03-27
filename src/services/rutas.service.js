@@ -3,6 +3,7 @@
 // ============================================================================
 const db = require('../db');
 const osrm = require('./osrm.service');
+const cache = require('../utils/cache');
 
 /**
  * Todas las rutas con waypoints + cached OSRM road geometry.
@@ -12,6 +13,9 @@ const osrm = require('./osrm.service');
 let bgStarted = false;
 
 async function getRutas() {
+  const cached = cache.get('rutas_all');
+  if (cached) return cached;
+
   const sql = `
     SELECT
       r.ruta_dist_id, r.estacion_id,
@@ -43,6 +47,7 @@ async function getRutas() {
     startBackgroundOSRM(rows);
   }
 
+  cache.set('rutas_all', rows, 300);
   return rows;
 }
 
@@ -193,6 +198,10 @@ async function getDistinctRutas() {
  * Incluye temperatura, distancia, % pérdida, y conteo de estaciones.
  */
 async function getEvaporacionByRuta(rutaNombre) {
+  const cacheKey = 'evap_ruta_' + rutaNombre;
+  const cached = cache.get(cacheKey);
+  if (cached !== null) return cached;
+
   const sql = `
     SELECT
       re.ruta_nombre,
@@ -225,7 +234,9 @@ async function getEvaporacionByRuta(rutaNombre) {
     GROUP BY re.ruta_nombre
   `;
   const result = await db.query(sql, [rutaNombre]);
-  return result.rows[0] || null;
+  const finalVal = result.rows[0] || null;
+  cache.set(cacheKey, finalVal, 300);
+  return finalVal;
 }
 
 module.exports = { getRutas, toGeoJSON, getDistinctRutas, getEvaporacionByRuta };

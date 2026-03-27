@@ -2,12 +2,17 @@
 // MICM-INTEL v1.0 — Servicio de Alertas Operativas
 // ============================================================================
 const db = require('../db');
+const cache = require('../utils/cache');
 
 /**
  * Alertas filtradas desde fact_alertas_operativas + dim_estacion.
  * Todos los filtros son opcionales — filter layer traduce a SQL parametrizado.
  */
 async function getAlertas({ nivel, perfil, provincia, producto, estado, frontera } = {}) {
+  const cacheKey = `alertas_${nivel}_${perfil}_${provincia}_${producto}_${estado}_${frontera}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   const conditions = [`a.estado_alerta != 'DESCARTADA'`];
   const params = [];
   let idx = 1;
@@ -71,6 +76,7 @@ async function getAlertas({ nivel, perfil, provincia, producto, estado, frontera
   `;
 
   const result = await db.query(sql, params);
+  cache.set(cacheKey, result.rows, 30);
   return result.rows;
 }
 
@@ -78,6 +84,9 @@ async function getAlertas({ nivel, perfil, provincia, producto, estado, frontera
  * Resumen de alertas por nivel y perfil.
  */
 async function getAlertasSummary() {
+  const cached = cache.get('alertas_summary');
+  if (cached) return cached;
+
   const sql = `
     SELECT
       nivel_alerta,
@@ -89,7 +98,9 @@ async function getAlertasSummary() {
     GROUP BY nivel_alerta, perfil_fraude
     ORDER BY nivel_alerta DESC
   `;
-  return (await db.query(sql)).rows;
+  const rows = (await db.query(sql)).rows;
+  cache.set('alertas_summary', rows, 30);
+  return rows;
 }
 
 /**

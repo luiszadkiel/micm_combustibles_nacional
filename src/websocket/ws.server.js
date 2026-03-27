@@ -12,7 +12,24 @@ let wss = null;
  * @param {import('http').Server} server
  */
 function init(server) {
-  wss = new WebSocketServer({ server });
+  wss = new WebSocketServer({ 
+    server,
+    perMessageDeflate: {
+      zlibDeflateOptions: {
+        chunkSize: 1024,
+        memLevel: 7,
+        level: 3 
+      },
+      zlibInflateOptions: {
+        chunkSize: 10 * 1024
+      },
+      clientNoContextTakeover: true,
+      serverNoContextTakeover: true,
+      serverMaxWindowBits: 10,
+      concurrencyLimit: 10,
+      threshold: 1024
+    }
+  });
 
   wss.on('connection', (ws, req) => {
     const ip = req.socket.remoteAddress;
@@ -75,53 +92,76 @@ async function sendInitialState(ws) {
     const fronteraService = require('../services/frontera.service');
     const metricasService = require('../services/metricas.service');
 
-    const [estaciones, alertasRaw, cisternas, rutasRaw, metricas] =
-      await Promise.all([
-        estacionesService.getAll(),
-        alertasService.getAlertas({ nivel: 1 }),
-        gpsService.getCisternas(),
-        rutasService.getRutas(),
-        metricasService.calcularMetricas(),
-      ]);
-
-    const fastPayload = {
-      type: config.wsTypes.INITIAL_STATE,
-      data: {
-        estaciones,
-        alertas: alertasService.toGeoJSON(alertasRaw),
-        gps: gpsService.toGeoJSON(cisternas),
-        rutas: rutasService.toGeoJSON(rutasRaw),
-        metricas,
-      },
-      timestamp: new Date().toISOString(),
-    };
-
-    if (ws.readyState === ws.OPEN) {
-      ws.send(JSON.stringify(fastPayload));
-      console.log('[WS] ✓ INITIAL_STATE (Fast layer) enviado');
-    }
-
-    // Lazy load slow layers (Frontera & Mapa Calor)
-    const [fronteraRaw, mapaCalor] = await Promise.all([
-      fronteraService.getFrontera(),
-      fronteraService.getMapaCalor(),
+    // 1. Fase Ultra-rápida (Lo mínimo para que la UI principal pinte)
+    const [estaciones, metricas] = await Promise.all([
+      estacionesService.getAll(),
+      metricasService.calcularMetricas()
     ]);
 
-    const slowPayload = {
-      type: 'UPDATE_FRONTERA', // Or a more generic type
-      data: {
-        frontera: fronteraService.toGeoJSON(fronteraRaw),
-        mapaCalor: fronteraService.mapaCalorGeoJSON(mapaCalor),
-      },
-      timestamp: new Date().toISOString(),
-    };
-
     if (ws.readyState === ws.OPEN) {
-      ws.send(JSON.stringify(slowPayload));
-      console.log('[WS] ✓ INITIAL_STATE (Slow layer) enviado');
+      ws.send(JSON.stringify({
+        type: config.wsTypes.INITIAL_STATE,
+        data: { estaciones, metricas },
+        timestamp: new Date().toISOString(),
+      }));
+      console.log('[WS] ✓ INITIAL_STATE (Fase 1: Estaciones+Métricas) enviado');
     }
+
+    // 2. Fase Rápida (Cisternas y Alertas)
+    setTimeout(async () => {
+      try {
+        if (ws.readyState !== ws.OPEN) return;
+        const [alertasRaw, cisternas] = await Promise.all([
+          alertasService.getAlertas({ nivel: 1 }),
+          gpsService.getCisternas()
+        ]);
+        ws.send(JSON.stringify({
+          type: 'UPDATE_ALERTAS',
+          data: { alertas: alertasService.toGeoJSON(alertasRaw) }
+        }));
+        ws.send(JSON.stringify({
+          type: 'UPDATE_GPS',
+          data: gpsService.toGeoJSON(cisternas)
+        }));
+        console.log('[WS] ✓ INITIAL_STATE (Fase 2: Alertas+GPS) enviado');
+      } catch(e) { console.error('[WS] Error fase 2:', e.message); }
+    }, 150);
+
+    // 3. Fase Media (Rutas)
+    setTimeout(async () => {
+      try {
+        if (ws.readyState !== ws.OPEN) return;
+        const rutasRaw = await rutasService.getRutas();
+        ws.send(JSON.stringify({
+          type: 'UPDATE_RUTAS',
+          data: { rutas: rutasService.toGeoJSON(rutasRaw) }
+        }));
+        console.log('[WS] ✓ INITIAL_STATE (Fase 3: Rutas) enviado');
+      } catch(e) { console.error('[WS] Error fase 3:', e.message); }
+    }, 350);
+
+    // 4. Fase Lenta (Frontera y Mapa Calor)
+    setTimeout(async () => {
+      try {
+        if (ws.readyState !== ws.OPEN) return;
+        const [fronteraRaw, mapaCalor] = await Promise.all([
+          fronteraService.getFrontera(),
+          fronteraService.getMapaCalor(),
+        ]);
+        ws.send(JSON.stringify({
+          type: 'UPDATE_FRONTERA',
+          data: {
+            frontera: fronteraService.toGeoJSON(fronteraRaw),
+            mapaCalor: fronteraService.mapaCalorGeoJSON(mapaCalor),
+          },
+          timestamp: new Date().toISOString(),
+        }));
+        console.log('[WS] ✓ INITIAL_STATE (Fase 4: Frontera) enviado');
+      } catch(e) { console.error('[WS] Error fase 4:', e.message); }
+    }, 700);
+
   } catch (err) {
-    console.error('[WS] Error enviando INITIAL_STATE:', err.message);
+    console.error('[WS] Error enviando INITIAL_STATE escalonado:', err.message);
   }
 }
 

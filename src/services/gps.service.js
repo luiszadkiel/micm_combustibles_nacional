@@ -4,12 +4,16 @@
 // La vista NO tiene lat/lon actual — se interpola en Node.js
 // ============================================================================
 const db = require('../db');
+const cache = require('../utils/cache');
 
 /**
  * Obtiene las cisternas activas y calcula posición interpolada
  * sobre los waypoints de la ruta.
  */
 async function getCisternas() {
+  const cached = cache.get('gps_cisternas');
+  if (cached) return cached;
+
   // Despachos recientes (últimas 24h simuladas como "en ruta")
   const sql = `
     SELECT
@@ -47,10 +51,12 @@ async function getCisternas() {
   `;
 
   const result = await db.query(sql);
-  return result.rows.map(c => ({
+  const cisternas = result.rows.map(c => ({
     ...c,
     ...interpolarPosicion(c),
   }));
+  cache.set('gps_cisternas', cisternas, 15); // short TTL
+  return cisternas;
 }
 
 /**
