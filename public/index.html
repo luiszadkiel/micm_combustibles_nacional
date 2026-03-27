@@ -87,6 +87,12 @@
     #panel {
       grid-row: 2;
       grid-column: 3;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border);
       transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -193,10 +199,10 @@
       backdrop-filter: blur(20px);
       border-right: 1px solid var(--border);
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 6px;
       z-index: 500;
       scroll-behavior: smooth;
     }
@@ -204,72 +210,119 @@
     .sidebar-section {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      background: rgba(22, 27, 34, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 10px;
+      transition: border-color 0.3s;
+    }
+
+    .sidebar-section:hover {
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     .sidebar-label {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.2px;
+      color: var(--accent);
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+
+    .sidebar-label .section-chevron {
+      font-size: 9px;
+      transition: transform 0.2s;
       color: var(--text-muted);
+    }
+
+    .sidebar-section.section-collapsed .sidebar-label .section-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .sidebar-section.section-collapsed .section-body {
+      display: none;
+    }
+
+    .section-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .filter-group {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .filter-group label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .filter-group select,
     .filter-group input {
       width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      font-size: 12px;
       font-family: inherit;
-      background: var(--bg-panel-solid);
+      background: rgba(13, 17, 23, 0.8);
       color: var(--text-primary);
-      transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, background 0.3s ease;
+      transition: all 0.25s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
     }
 
     .filter-group select:focus,
     .filter-group input:focus {
       border-color: var(--accent);
       outline: none;
-      box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.2), 0 0 20px rgba(56, 139, 253, 0.08);
-      background: rgba(22, 27, 34, 1);
+      box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.15), inset 0 0 12px rgba(56, 139, 253, 0.05);
+      background-color: rgba(22, 27, 34, 1);
     }
 
     .filter-group select:hover,
     .filter-group input:hover {
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.12);
+      background-color: rgba(22, 27, 34, 0.9);
     }
 
     .filter-group select option {
-      background: var(--bg-panel-solid);
+      background: #161b22;
       color: var(--text-primary);
     }
 
     .nivel-btns {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 4px;
     }
 
     .nivel-btn {
-      flex: 1;
-      padding: 6px;
-      border: 1.5px solid var(--border-strong);
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
+      padding: 5px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
       cursor: pointer;
       text-align: center;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -279,11 +332,12 @@
 
     .nivel-btn:hover {
       transform: translateY(-1px);
-      filter: brightness(1.15);
+      filter: brightness(1.2);
     }
 
     .nivel-btn.active {
       color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .nivel-btn[data-nivel="0"] {
@@ -293,6 +347,7 @@
     .nivel-btn[data-nivel="0"].active {
       background: var(--green);
       border-color: var(--green);
+      box-shadow: 0 0 12px rgba(63, 185, 80, 0.3);
     }
 
     .nivel-btn[data-nivel="1"] {
@@ -302,6 +357,7 @@
     .nivel-btn[data-nivel="1"].active {
       background: var(--blue);
       border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(88, 166, 255, 0.3);
     }
 
     .nivel-btn[data-nivel="2"] {
@@ -311,6 +367,7 @@
     .nivel-btn[data-nivel="2"].active {
       background: var(--orange);
       border-color: var(--orange);
+      box-shadow: 0 0 12px rgba(210, 153, 34, 0.3);
     }
 
     .nivel-btn[data-nivel="3"] {
@@ -320,38 +377,62 @@
     .nivel-btn[data-nivel="3"].active {
       background: var(--red);
       border-color: var(--red);
+      box-shadow: 0 0 12px rgba(248, 81, 73, 0.3);
     }
 
     .pilares-grid {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 4px;
     }
 
     .pilar-pill {
-      padding: 4px 8px;
-      border-radius: 20px;
+      padding: 5px 8px;
+      border-radius: 8px;
       font-size: 10px;
       font-weight: 600;
-      border: 1px solid var(--border-strong);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: transparent;
-      color: var(--text-secondary);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(13, 17, 23, 0.6);
+      color: var(--text-muted);
       letter-spacing: 0.3px;
+      text-align: center;
       will-change: transform, background-color;
     }
 
     .pilar-pill:hover {
       transform: translateY(-1px);
       background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .pilar-pill.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 0 12px rgba(88, 166, 255, 0.3);
+      background: rgba(56, 139, 253, 0.15);
+      color: var(--accent);
+      border-color: rgba(56, 139, 253, 0.3);
+      box-shadow: 0 0 8px rgba(88, 166, 255, 0.15);
+    }
+
+    .filter-reset-btn {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      background: rgba(248, 81, 73, 0.08);
+      color: #f85149;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-reset-btn:hover {
+      background: rgba(248, 81, 73, 0.2);
+      border-color: rgba(248, 81, 73, 0.3);
     }
 
     .timeline-container {
@@ -482,6 +563,16 @@
       box-shadow: var(--shadow-lg);
       min-width: 200px;
       animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+    }
+
+    .monitor-panel.collapsed .collapsible-body,
+    .map-legend.collapsed .collapsible-body {
+      display: none;
+    }
+
+    .monitor-panel.collapsed .collapse-chevron,
+    .map-legend.collapsed .collapse-chevron {
+      transform: rotate(-90deg);
     }
 
     .monitor-title {
@@ -1129,6 +1220,7 @@
     .metrics-module {
       margin-bottom: 24px;
     }
+
     .metrics-module-header {
       display: flex;
       align-items: center;
@@ -1139,19 +1231,38 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-    .metrics-module-header:hover { filter: brightness(1.1); }
-    .metrics-module-icon { font-size: 20px; }
-    .metrics-module-name { font-size: 14px; font-weight: 800; color: #fff; flex: 1; }
-    .metrics-module-count {
-      font-size: 10px; font-weight: 700; padding: 3px 10px;
-      border-radius: 20px; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
+
+    .metrics-module-header:hover {
+      filter: brightness(1.1);
     }
+
+    .metrics-module-icon {
+      font-size: 20px;
+    }
+
+    .metrics-module-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      flex: 1;
+    }
+
+    .metrics-module-count {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
     .metrics-module-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 10px;
       padding-left: 8px;
     }
+
     .metric-module-card {
       padding: 14px 16px;
       border-radius: 10px;
@@ -1162,42 +1273,111 @@
       flex-direction: column;
       gap: 4px;
     }
+
     .metric-module-card:hover {
       border-color: rgba(88, 166, 255, 0.25);
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
+
     .metric-module-card-header {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
     .metric-module-code {
-      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
-      padding: 2px 8px; border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
-    .metric-module-code.mercado { background: rgba(88,166,255,0.15); color: #58a6ff; }
-    .metric-module-code.modulo1 { background: rgba(210,153,34,0.15); color: #d29922; }
-    .metric-module-code.modulo2 { background: rgba(248,81,73,0.15); color: #f85149; }
-    .metric-module-code.modulo3 { background: rgba(163,113,247,0.15); color: #a371f7; }
-    .metric-module-code.modulo4 { background: rgba(219,171,255,0.15); color: #dbabff; }
-    .metric-module-code.permisologia { background: rgba(63,185,80,0.15); color: #3fb950; }
-    .metric-module-code.score { background: rgba(255,123,114,0.15); color: #ff7b72; }
-    .metric-module-code.fisica { background: rgba(121,192,255,0.15); color: #79c0ff; }
+
+    .metric-module-code.mercado {
+      background: rgba(88, 166, 255, 0.15);
+      color: #58a6ff;
+    }
+
+    .metric-module-code.modulo1 {
+      background: rgba(210, 153, 34, 0.15);
+      color: #d29922;
+    }
+
+    .metric-module-code.modulo2 {
+      background: rgba(248, 81, 73, 0.15);
+      color: #f85149;
+    }
+
+    .metric-module-code.modulo3 {
+      background: rgba(163, 113, 247, 0.15);
+      color: #a371f7;
+    }
+
+    .metric-module-code.modulo4 {
+      background: rgba(219, 171, 255, 0.15);
+      color: #dbabff;
+    }
+
+    .metric-module-code.permisologia {
+      background: rgba(63, 185, 80, 0.15);
+      color: #3fb950;
+    }
+
+    .metric-module-code.score {
+      background: rgba(255, 123, 114, 0.15);
+      color: #ff7b72;
+    }
+
+    .metric-module-code.fisica {
+      background: rgba(121, 192, 255, 0.15);
+      color: #79c0ff;
+    }
+
     .metric-module-value {
-      font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
     }
-    .metric-module-value.small { font-size: 14px; font-weight: 600; }
+
+    .metric-module-value.small {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
     .metric-module-name {
-      font-size: 11px; font-weight: 600; color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
     }
+
     .metric-module-unit {
-      font-size: 10px; color: var(--text-muted);
+      font-size: 10px;
+      color: var(--text-muted);
     }
+
     .metric-module-badge {
-      font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
     }
-    .metric-module-badge.ok { background: var(--green-bg); color: var(--green); }
-    .metric-module-badge.warn { background: var(--orange-bg); color: var(--orange); }
-    .metric-module-badge.alert { background: var(--red-bg); color: var(--red); }
+
+    .metric-module-badge.ok {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .metric-module-badge.warn {
+      background: var(--orange-bg);
+      color: var(--orange);
+    }
+
+    .metric-module-badge.alert {
+      background: var(--red-bg);
+      color: var(--red);
+    }
 
     /* ── RIGHT PANEL ────────────────────────────────────────────────── */
     #panel {
@@ -1623,6 +1803,273 @@
       pointer-events: none;
     }
 
+    /* ── Noticias Panel ─────────────────────────────────────── */
+    .noticias-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 8px;
+      color: #e6edf3;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .noticias-toggle:hover {
+      background: linear-gradient(135deg, rgba(88, 166, 255, 0.25), rgba(139, 92, 246, 0.25));
+    }
+
+    .noticias-toggle .toggle-arrow {
+      transition: transform 0.3s ease;
+      font-size: 10px;
+    }
+
+    .noticias-toggle.open .toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    .noticias-list {
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .noticia-card {
+      padding: 10px;
+      margin-top: 6px;
+      background: rgba(22, 27, 34, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .noticia-card:hover {
+      background: rgba(30, 40, 55, 0.95);
+      border-color: rgba(88, 166, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .noticia-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .noticia-card .noticia-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e6edf3;
+      line-height: 1.3;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .noticia-card .noticia-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #8b949e;
+    }
+
+    .noticia-card .noticia-meta img {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .noticia-sentiment {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .noticia-sentiment.positive {
+      background: #3fb950;
+    }
+
+    .noticia-sentiment.negative {
+      background: #f85149;
+    }
+
+    .noticia-sentiment.neutral {
+      background: #8b949e;
+    }
+
+    /* ── News Article Modal ────────────────────────────────── */
+    .news-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .news-modal-overlay.active {
+      display: flex;
+    }
+
+    .news-modal {
+      width: 680px;
+      max-width: 92vw;
+      max-height: 85vh;
+      background: linear-gradient(145deg, #161b22, #1c2333);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(88, 166, 255, 0.08);
+    }
+
+    .news-modal-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(22, 27, 34, 0.6);
+    }
+
+    .news-modal-header .nm-source {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .news-modal-header .nm-source img {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+    }
+
+    .news-modal-header .nm-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e6edf3;
+      line-height: 1.3;
+    }
+
+    .news-modal-header .nm-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #8b949e;
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .news-modal-header .nm-close:hover {
+      background: rgba(248, 81, 73, 0.2);
+      color: #f85149;
+    }
+
+    .news-modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.7;
+    }
+
+    .news-modal-body .nm-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      max-height: 300px;
+      object-fit: cover;
+    }
+
+    .news-modal-body .nm-summary {
+      background: rgba(88, 166, 255, 0.08);
+      border-left: 3px solid #58a6ff;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #8b949e;
+      font-style: italic;
+    }
+
+    .news-modal-body .nm-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+    }
+
+    .news-modal-body .nm-keywords span {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a371f7;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+
+    .news-modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(22, 27, 34, 0.6);
+    }
+
+    .news-modal-footer .nm-date {
+      font-size: 11px;
+      color: #8b949e;
+    }
+
+    .news-modal-footer .nm-link {
+      padding: 6px 16px;
+      background: linear-gradient(135deg, #58a6ff, #388bfd);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .news-modal-footer .nm-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+    }
+
     /* ── Route Detail Panel ──────────────────────────────────────── */
     .ruta-detail-panel {
       margin-top: 10px;
@@ -1632,15 +2079,28 @@
       padding: 12px;
       animation: fadeIn 0.3s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .ruta-detail-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
+
     .ruta-detail-title {
       font-size: 12px;
       font-weight: 700;
@@ -1650,6 +2110,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .ruta-detail-badge {
       font-size: 10px;
       font-weight: 700;
@@ -1662,35 +2123,41 @@
       flex-shrink: 0;
       margin-left: 8px;
     }
+
     .ruta-detail-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
+
     .ruta-detail-extra {
       margin-top: 6px;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+
     .ruta-detail-item {
-      background: rgba(255,255,255,0.04);
+      background: rgba(255, 255, 255, 0.04);
       border-radius: 6px;
       padding: 6px 8px;
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
+
     .ruta-detail-item.wide {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
     }
+
     .ruta-detail-label {
       font-size: 10px;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255, 255, 255, 0.5);
       white-space: nowrap;
     }
+
     .ruta-detail-value {
       font-size: 13px;
       font-weight: 700;
@@ -1719,66 +2186,84 @@
     </header>
 
     <aside id="sidebar">
-      <div class="sidebar-section">
-        <span class="sidebar-label">Filtros</span>
-        <div class="filter-group">
-          <label>Módulo</label>
-          <select id="filter-modulo">
-            <option value="">Todos</option>
-            <option value="mercado">Mercado y Subsidio</option>
-            <option value="modulo1">Anomalías Volumen</option>
-            <option value="modulo2">Fiscal y Desvío</option>
-            <option value="modulo3">Riesgo Fronterizo</option>
-            <option value="modulo4">Inteligencia de Red</option>
-            <option value="permisologia">Permisología</option>
-            <option value="score">Score de Alerta</option>
-            <option value="fisica">Física Combustible</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Nivel de Alerta</label>
-          <div class="nivel-btns">
-            <button class="nivel-btn active" data-nivel="0">N0</button>
-            <button class="nivel-btn active" data-nivel="1">N1</button>
-            <button class="nivel-btn active" data-nivel="2">N2</button>
-            <button class="nivel-btn active" data-nivel="3">N3</button>
+      <!-- SECTION 1: Filtros -->
+      <div class="sidebar-section" id="section-filtros">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          🎯 Filtros de Inteligencia <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <div class="filter-group">
+            <label>📦 Módulo</label>
+            <select id="filter-modulo">
+              <option value="">Todos los módulos</option>
+              <option value="mercado">Mercado y Subsidio</option>
+              <option value="modulo1">Anomalías Volumen</option>
+              <option value="modulo2">Fiscal y Desvío</option>
+              <option value="modulo3">Riesgo Fronterizo</option>
+              <option value="modulo4">Inteligencia de Red</option>
+              <option value="permisologia">Permisología</option>
+              <option value="score">Score de Alerta</option>
+              <option value="fisica">Física Combustible</option>
+            </select>
           </div>
-        </div>
-        <div class="filter-group">
-          <label>🗺️ Macro-Región</label>
-          <select id="filter-region">
-            <option value="">Todas</option>
-            <option value="NORTE (CIBAO)">Norte (Cibao)</option>
-            <option value="SUROESTE">Suroeste</option>
-            <option value="SURESTE">Sureste</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Provincia</label>
-          <select id="filter-provincia">
-            <option value="">Todas</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Producto</label>
-          <select id="filter-producto">
-            <option value="">Todos</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Perfil Fraude</label>
-          <select id="filter-perfil">
-            <option value="">Todos</option>
-            <option value="CONTRABANDO_FRON">Contrabando Fronterizo</option>
-            <option value="DESVIO_FISCAL">Desvío Fiscal</option>
-            <option value="ADULTERACION">Adulteración</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>🛣️ Ruta de Distribución</label>
-          <select id="filter-ruta">
-            <option value="">Todas las rutas</option>
-          </select>
+          <div class="filter-group">
+            <label>⚠️ Nivel de Alerta</label>
+            <div class="nivel-btns">
+              <button class="nivel-btn active" data-nivel="0">N0</button>
+              <button class="nivel-btn active" data-nivel="1">N1</button>
+              <button class="nivel-btn active" data-nivel="2">N2</button>
+              <button class="nivel-btn active" data-nivel="3">N3</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>🗺️ Macro-Región</label>
+            <select id="filter-region">
+              <option value="">Todas las regiones</option>
+              <option value="NORTE (CIBAO)">Norte (Cibao)</option>
+              <option value="SUROESTE">Suroeste</option>
+              <option value="SURESTE">Sureste</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>📍 Provincia</label>
+            <select id="filter-provincia">
+              <option value="">Todas las provincias</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>🛢️ Producto</label>
+            <select id="filter-producto">
+              <option value="">Todos los productos</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>🔍 Perfil de Fraude</label>
+            <select id="filter-perfil">
+              <option value="">Todos los perfiles</option>
+              <option value="CONTRABANDO_FRON">Contrabando Fronterizo</option>
+              <option value="DESVIO_FISCAL">Desvío Fiscal</option>
+              <option value="ADULTERACION">Adulteración</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>🛣️ Ruta de Distribución</label>
+            <select id="filter-ruta">
+              <option value="">Todas las rutas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>🏪 Estación Específica</label>
+            <select id="filter-estacion">
+              <option value="">Todas las estaciones</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>🏛️ Político Específico</label>
+            <select id="filter-politico">
+              <option value="">Todos los políticos</option>
+            </select>
+          </div>
+          <button class="filter-reset-btn" onclick="resetAllFilters()">✕ Limpiar Filtros</button>
         </div>
         <!-- Panel detalle de ruta seleccionada -->
         <div id="ruta-detail-panel" class="ruta-detail-panel" style="display:none;">
@@ -1825,22 +2310,33 @@
         </div>
       </div>
 
-      <div class="sidebar-section">
-        <span class="sidebar-label">Pilares del Sistema</span>
-        <div class="pilares-grid">
-          <span class="pilar-pill active" data-layer="estaciones">🏪 Estaciones</span>
-          <span class="pilar-pill active" data-layer="alertas">🚨 Alertas</span>
-          <span class="pilar-pill active" data-layer="rutas">🚛 Transporte</span>
-          <span class="pilar-pill active" data-layer="gps">📡 GPS</span>
-          <span class="pilar-pill active" data-layer="frontera">🗺 Frontera</span>
+      <!-- SECTION 2: Capas del Mapa -->
+      <div class="sidebar-section" id="section-capas">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          🗂️ Capas del Mapa <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <div class="pilares-grid">
+            <span class="pilar-pill active" data-layer="estaciones">🏪 Estaciones</span>
+            <span class="pilar-pill active" data-layer="alertas">🚨 Alertas</span>
+            <span class="pilar-pill active" data-layer="rutas">🚛 Transporte</span>
+            <span class="pilar-pill active" data-layer="gps">📡 GPS</span>
+            <span class="pilar-pill active" data-layer="frontera">🗺 Frontera</span>
+            <span class="pilar-pill active" data-layer="politicos">🏛️ Política</span>
+          </div>
         </div>
       </div>
 
-      <div class="sidebar-section timeline-container">
-        <span class="sidebar-label">Timeline</span>
-        <input type="range" id="timeline-slider" min="1" max="104" value="104">
-        <div class="timeline-labels">
-          <span>S01 2024</span><span>Actual</span><span>S12 2026</span>
+      <!-- SECTION 3: Timeline -->
+      <div class="sidebar-section timeline-container" id="section-timeline">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          ⏱️ Timeline <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <input type="range" id="timeline-slider" min="1" max="104" value="104">
+          <div class="timeline-labels">
+            <span>S01 2024</span><span>Actual</span><span>S12 2026</span>
+          </div>
         </div>
       </div>
     </aside>
@@ -1848,26 +2344,76 @@
     <div id="map-container">
       <div id="map"></div>
 
-      <!-- Monitor de Distribución -->
+      <!-- Inteligencia Operativa (collapsible) -->
       <div class="monitor-panel" id="monitor-panel">
-        <div class="monitor-title">📡 Monitor de Distribución</div>
-        <div class="monitor-row"><span class="label">Rutas activas</span> <span class="value" id="mon-rutas">—</span>
+        <div class="monitor-title" onclick="toggleMapPanel('monitor-panel')"
+          style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+          <span>🔎 Inteligencia Operativa</span>
+          <span class="collapse-chevron" style="font-size:10px;transition:transform .2s">▼</span>
         </div>
-        <div class="monitor-row"><span class="label">Alertas críticas</span> <span class="value critico"
-            id="mon-criticas">—</span></div>
-        <div class="monitor-row"><span class="label">Estaciones</span> <span class="value" id="mon-estaciones">—</span>
+        <div class="collapsible-body">
+          <div class="monitor-row"><span class="label">🛢️ WTI (USD/bbl)</span> <span class="value" id="mon-wti"
+              style="color:#d29922">—</span></div>
+          <div class="monitor-row"><span class="label">⚠️ Alertas N3 activas</span> <span class="value critico"
+              id="mon-n3">—</span></div>
+          <div class="monitor-row"><span class="label">📊 IRCF Nacional</span> <span class="value" id="mon-ircf"
+              style="color:#58a6ff">—</span></div>
+          <div class="monitor-row"><span class="label">🏛️ Políticos mapeados</span> <span class="value"
+              id="mon-politicos" style="color:#a371f7">—</span></div>
+          <div class="monitor-row"><span class="label">🏪 Estaciones activas</span> <span class="value"
+              id="mon-estaciones">—</span></div>
         </div>
       </div>
 
-      <div class="map-legend">
-        <div class="legend-title">Nivel de Alerta</div>
-        <div class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Normal</div>
-        <div class="legend-item"><span class="legend-line" style="background:#d29922"></span> Sospechoso</div>
-        <div class="legend-item"><span class="legend-line" style="background:#f85149"></span> Crítico</div>
-        <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-          <div class="legend-title">Estaciones</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> Estación Servicio</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#e040fb"></span> Envasadora</div>
+      <!-- Leyenda del Mapa (collapsible) -->
+      <div class="map-legend" id="map-legend">
+        <div class="monitor-title" onclick="toggleMapPanel('map-legend')"
+          style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;margin-bottom:8px">
+          <span>📋 Leyenda del Mapa</span>
+          <span class="collapse-chevron" style="font-size:10px;transition:transform .2s">▼</span>
+        </div>
+        <div class="collapsible-body" style="max-height:calc(100vh - 200px);overflow-y:auto">
+          <div class="legend-title">🚨 Nivel de Alerta</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> N0 — Normal</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> N1 — Observación</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#d29922"></span> N2 — Sospechoso</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> N3 — Crítico</div>
+          <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <div class="legend-title">🏪 Estaciones</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> Estación de Servicio
+            </div>
+            <div class="legend-item"><span class="legend-dot" style="background:#e040fb"></span> Envasadora GLP</div>
+          </div>
+          <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <div class="legend-title">🚛 Rutas</div>
+            <div class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Normal</div>
+            <div class="legend-item"><span class="legend-line" style="background:#d29922"></span> Sospechosa</div>
+            <div class="legend-item"><span class="legend-line" style="background:#f85149"></span> Crítica</div>
+            <div class="legend-item"><span class="legend-line" style="background:#f0883e;border-style:dashed"></span>
+              Fronteriza</div>
+          </div>
+          <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <div class="legend-title">📡 GPS</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#39d353;width:6px;height:6px"></span>
+              Cisterna en tránsito</div>
+          </div>
+          <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <div class="legend-title">🗺 Frontera</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> Bajo</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#d29922"></span> Medio</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> Alto</div>
+          </div>
+          <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+            <div class="legend-title">🏛️ Partidos</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#1a73e8"></span> PRM</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#8e24aa"></span> PLD</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#2e7d32"></span> FP</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#e65100"></span> PRD</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#00897b"></span> NI</div>
+            <div style="margin-top:4px;font-size:10px;color:var(--text-muted);line-height:1.4">
+              ● Grande=Senador · Mediano=Diputado · Pequeño=Alcalde
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1883,62 +2429,142 @@
     </div>
 
     <div id="panel">
-      <div class="panel-section" id="alertas-section">
-        <div class="panel-title">
-          <span>🚨 Alertas en Vivo</span>
-          <span class="count" id="alertas-count">—</span>
-        </div>
-        <div id="alertas-list">
-          <div class="loading">Cargando alertas</div>
-        </div>
-      </div>
-
-      <div class="panel-section">
-        <div class="panel-title"><span>📊 Métricas Nacionales</span></div>
-        <div class="metrics-grid" id="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">Subsidio Semanal</div>
-            <div class="metric-value" id="m-subsidio">—</div>
-            <div class="metric-sub">RD$ total</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">IRCF Nacional</div>
-            <div class="metric-value" id="m-ircf">—</div>
-            <div class="metric-sub">Índice contrabando</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Alertas N3</div>
-            <div class="metric-value" id="m-alertas-n3">—</div>
-            <div class="metric-sub">Nivel crítico</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">IBF Promedio</div>
-            <div class="metric-value" id="m-ibf">—</div>
-            <div class="metric-sub">Brecha fiscal</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Shrinkage</div>
-            <div class="metric-value" id="m-shrinkage">—</div>
-            <div class="metric-sub">% pérdida prom.</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">WTI</div>
-            <div class="metric-value" id="m-wti">—</div>
-            <div class="metric-sub">USD/bbl</div>
+      <!-- Alertas en Vivo -->
+      <div class="sidebar-section" id="alertas-section" style="margin:12px 12px 6px 12px">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          🚨 Alertas en Vivo <span class="count" id="alertas-count"
+            style="font-size:11px;background:rgba(248,81,73,0.15);color:#f85149;padding:1px 8px;border-radius:10px;letter-spacing:0">—</span>
+          <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <div id="alertas-list">
+            <div class="loading" style="padding:12px;font-size:11px;color:var(--text-muted)">Cargando alertas...</div>
           </div>
         </div>
       </div>
 
-      <div class="panel-section" id="gps-section">
-        <div class="panel-title"><span>🚛 GPS Cisternas</span> <span class="count" id="gps-count">—</span></div>
-        <div id="gps-list">
-          <div class="loading">Cargando GPS</div>
+      <!-- Métricas Nacionales -->
+      <div class="sidebar-section" id="metricas-section" style="margin:0 12px 6px 12px">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          <span id="metricas-section-label">📊 Métricas Nacionales</span> <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <div class="metrics-grid" id="metrics-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                Subsidio Semanal</div>
+              <div class="metric-value" id="m-subsidio"
+                style="font-size:16px;font-weight:700;color:var(--text-primary)">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">RD$ total <span id="m-subsidio-scope" style="color:#58a6ff"></span></div>
+            </div>
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                <span id="m-ircf-label">IRCF Nacional</span></div>
+              <div class="metric-value" id="m-ircf" style="font-size:16px;font-weight:700;color:#58a6ff">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">Índice contrabando</div>
+            </div>
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                Alertas N3</div>
+              <div class="metric-value" id="m-alertas-n3" style="font-size:16px;font-weight:700;color:#f85149">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">Nivel crítico</div>
+            </div>
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                IBF Promedio</div>
+              <div class="metric-value" id="m-ibf" style="font-size:16px;font-weight:700;color:#d29922">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">Brecha fiscal</div>
+            </div>
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                Shrinkage</div>
+              <div class="metric-value" id="m-shrinkage"
+                style="font-size:16px;font-weight:700;color:var(--text-primary)">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">% pérdida prom.</div>
+            </div>
+            <div class="metric-card"
+              style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px">
+              <div class="metric-label"
+                style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:600">
+                WTI</div>
+              <div class="metric-value" id="m-wti" style="font-size:16px;font-weight:700;color:#d29922">—</div>
+              <div class="metric-sub" style="font-size:9px;color:var(--text-muted)">USD/bbl <span id="m-wti-scope" style="color:#58a6ff"></span></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="panel-section hidden" id="detail-section" style="display:none;">
-        <div class="panel-title"><span>🏪 Detalle Estación</span></div>
-        <div id="detail-content"></div>
+      <!-- Territorio Seleccionado -->
+      <div class="sidebar-section" id="territorio-section" style="margin:0 12px 6px 12px">
+        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
+          📍 Territorio Seleccionado <span class="section-chevron">▼</span>
+        </span>
+        <div class="section-body">
+          <div id="territorio-info" style="font-size:11px;color:var(--text-secondary);line-height:1.6">
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px" id="terr-nombre">
+              🇩🇴 República Dominicana (Nacional)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="terr-stats">
+              <div
+                style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🏪
+                  Estaciones</div>
+                <div style="font-size:15px;font-weight:700;color:#00d4ff" id="terr-estaciones">—</div>
+              </div>
+              <div
+                style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🚨 Alertas
+                </div>
+                <div style="font-size:15px;font-weight:700;color:#f85149" id="terr-alertas">—</div>
+              </div>
+              <div
+                style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🏛️
+                  Políticos</div>
+                <div style="font-size:15px;font-weight:700;color:#a371f7" id="terr-politicos">—</div>
+              </div>
+              <div
+                style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🚛 Rutas
+                </div>
+                <div style="font-size:15px;font-weight:700;color:#3fb950" id="terr-rutas">—</div>
+              </div>
+            </div>
+            <div
+              style="margin-top:6px;background:rgba(13,17,23,0.4);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px"
+              id="terr-partidos">
+              <div
+                style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:3px">
+                🗳️ Composición Política</div>
+              <div id="terr-partido-bars" style="font-size:10px">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Noticias Section -->
+      <div class="sidebar-section" id="noticias-section" style="margin:0 12px 6px 12px">
+        <span class="sidebar-label" onclick="toggleNoticias()">
+          📰 Noticias Combustibles <span class="section-chevron" id="noticias-chevron">▼</span>
+        </span>
+        <div class="noticias-list section-body" id="noticias-list"></div>
+      </div>
+
+      <!-- Detalle Estación -->
+      <div class="sidebar-section hidden" id="detail-section" style="display:none;margin:0 12px 12px 12px">
+        <span class="sidebar-label">
+          🏪 Detalle Estación
+        </span>
+        <div class="section-body" id="detail-content"></div>
       </div>
     </div>
   </div>
@@ -2082,8 +2708,28 @@
 
         <!-- Tab: 51 Métricas -->
         <div class="analytics-tab-panel" id="tab-metricas51">
-          <div id="metricas51-content"><div class="loading">Cargando 51 métricas...</div></div>
+          <div id="metricas51-content">
+            <div class="loading">Cargando 51 métricas...</div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- News Article Modal -->
+  <div class="news-modal-overlay" id="news-modal-overlay" onclick="if(event.target===this)closeNoticia()">
+    <div class="news-modal">
+      <div class="news-modal-header">
+        <div>
+          <div class="nm-source" id="nm-source"></div>
+          <div class="nm-title" id="nm-title"></div>
+        </div>
+        <button class="nm-close" onclick="closeNoticia()">✕</button>
+      </div>
+      <div class="news-modal-body" id="nm-body"></div>
+      <div class="news-modal-footer">
+        <span class="nm-date" id="nm-date"></span>
+        <a class="nm-link" id="nm-link" href="#" target="_blank" rel="noopener">Leer artículo completo →</a>
       </div>
     </div>
   </div>
@@ -2097,18 +2743,26 @@
 
     const TIPO_COLORS = { 'ESTACION_SERVICIO': '#00d4ff', 'ENVASADORA': '#e040fb' };
 
+    const PARTIDO_COLORS = {
+      'PRM': '#1a73e8', 'PLD': '#8e24aa', 'FP': '#2e7d32',
+      'PRD': '#e65100', 'NI': '#00897b', 'Varios': '#78909c',
+    };
+    const CARGO_ICON = { 'SENADOR': '🏛️', 'DIPUTADO': '📜', 'ALCALDE': '🏢' };
+    const CARGO_RADIUS = { 'SENADOR': 9, 'DIPUTADO': 7, 'ALCALDE': 5 };
+
     const state = {
       ws: null, map: null, connected: false,
-      layers: { estaciones: true, alertas: true, rutas: true, gps: true, frontera: true },
+      layers: { estaciones: true, alertas: true, rutas: true, gps: true, frontera: true, politicos: true },
       leafletLayers: {},
       routeCache: {},
       metricas: null,
-      rawData: { estaciones: null, alertas: null, rutas: null, gps: null, frontera: null },
+      rawData: { estaciones: null, alertas: null, rutas: null, gps: null, frontera: null, politicos: null },
       selectedEstacion: null,
       geoData: null, // drill-down data cache
     };
 
     async function init() {
+      loadNoticias();
       updateClock();
       setInterval(updateClock, 1000);
       initMap();
@@ -2116,6 +2770,7 @@
       initFilters();
       loadProvinceLabels();
       loadGeografia();
+      loadPoliticos();
     }
 
     // ── MAP (Dark Theme) ────────────────────────────────────────────────────────
@@ -2217,19 +2872,19 @@
     // 3 colores MUY diferenciados para macro-regiones: NORTE(CIBAO), SUROESTE, SURESTE
     const REGION_COLORS = ['#4fc3f7', '#ff9800', '#66bb6a'];
     const PROVINCE_COLORS = [
-      '#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e',
-      '#e6ab02','#a6761d','#666666','#8dd3c7','#ffffb3',
-      '#bebada','#fb8072','#80b1d3','#fdb462','#b3de69',
-      '#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f',
-      '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99',
-      '#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a',
-      '#ffff99','#b15928',
+      '#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e',
+      '#e6ab02', '#a6761d', '#666666', '#8dd3c7', '#ffffb3',
+      '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69',
+      '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f',
+      '#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99',
+      '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a',
+      '#ffff99', '#b15928',
     ];
     const MUNICIPALITY_COLORS = [
-      '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f',
-      '#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ac',
-      '#86bcb6','#8cd17d','#b6992d','#499894','#d37295',
-      '#a0cbe8','#ffbe7d','#8b8b8b','#d4a6c8','#fabfd2',
+      '#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f',
+      '#edc948', '#b07aa1', '#ff9da7', '#9c755f', '#bab0ac',
+      '#86bcb6', '#8cd17d', '#b6992d', '#499894', '#d37295',
+      '#a0cbe8', '#ffbe7d', '#8b8b8b', '#d4a6c8', '#fabfd2',
     ];
 
     async function loadGeografia() {
@@ -2812,9 +3467,9 @@
 
       // Update counters
       if (!isPartial) {
-        const roaded = all.filter(f => f.properties.has_road).length;
-        document.getElementById('mon-rutas').textContent = `${all.length} (${roaded} OSRM)`;
-        document.getElementById('mon-criticas').textContent = all.filter(f => f.properties.riesgo === 'CRITICO').length;
+        const critico = all.filter(f => f.properties.riesgo === 'CRITICO').length;
+        const el = document.getElementById('mon-n3');
+        if (el) el.textContent = critico;
       }
     }
 
@@ -2897,14 +3552,32 @@
 
       switch (type) {
         case 'INITIAL_STATE':
-          if (data.estaciones) { state.rawData.estaciones = data.estaciones; renderEstaciones(data.estaciones, prov); }
-          if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
-          if (data.rutas) { state.rawData.rutas = data.rutas; renderRutas(data.rutas); }
-          if (data.gps) { state.rawData.gps = data.gps; renderGps(data.gps); updateGpsUI(data.gps); }
+          try {
+            if (data.estaciones) {
+              state.rawData.estaciones = data.estaciones;
+              renderEstaciones(data.estaciones, prov);
+              // Populate station filter dropdown
+              const estSelect = document.getElementById('filter-estacion');
+              if (estSelect && estSelect.options.length <= 1) {
+                const sorted = [...data.estaciones.features].sort((a, b) => (a.properties.nombre || '').localeCompare(b.properties.nombre || ''));
+                sorted.forEach(f => {
+                  const opt = document.createElement('option');
+                  opt.value = f.properties.estacion_id;
+                  opt.textContent = `${f.properties.nombre} (${f.properties.provincia})`;
+                  estSelect.appendChild(opt);
+                });
+              }
+            }
+          } catch(e) { console.error('[WS] estaciones render error:', e.message); }
+          try { if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); } } catch(e) { console.error('[WS] alertas render error:', e.message); }
+          try { if (data.rutas) { state.rawData.rutas = data.rutas; renderRutas(data.rutas); } } catch(e) { console.error('[WS] rutas render error:', e.message); }
+          try { if (data.gps) { state.rawData.gps = data.gps; renderGps(data.gps); updateGpsUI(data.gps); } } catch(e) { console.error('[WS] gps render error:', e.message); }
           if (data.frontera) { state.rawData.frontera = data.frontera; }
-          if (data.metricas) updateMetricasUI(data.metricas);
-          countRecords(data);
-          applyFilters(); // apply current filters to all layers including frontera
+          try { if (data.metricas) updateMetricasUI(data.metricas); } catch(e) { console.error('[WS] metricas render error:', e.message); }
+          try { countRecords(data); } catch(e) { console.error('[WS] countRecords error:', e.message); }
+          state.initialDataLoaded = true;
+          try { updateTerritorioInfo(() => true); } catch(e) { console.error('[WS] territorio error:', e.message); }
+          applyFilters();
           break;
         case 'UPDATE_ALERTAS':
           if (data.alertas) { state.rawData.alertas = data.alertas; renderAlertas(data.alertas, prov); updateAlertasUI(data.alertas, prov); }
@@ -2952,7 +3625,7 @@
       document.querySelectorAll('.nivel-btn').forEach(btn => {
         btn.addEventListener('click', () => { btn.classList.toggle('active'); applyFilters(); });
       });
-      ['filter-perfil', 'filter-provincia', 'filter-producto', 'filter-ruta', 'filter-region'].forEach(id => {
+      ['filter-perfil', 'filter-provincia', 'filter-producto', 'filter-ruta', 'filter-region', 'filter-estacion', 'filter-politico'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', applyFilters);
       });
       document.querySelectorAll('.pilar-pill').forEach(pill => {
@@ -2961,6 +3634,7 @@
           const layer = pill.dataset.layer;
           state.layers[layer] = pill.classList.contains('active');
           toggleLayer(layer, state.layers[layer]);
+          applyFilters();
         });
       });
 
@@ -2986,7 +3660,7 @@
             sel.appendChild(o);
           });
         }
-      }).catch(() => {});
+      }).catch(() => { });
     }
 
     async function showRutaDetail(rutaNombre) {
@@ -3048,16 +3722,21 @@
       _filterTimeout = setTimeout(_applyFiltersNow, 120);
     }
     function _applyFiltersNow() {
+      // Guard: don't run filters before initial data has loaded
+      if (!state.initialDataLoaded) return;
+
       const regionFilter = document.getElementById('filter-region')?.value || '';
       const prov = document.getElementById('filter-provincia')?.value || '';
       const niveles = [...document.querySelectorAll('.nivel-btn.active')].map(b => parseInt(b.dataset.nivel));
       const rutaFilter = document.getElementById('filter-ruta')?.value || '';
+      const estacionFilter = document.getElementById('filter-estacion')?.value || '';
+      const politicoFilter = document.getElementById('filter-politico')?.value || '';
 
       // Build province-to-region map for filtering
       const REGION_PROVINCES = {
-        'NORTE (CIBAO)': ['Santiago','La Vega','Puerto Plata','Duarte','Espaillat','Valverde','Montecristi','Samaná','Hermanas Mirabal','María Trinidad Sánchez','Sánchez Ramírez','Santiago Rodríguez','Dajabón','Monte Plata','Monseñor Nouel','Elías Piña'],
-        'SUROESTE': ['San Juan','Barahona','Azua','Independencia','Pedernales','Bahoruco','San José de Ocoa','Peravia'],
-        'SURESTE': ['Santo Domingo','Distrito Nacional','San Cristóbal','La Romana','San Pedro de Macorís','La Altagracia','El Seibo','Hato Mayor'],
+        'NORTE (CIBAO)': ['Santiago', 'La Vega', 'Puerto Plata', 'Duarte', 'Espaillat', 'Valverde', 'Montecristi', 'Samaná', 'Hermanas Mirabal', 'María Trinidad Sánchez', 'Sánchez Ramírez', 'Santiago Rodríguez', 'Dajabón', 'Monte Plata', 'Monseñor Nouel', 'Elías Piña'],
+        'SUROESTE': ['San Juan', 'Barahona', 'Azua', 'Independencia', 'Pedernales', 'Bahoruco', 'San José de Ocoa', 'Peravia'],
+        'SURESTE': ['Santo Domingo', 'Distrito Nacional', 'San Cristóbal', 'La Romana', 'San Pedro de Macorís', 'La Altagracia', 'El Seibo', 'Hato Mayor'],
       };
 
       // Determine active provinces based on region filter
@@ -3075,20 +3754,37 @@
         return true;
       };
 
-      // Re-render estaciones with province+region filter
+      // Re-render estaciones with province+region+estacion filter
       if (state.rawData.estaciones) {
-        if (activeProvs && !prov) {
-          const filtered = {
-            type: 'FeatureCollection',
-            features: state.rawData.estaciones.features.filter(f => matchesProv(f.properties.provincia))
-          };
-          renderEstaciones(filtered);
+        const forceShowEstacion = !!estacionFilter; // Override layer toggle when specific station selected
+        if (!state.layers.estaciones && !forceShowEstacion) {
+          if (state.leafletLayers.estaciones) state.map.removeLayer(state.leafletLayers.estaciones);
         } else {
-          renderEstaciones(state.rawData.estaciones, prov);
+          let estFeatures = state.rawData.estaciones.features;
+          // Apply region/province filter
+          if (activeProvs || prov) {
+            estFeatures = estFeatures.filter(f => matchesProv(f.properties.provincia));
+          }
+          // Apply specific station filter
+          if (estacionFilter) {
+            estFeatures = estFeatures.filter(f => String(f.properties.estacion_id) === estacionFilter);
+            // Fly to selected station
+            if (estFeatures.length > 0) {
+              const coords = estFeatures[0].geometry.coordinates;
+              state.map.flyTo([coords[1], coords[0]], 15, { duration: 0.8 });
+            }
+          }
+          renderEstaciones({ type: 'FeatureCollection', features: estFeatures }, prov);
+          // Force-add layer if it was toggled off
+          if (forceShowEstacion && state.leafletLayers.estaciones && !state.map.hasLayer(state.leafletLayers.estaciones)) {
+            state.map.addLayer(state.leafletLayers.estaciones);
+          }
         }
       }
       if (state.rawData.alertas) {
-        if (activeProvs && !prov) {
+        if (!state.layers.alertas) {
+          if (state.leafletLayers.alertas) state.map.removeLayer(state.leafletLayers.alertas);
+        } else if (activeProvs && !prov) {
           const filtered = {
             type: 'FeatureCollection',
             features: state.rawData.alertas.features.filter(f => matchesProv(f.properties.provincia))
@@ -3103,39 +3799,45 @@
 
       // Filter routes by province/region AND/OR ruta name
       if (state.rawData.rutas) {
-        let rutaFeatures = state.rawData.rutas.features;
-
-        // Apply region/province filter to routes
-        rutaFeatures = rutaFeatures.filter(f => matchesProv(f.properties.provincia));
-        // Apply ruta name filter
-        if (rutaFilter) {
-          rutaFeatures = rutaFeatures.filter(f => f.properties.ruta === rutaFilter);
-        }
-
-        const filtered = { type: 'FeatureCollection', features: rutaFeatures };
-        renderRutas(filtered, false);
-
-        // Fly to filtered route bounds
-        if ((rutaFilter || prov || regionFilter) && rutaFeatures.length > 0) {
-          const allCoords = rutaFeatures.flatMap(f => f.geometry.coordinates);
-          const lats = allCoords.map(c => c[1]);
-          const lngs = allCoords.map(c => c[0]);
-          state.map.fitBounds(
-            [[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]],
-            { padding: [60, 60], maxZoom: 11, animate: true, duration: 0.8 }
-          );
-        }
-
-        if (rutaFilter) {
-          showRutaDetail(rutaFilter);
+        if (!state.layers.rutas) {
+          if (state.leafletLayers.rutas) state.map.removeLayer(state.leafletLayers.rutas);
         } else {
-          hideRutaDetail();
+          let rutaFeatures = state.rawData.rutas.features;
+
+          // Apply region/province filter to routes
+          rutaFeatures = rutaFeatures.filter(f => matchesProv(f.properties.provincia));
+          // Apply ruta name filter
+          if (rutaFilter) {
+            rutaFeatures = rutaFeatures.filter(f => f.properties.ruta === rutaFilter);
+          }
+
+          const filtered = { type: 'FeatureCollection', features: rutaFeatures };
+          renderRutas(filtered, false);
+
+          // Fly to filtered route bounds
+          if ((rutaFilter || prov || regionFilter) && rutaFeatures.length > 0) {
+            const allCoords = rutaFeatures.flatMap(f => f.geometry.coordinates);
+            const lats = allCoords.map(c => c[1]);
+            const lngs = allCoords.map(c => c[0]);
+            state.map.fitBounds(
+              [[Math.min(...lats), Math.min(...lngs)], [Math.max(...lats), Math.max(...lngs)]],
+              { padding: [60, 60], maxZoom: 11, animate: true, duration: 0.8 }
+            );
+          }
+
+          if (rutaFilter) {
+            showRutaDetail(rutaFilter);
+          } else {
+            hideRutaDetail();
+          }
         }
       }
 
       // Filter GPS by province/region
       if (state.rawData.gps) {
-        if (prov || activeProvs) {
+        if (!state.layers.gps) {
+          if (state.leafletLayers.gps) state.map.removeLayer(state.leafletLayers.gps);
+        } else if (prov || activeProvs) {
           const filtered = {
             type: 'FeatureCollection',
             features: (state.rawData.gps.features || []).filter(f => matchesProv(f.properties.provincia))
@@ -3150,7 +3852,9 @@
 
       // Filter Frontera by province/region
       if (state.rawData.frontera) {
-        if (prov || activeProvs) {
+        if (!state.layers.frontera) {
+          if (state.leafletLayers.frontera) state.map.removeLayer(state.leafletLayers.frontera);
+        } else if (prov || activeProvs) {
           const filtered = {
             type: 'FeatureCollection',
             features: (state.rawData.frontera.features || []).filter(f => matchesProv(f.properties.provincia))
@@ -3158,6 +3862,31 @@
           renderFrontera(filtered);
         } else {
           renderFrontera(state.rawData.frontera);
+        }
+      }
+
+      // Filter Politicos by province/region and/or specific politician
+      if (state.rawData.politicos) {
+        const forceShowPolitico = !!politicoFilter; // Override layer toggle when specific politician selected
+        if (!state.layers.politicos && !forceShowPolitico) {
+          if (state.leafletLayers.politicos) state.map.removeLayer(state.leafletLayers.politicos);
+        } else {
+          let polData = state.rawData.politicos;
+          if (prov || activeProvs) {
+            polData = polData.filter(p => matchesProv(p.provincia));
+          }
+          if (politicoFilter) {
+            polData = polData.filter(p => String(p.id) === politicoFilter);
+            // Fly to selected politician
+            if (polData.length > 0 && polData[0].lat && polData[0].lon) {
+              state.map.flyTo([parseFloat(polData[0].lat), parseFloat(polData[0].lon)], 14, { duration: 0.8 });
+            }
+          }
+          renderPoliticos(polData);
+          // Force-add layer if it was toggled off
+          if (forceShowPolitico && state.leafletLayers.politicos && !state.map.hasLayer(state.leafletLayers.politicos)) {
+            state.map.addLayer(state.leafletLayers.politicos);
+          }
         }
       }
 
@@ -3186,12 +3915,88 @@
           state.map.flyTo([18.9, -70.0], 8, { duration: 0.8, easeLinearity: 0.3 });
         }
       }
+
+      // Update territory summary panel
+      updateTerritorioInfo(matchesProv);
+
+      // Update KPI metrics for the selected territory
+      fetchRegionalMetrics(regionFilter, prov);
     }
 
     function toggleLayer(name, visible) {
       const l = state.leafletLayers[name];
       if (!l) return;
       visible ? (state.map.hasLayer(l) || state.map.addLayer(l)) : state.map.removeLayer(l);
+    }
+
+    // ── POLITICOS LAYER ──────────────────────────────────────────────────────────
+    async function loadPoliticos() {
+      try {
+        const res = await fetch('/api/politicos');
+        const json = await res.json();
+        if (json.politicos) {
+          state.rawData.politicos = json.politicos;
+          renderPoliticos(json.politicos);
+          const pEl = document.getElementById('mon-politicos');
+          if (pEl) pEl.textContent = json.politicos.length;
+          // Populate political filter dropdown
+          const polSelect = document.getElementById('filter-politico');
+          if (polSelect && polSelect.options.length <= 1) {
+            const sorted = [...json.politicos].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+            sorted.forEach(p => {
+              const opt = document.createElement('option');
+              opt.value = p.id || p.nombre;
+              opt.textContent = `${p.nombre} (${p.partido} · ${p.cargo})`;
+              polSelect.appendChild(opt);
+            });
+          }
+          applyFilters(); // refresh territory panel with politicos data
+        }
+      } catch (err) {
+        console.warn('[POLITICOS] Error:', err.message);
+      }
+    }
+
+    function renderPoliticos(politicos) {
+      if (state.leafletLayers.politicos) {
+        state.map.removeLayer(state.leafletLayers.politicos);
+      }
+      const group = L.layerGroup();
+      (politicos || []).forEach(p => {
+        if (!p.lat || !p.lon) return;
+        const color = PARTIDO_COLORS[p.partido] || '#78909c';
+        const radius = CARGO_RADIUS[p.cargo] || 5;
+        const icon = CARGO_ICON[p.cargo] || '🏛️';
+        const marker = L.circleMarker([parseFloat(p.lat), parseFloat(p.lon)], {
+          radius: radius,
+          fillColor: color,
+          color: '#0d1117',
+          weight: 2,
+          fillOpacity: 0.85,
+        });
+        const popup = `
+          <div style="font-family:'Inter',sans-serif;min-width:200px">
+            <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:6px">
+              ${icon} ${p.nombre}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color}"></span>
+              <span style="font-size:12px;color:#8b949e;font-weight:600">${p.partido}</span>
+              <span style="font-size:11px;background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:10px;color:#c9d1d9">${p.cargo}</span>
+            </div>
+            <div style="font-size:11px;color:#8b949e;line-height:1.5">
+              <div>📍 ${p.provincia}${p.municipio ? ' • ' + p.municipio : ''}</div>
+              ${p.circunscripcion ? '<div>🗳️ ' + p.circunscripcion + '</div>' : ''}
+              ${p.region ? '<div>🌎 ' + p.region + '</div>' : ''}
+              <div>📅 ${p.periodoInicio ? new Date(p.periodoInicio).getFullYear() : '2024'}–${p.periodoFin ? new Date(p.periodoFin).getFullYear() : '2028'}</div>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popup, { className: 'dark-popup', maxWidth: 280 });
+        group.addLayer(marker);
+      });
+      state.leafletLayers.politicos = group;
+      if (state.layers.politicos) group.addTo(state.map);
     }
 
     // ── UI UPDATES ──────────────────────────────────────────────────────────────
@@ -3221,6 +4026,11 @@
       if (m.modulo2?.['M-17']) smoothUpdate('m-ibf', parseFloat(m.modulo2['M-17'].valor).toFixed(1) + '%');
       if (m.fisica?.['M-47']) smoothUpdate('m-shrinkage', parseFloat(m.fisica['M-47'].valor).toFixed(2) + '%');
       if (m.score?.['M-41']) { const n3 = m.score['M-41'].valor.find(a => a.nivel_alerta === 3); smoothUpdate('m-alertas-n3', n3 ? String(n3.total) : '0'); }
+      // Update monitor panel
+      if (m.mercado?.['M-04']) { const wEl = document.getElementById('mon-wti'); if (wEl) wEl.textContent = '$' + (parseFloat(m.mercado['M-04'].valor) + 47.8).toFixed(1); }
+      if (m.mercado?.['M-08']) { const iEl = document.getElementById('mon-ircf'); if (iEl) iEl.textContent = parseFloat(m.mercado['M-08'].valor).toFixed(2); }
+      if (m.score?.['M-41']) { const n3 = m.score['M-41'].valor.find(a => a.nivel_alerta === 3); const nEl = document.getElementById('mon-n3'); if (nEl) nEl.textContent = n3 ? n3.total : '0'; }
+      if (m.operativo?.estaciones) { const eEl = document.getElementById('mon-estaciones'); if (eEl) eEl.textContent = m.operativo.estaciones.total || '1960'; }
     }
 
     function updateAlertasUI(geojson, filterProvincia) {
@@ -3243,7 +4053,8 @@
     function updateGpsUI(geojson) {
       const container = document.getElementById('gps-list');
       const features = geojson?.features || [];
-      document.getElementById('gps-count').textContent = features.length;
+      const gpsCountEl = document.getElementById('gps-count');
+      if (gpsCountEl) gpsCountEl.textContent = features.length;
       if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin cisternas activas</div>'; return; }
       container.innerHTML = features.slice(0, 8).map((f, i) => {
         const p = f.properties; const isWarn = p.riesgo === 'ALTO' || p.riesgo === 'CRITICO';
@@ -3298,6 +4109,164 @@
     function togglePanel() {
       document.getElementById('app').classList.toggle('panel-collapsed');
       setTimeout(() => state.map.invalidateSize({ animate: true }), 450);
+    }
+
+    function toggleMapPanel(id) {
+      document.getElementById(id).classList.toggle('collapsed');
+    }
+
+    function updateTerritorioInfo(matchesProv) {
+      const region = document.getElementById('filter-region')?.value || '';
+      const prov = document.getElementById('filter-provincia')?.value || '';
+      const nameEl = document.getElementById('terr-nombre');
+      if (prov) nameEl.textContent = '📍 ' + prov;
+      else if (region) nameEl.textContent = '🗺️ ' + region;
+      else nameEl.innerHTML = '🇩🇴 República Dominicana (Nacional)';
+
+      const hasFilter = !!(prov || region);
+
+      // Helper: extract features from GeoJSON or return empty array
+      const getFeatures = (raw) => raw?.features || (Array.isArray(raw) ? raw : []);
+
+      // Estaciones
+      const estFeats = getFeatures(state.rawData.estaciones);
+      const estCount = hasFilter ? estFeats.filter(f => matchesProv((f.properties || f).provincia)).length : estFeats.length;
+      const eEl = document.getElementById('terr-estaciones');
+      if (eEl) eEl.textContent = estCount.toLocaleString();
+
+      // Alertas
+      const alertFeats = getFeatures(state.rawData.alertas);
+      const alertCount = hasFilter ? alertFeats.filter(f => matchesProv((f.properties || f).provincia)).length : alertFeats.length;
+      const aEl = document.getElementById('terr-alertas');
+      if (aEl) aEl.textContent = alertCount;
+
+      // Politicos (always array)
+      let polFiltered = state.rawData.politicos || [];
+      if (hasFilter) polFiltered = polFiltered.filter(p => matchesProv(p.provincia));
+      const pEl = document.getElementById('terr-politicos');
+      if (pEl) pEl.textContent = polFiltered.length;
+
+      // Rutas
+      const rutaFeats = getFeatures(state.rawData.rutas);
+      const rutaCount = hasFilter ? rutaFeats.filter(f => matchesProv((f.properties || f).provincia)).length : rutaFeats.length;
+      const rEl = document.getElementById('terr-rutas');
+      if (rEl) rEl.textContent = rutaCount.toLocaleString();
+
+      // Political composition bars
+      const parties = {};
+      polFiltered.forEach(p => { parties[p.partido] = (parties[p.partido] || 0) + 1; });
+      const barsEl = document.getElementById('terr-partido-bars');
+      if (barsEl) {
+        const total = polFiltered.length || 1;
+        const sorted = Object.entries(parties).sort((a, b) => b[1] - a[1]);
+        if (sorted.length === 0) {
+          barsEl.innerHTML = '<span style="color:var(--text-muted)">Sin datos</span>';
+        } else {
+          barsEl.innerHTML = sorted.map(([party, count]) => {
+            const pct = Math.round((count / total) * 100);
+            const color = PARTIDO_COLORS[party] || '#78909c';
+            return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+              <span style="width:30px;font-weight:600;color:${color}">${party}</span>
+              <div style="flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width .3s"></div>
+              </div>
+              <span style="width:28px;text-align:right;color:var(--text-muted);font-size:9px">${count}</span>
+            </div>`;
+          }).join('');
+        }
+      }
+    }
+
+    // ── REGIONAL METRICS FETCH ───────────────────────────────────────────────
+    let _metricsFetchTimer = null;
+    function fetchRegionalMetrics(regionFilter, provinciaFilter) {
+      const labelEl = document.getElementById('metricas-section-label');
+      const ircfLabelEl = document.getElementById('m-ircf-label');
+      const subsidioScopeEl = document.getElementById('m-subsidio-scope');
+      const wtiScopeEl = document.getElementById('m-wti-scope');
+
+      const hasGeoFilter = !!(regionFilter || provinciaFilter);
+      const territorioName = provinciaFilter || regionFilter || '';
+
+      // Update labels INSTANTLY (no debounce)
+      if (hasGeoFilter) {
+        if (labelEl) labelEl.textContent = `📊 Métricas: ${territorioName}`;
+        if (ircfLabelEl) ircfLabelEl.textContent = 'IRCF Regional';
+        if (subsidioScopeEl) subsidioScopeEl.textContent = '(Nacional)';
+        if (wtiScopeEl) wtiScopeEl.textContent = '(Global)';
+      } else {
+        if (labelEl) labelEl.textContent = '📊 Métricas Nacionales';
+        if (ircfLabelEl) ircfLabelEl.textContent = 'IRCF Nacional';
+        if (subsidioScopeEl) subsidioScopeEl.textContent = '';
+        if (wtiScopeEl) wtiScopeEl.textContent = '';
+      }
+
+      // NO geographic filter → use cached state.metricas from WebSocket (instant, no API call)
+      if (!hasGeoFilter) {
+        if (_metricsFetchTimer) { clearTimeout(_metricsFetchTimer); _metricsFetchTimer = null; }
+        if (state.metricas) updateMetricasUI(state.metricas);
+        return;
+      }
+
+      // WITH geographic filter → debounce API call
+      if (_metricsFetchTimer) clearTimeout(_metricsFetchTimer);
+      _metricsFetchTimer = setTimeout(() => {
+        const queryParam = provinciaFilter
+          ? `provincias=${encodeURIComponent(provinciaFilter)}`
+          : `region=${encodeURIComponent(regionFilter)}`;
+        _fetchRegionalMetricsNow(queryParam);
+      }, 250);
+    }
+
+    async function _fetchRegionalMetricsNow(queryParam) {
+      try {
+        const res = await fetch(`/api/metricas-regional?${queryParam}`);
+        const json = await res.json();
+        if (json.status === 'ok' && json.metricas) {
+          const m = json.metricas;
+          smoothMetricUpdate('m-subsidio', formatMoney(m.subsidio));
+          smoothMetricUpdate('m-ircf', m.ircf_regional > 0 ? parseFloat(m.ircf_regional).toFixed(2) : parseFloat(m.ircf_nacional).toFixed(2));
+          smoothMetricUpdate('m-alertas-n3', String(m.alertas_n3));
+          smoothMetricUpdate('m-ibf', parseFloat(m.ibf).toFixed(1) + '%');
+          smoothMetricUpdate('m-shrinkage', parseFloat(m.shrinkage).toFixed(2) + '%');
+          smoothMetricUpdate('m-wti', parseFloat(m.wti).toFixed(1));
+          // Also update monitor panel
+          const wEl = document.getElementById('mon-wti'); if (wEl) wEl.textContent = '$' + parseFloat(m.wti).toFixed(1);
+          const ircfVal = m.ircf_regional > 0 ? m.ircf_regional : m.ircf_nacional;
+          const iEl = document.getElementById('mon-ircf'); if (iEl) iEl.textContent = parseFloat(ircfVal).toFixed(2);
+          const nEl = document.getElementById('mon-n3'); if (nEl) nEl.textContent = m.alertas_n3;
+        }
+      } catch (err) {
+        console.warn('[METRICS] Error fetching regional metrics:', err.message);
+      }
+    }
+
+    function smoothMetricUpdate(id, newText) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.textContent !== newText && el.textContent !== '—') {
+        el.classList.add('updating');
+        el.closest('.metric-card')?.classList.add('pulse-update');
+        setTimeout(() => { el.textContent = newText; }, 150);
+        setTimeout(() => { el.classList.remove('updating'); }, 500);
+        setTimeout(() => { el.closest('.metric-card')?.classList.remove('pulse-update'); }, 800);
+      } else {
+        el.textContent = newText;
+      }
+    }
+
+    function resetAllFilters() {
+      ['filter-modulo', 'filter-region', 'filter-provincia', 'filter-producto', 'filter-perfil', 'filter-ruta', 'filter-estacion', 'filter-politico'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.querySelectorAll('.nivel-btn').forEach(b => b.classList.add('active'));
+      document.querySelectorAll('.pilar-pill').forEach(p => {
+        p.classList.add('active');
+        state.layers[p.dataset.layer] = true;
+      });
+      applyFilters();
+      state.map.flyTo([18.9, -70.0], 8, { duration: 0.8 });
     }
 
     // ── ANALYTICS MODAL ─────────────────────────────────────────────────────────
@@ -3594,73 +4563,89 @@
 
     // ── 51 METRICS TAB ──────────────────────────────────────────────────────────
     const MODULOS_META = [
-      { key: 'mercado', icon: '💰', name: 'Mercado y Subsidio', color: '#1a3a5c', metrics: [
-        { code: 'M-01', name: 'Subsidio semanal total', desc: 'RD$ que el Estado paga esta semana' },
-        { code: 'M-02', name: 'Subsidio por producto', desc: 'Desglosado por GLP, Gasoil, etc.' },
-        { code: 'M-03', name: 'Diferencial subsidio/galón', desc: 'Incentivo al fraude por galón' },
-        { code: 'M-04', name: 'Brecha WTI vs presupuesto', desc: 'WTI real vs USD 47.8/bbl presupuesto' },
-        { code: 'M-05', name: 'Precio paridad CIF', desc: 'Costo real antes del subsidio' },
-        { code: 'M-06', name: 'Proyección precio 4 sem', desc: 'Forecast Prophet (pendiente ML)' },
-        { code: 'M-07', name: 'Brecha fiscal anual', desc: 'Subsidio real vs presupuestado 2026' },
-        { code: 'M-08', name: 'IRCF Nacional', desc: 'Índice Riesgo Contrabando Fiscal' },
-      ]},
-      { key: 'modulo1', icon: '📊', name: 'Anomalías de Volumen', color: '#4a3708', metrics: [
-        { code: 'M-09', name: 'Z-score volumen', desc: 'Desv. estándar del despacho semanal' },
-        { code: 'M-10', name: 'Ratio volumen/capacidad', desc: '>1.0 = alerta capacidad' },
-        { code: 'M-11', name: 'Volumen sin destino', desc: 'Sin trazabilidad REFIDOMSA→DGII' },
-        { code: 'M-12', name: 'Variación sem-a-sem', desc: 'Cambio % respecto semana anterior' },
-        { code: 'M-13', name: 'Top 20 anomalía', desc: 'Ranking accionable para CECCOM' },
-        { code: 'M-14', name: 'Despachos fuera horario', desc: 'Fuera del horario declarado' },
-        { code: 'M-15', name: 'Exceso zona fronteriza', desc: 'Despacho > consumo local frontera' },
-        { code: 'M-16', name: 'Ajuste base temperatura', desc: 'Corrección Z-score por evaporación' },
-      ]},
-      { key: 'modulo2', icon: '🔴', name: 'Fiscal y Desvío', color: '#4a1a18', metrics: [
-        { code: 'M-17', name: 'IBF Promedio', desc: 'Proporción combustible no declarado' },
-        { code: 'M-18', name: 'Impuesto evadido', desc: 'Pérdida fiscal en RD$' },
-        { code: 'M-19', name: 'Exento sospechoso', desc: 'Exención sin destino verificable' },
-        { code: 'M-20', name: 'Exención vs actividad', desc: 'Volumen exento vs actividad BCRD' },
-        { code: 'M-21', name: 'IBF rolling 12 sem', desc: 'IBF acumulado detecta fraude crónico' },
-        { code: 'M-22', name: 'Top 10 empresas IBF', desc: 'Lista prioritaria DGII/DGA' },
-        { code: 'M-23', name: 'Subsidio GLP capturado', desc: 'RD$ GLP apropiado por desvío' },
-      ]},
-      { key: 'modulo3', icon: '🗺', name: 'Riesgo Fronterizo', color: '#2d1f4e', metrics: [
-        { code: 'M-24', name: 'IRCF por provincia', desc: 'Riesgo semanal por provincia fronteriza' },
-        { code: 'M-25', name: 'Exceso fronterizo %', desc: '% combustible sobre demanda local' },
-        { code: 'M-26', name: 'Demanda local esperada', desc: 'Consumo legítimo por provincia' },
-        { code: 'M-27', name: 'Tendencia IRCF 12 sem', desc: 'Slope indica si sube el incentivo' },
-        { code: 'M-28', name: 'Mapa calor municipio', desc: 'Visualización CESFRONT por zona' },
-      ]},
-      { key: 'modulo4', icon: '🕸', name: 'Inteligencia de Red', color: '#3d2558', metrics: [
-        { code: 'M-29', name: 'Score comunidad', desc: 'Louvain detecta redes coordinadas' },
-        { code: 'M-30', name: 'Entidades en red', desc: '3=incidente, 15+=crimen organizado' },
-        { code: 'M-31', name: 'Z-score red simultáneo', desc: 'Picos simultáneos = coordinación' },
-        { code: 'M-32', name: 'Superposición redes', desc: 'Nexos entre múltiples redes' },
-        { code: 'M-33', name: 'Coincidencia propietario', desc: 'Fuzzy match estaciones mismo dueño' },
-      ]},
-      { key: 'permisologia', icon: '📋', name: 'Permisología y Cumplimiento', color: '#1a3d1f', metrics: [
-        { code: 'M-34', name: '% licencia vigente', desc: 'KPI cumplimiento regulatorio' },
-        { code: 'M-35', name: 'Permiso vencido', desc: 'Lista infractores MICM/CECCOM' },
-        { code: 'M-36', name: 'Días demora renovación', desc: 'Rezago sistémico del control' },
-        { code: 'M-37', name: 'Correlación permiso+anomalía', desc: 'Permiso vencido → más irregularidades' },
-      ]},
-      { key: 'score', icon: '🎯', name: 'Score de Alerta Compuesto', color: '#4a2020', metrics: [
-        { code: 'M-38', name: 'Score contrabando', desc: 'Z 35% + IRCF 30% + IBF 15%...' },
-        { code: 'M-39', name: 'Score desvío fiscal', desc: 'IBF 45% priorizado' },
-        { code: 'M-40', name: 'Score adulteración', desc: 'Z-score 40% + horario 15%' },
-        { code: 'M-41', name: 'Alertas por nivel/semana', desc: 'KPI operativo del sistema' },
-        { code: 'M-42', name: 'Tasa confirmación', desc: 'Precisión: confirmadas/emitidas >60%' },
-      ]},
-      { key: 'fisica', icon: '🔬', name: 'Física del Combustible', color: '#1a3040', metrics: [
-        { code: 'M-43', name: 'Expansión térmica ΔV', desc: 'V × 0.00095 × ΔT' },
-        { code: 'M-44', name: 'Evaporación estación', desc: 'k1 × V_vacío × ΔT' },
-        { code: 'M-45', name: 'Evaporación transporte', desc: 'k2 × (d/v) × ΔT × (1-φ)' },
-        { code: 'M-46', name: 'Balance CORE', desc: 'Inv_ini + Entradas − Ventas − Inv_fin' },
-        { code: 'M-47', name: '% Shrinkage', desc: 'Normal 0.1-0.5%, Alerta >1%' },
-        { code: 'M-48', name: 'Despacho vs recepción', desc: 'Diferencia ≈ E_transporte' },
-        { code: 'M-49', name: 'Desviación real vs esperada', desc: 'Pérdida anómala no explicada' },
-        { code: 'M-50', name: 'Vol corregido 15°C', desc: 'Ajuste a temperatura estándar' },
-        { code: 'M-51', name: 'Subsidio/galón base', desc: 'Precio_CIF − Precio_oficial' },
-      ]},
+      {
+        key: 'mercado', icon: '💰', name: 'Mercado y Subsidio', color: '#1a3a5c', metrics: [
+          { code: 'M-01', name: 'Subsidio semanal total', desc: 'RD$ que el Estado paga esta semana' },
+          { code: 'M-02', name: 'Subsidio por producto', desc: 'Desglosado por GLP, Gasoil, etc.' },
+          { code: 'M-03', name: 'Diferencial subsidio/galón', desc: 'Incentivo al fraude por galón' },
+          { code: 'M-04', name: 'Brecha WTI vs presupuesto', desc: 'WTI real vs USD 47.8/bbl presupuesto' },
+          { code: 'M-05', name: 'Precio paridad CIF', desc: 'Costo real antes del subsidio' },
+          { code: 'M-06', name: 'Proyección precio 4 sem', desc: 'Forecast Prophet (pendiente ML)' },
+          { code: 'M-07', name: 'Brecha fiscal anual', desc: 'Subsidio real vs presupuestado 2026' },
+          { code: 'M-08', name: 'IRCF Nacional', desc: 'Índice Riesgo Contrabando Fiscal' },
+        ]
+      },
+      {
+        key: 'modulo1', icon: '📊', name: 'Anomalías de Volumen', color: '#4a3708', metrics: [
+          { code: 'M-09', name: 'Z-score volumen', desc: 'Desv. estándar del despacho semanal' },
+          { code: 'M-10', name: 'Ratio volumen/capacidad', desc: '>1.0 = alerta capacidad' },
+          { code: 'M-11', name: 'Volumen sin destino', desc: 'Sin trazabilidad REFIDOMSA→DGII' },
+          { code: 'M-12', name: 'Variación sem-a-sem', desc: 'Cambio % respecto semana anterior' },
+          { code: 'M-13', name: 'Top 20 anomalía', desc: 'Ranking accionable para CECCOM' },
+          { code: 'M-14', name: 'Despachos fuera horario', desc: 'Fuera del horario declarado' },
+          { code: 'M-15', name: 'Exceso zona fronteriza', desc: 'Despacho > consumo local frontera' },
+          { code: 'M-16', name: 'Ajuste base temperatura', desc: 'Corrección Z-score por evaporación' },
+        ]
+      },
+      {
+        key: 'modulo2', icon: '🔴', name: 'Fiscal y Desvío', color: '#4a1a18', metrics: [
+          { code: 'M-17', name: 'IBF Promedio', desc: 'Proporción combustible no declarado' },
+          { code: 'M-18', name: 'Impuesto evadido', desc: 'Pérdida fiscal en RD$' },
+          { code: 'M-19', name: 'Exento sospechoso', desc: 'Exención sin destino verificable' },
+          { code: 'M-20', name: 'Exención vs actividad', desc: 'Volumen exento vs actividad BCRD' },
+          { code: 'M-21', name: 'IBF rolling 12 sem', desc: 'IBF acumulado detecta fraude crónico' },
+          { code: 'M-22', name: 'Top 10 empresas IBF', desc: 'Lista prioritaria DGII/DGA' },
+          { code: 'M-23', name: 'Subsidio GLP capturado', desc: 'RD$ GLP apropiado por desvío' },
+        ]
+      },
+      {
+        key: 'modulo3', icon: '🗺', name: 'Riesgo Fronterizo', color: '#2d1f4e', metrics: [
+          { code: 'M-24', name: 'IRCF por provincia', desc: 'Riesgo semanal por provincia fronteriza' },
+          { code: 'M-25', name: 'Exceso fronterizo %', desc: '% combustible sobre demanda local' },
+          { code: 'M-26', name: 'Demanda local esperada', desc: 'Consumo legítimo por provincia' },
+          { code: 'M-27', name: 'Tendencia IRCF 12 sem', desc: 'Slope indica si sube el incentivo' },
+          { code: 'M-28', name: 'Mapa calor municipio', desc: 'Visualización CESFRONT por zona' },
+        ]
+      },
+      {
+        key: 'modulo4', icon: '🕸', name: 'Inteligencia de Red', color: '#3d2558', metrics: [
+          { code: 'M-29', name: 'Score comunidad', desc: 'Louvain detecta redes coordinadas' },
+          { code: 'M-30', name: 'Entidades en red', desc: '3=incidente, 15+=crimen organizado' },
+          { code: 'M-31', name: 'Z-score red simultáneo', desc: 'Picos simultáneos = coordinación' },
+          { code: 'M-32', name: 'Superposición redes', desc: 'Nexos entre múltiples redes' },
+          { code: 'M-33', name: 'Coincidencia propietario', desc: 'Fuzzy match estaciones mismo dueño' },
+        ]
+      },
+      {
+        key: 'permisologia', icon: '📋', name: 'Permisología y Cumplimiento', color: '#1a3d1f', metrics: [
+          { code: 'M-34', name: '% licencia vigente', desc: 'KPI cumplimiento regulatorio' },
+          { code: 'M-35', name: 'Permiso vencido', desc: 'Lista infractores MICM/CECCOM' },
+          { code: 'M-36', name: 'Días demora renovación', desc: 'Rezago sistémico del control' },
+          { code: 'M-37', name: 'Correlación permiso+anomalía', desc: 'Permiso vencido → más irregularidades' },
+        ]
+      },
+      {
+        key: 'score', icon: '🎯', name: 'Score de Alerta Compuesto', color: '#4a2020', metrics: [
+          { code: 'M-38', name: 'Score contrabando', desc: 'Z 35% + IRCF 30% + IBF 15%...' },
+          { code: 'M-39', name: 'Score desvío fiscal', desc: 'IBF 45% priorizado' },
+          { code: 'M-40', name: 'Score adulteración', desc: 'Z-score 40% + horario 15%' },
+          { code: 'M-41', name: 'Alertas por nivel/semana', desc: 'KPI operativo del sistema' },
+          { code: 'M-42', name: 'Tasa confirmación', desc: 'Precisión: confirmadas/emitidas >60%' },
+        ]
+      },
+      {
+        key: 'fisica', icon: '🔬', name: 'Física del Combustible', color: '#1a3040', metrics: [
+          { code: 'M-43', name: 'Expansión térmica ΔV', desc: 'V × 0.00095 × ΔT' },
+          { code: 'M-44', name: 'Evaporación estación', desc: 'k1 × V_vacío × ΔT' },
+          { code: 'M-45', name: 'Evaporación transporte', desc: 'k2 × (d/v) × ΔT × (1-φ)' },
+          { code: 'M-46', name: 'Balance CORE', desc: 'Inv_ini + Entradas − Ventas − Inv_fin' },
+          { code: 'M-47', name: '% Shrinkage', desc: 'Normal 0.1-0.5%, Alerta >1%' },
+          { code: 'M-48', name: 'Despacho vs recepción', desc: 'Diferencia ≈ E_transporte' },
+          { code: 'M-49', name: 'Desviación real vs esperada', desc: 'Pérdida anómala no explicada' },
+          { code: 'M-50', name: 'Vol corregido 15°C', desc: 'Ajuste a temperatura estándar' },
+          { code: 'M-51', name: 'Subsidio/galón base', desc: 'Precio_CIF − Precio_oficial' },
+        ]
+      },
     ];
 
     async function renderMetricas51Tab() {
@@ -3739,7 +4724,7 @@
           } else {
             badgeClass = 'warn';
             badgeText = 'PENDIENTE';
-            if (['M-06','M-11','M-16','M-20','M-29','M-30','M-32','M-36'].includes(metric.code)) {
+            if (['M-06', 'M-11', 'M-16', 'M-20', 'M-29', 'M-30', 'M-32', 'M-36'].includes(metric.code)) {
               badgeText = 'REQUIERE ML/DATOS';
             }
           }
@@ -3771,7 +4756,7 @@
         <div><div style="font-size:14px;font-weight:700;color:var(--text-primary)">Métricas Computadas</div>
         <div style="font-size:11px;color:var(--text-secondary)">Motor de inteligencia activo · 8 módulos · Regla maestra de pérdida técnica</div></div>
         <div style="margin-left:auto;padding:8px 16px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);font-size:11px;color:var(--text-muted);text-align:center">
-          <div style="font-size:18px;font-weight:800;color:var(--green)">${((computedMetrics/totalMetrics)*100).toFixed(0)}%</div>Cobertura
+          <div style="font-size:18px;font-weight:800;color:var(--green)">${((computedMetrics / totalMetrics) * 100).toFixed(0)}%</div>Cobertura
         </div>
       </div>`;
 
@@ -3782,6 +4767,110 @@
     document.addEventListener('click', function (e) {
       if (e.target.classList.contains('analytics-overlay')) closeAnalytics();
     });
+
+    // ── NOTICIAS (NEWS) ──────────────────────────────────────────────────────────
+    let _noticiasData = null;
+    let _noticiasLoaded = false;
+
+    function toggleNoticias() {
+      const section = document.getElementById('noticias-section');
+      const list = document.getElementById('noticias-list');
+      section.classList.toggle('section-collapsed');
+      const isOpen = !section.classList.contains('section-collapsed');
+      if (isOpen && !_noticiasLoaded) {
+        list.innerHTML = '<div class="loading" style="padding:12px;font-size:12px;color:#8b949e;">Cargando noticias...</div>';
+        loadNoticias();
+      }
+    }
+
+    async function loadNoticias() {
+      try {
+        const res = await fetch('/api/noticias');
+        const json = await res.json();
+        if (json.noticias) {
+          _noticiasData = json.noticias;
+          _noticiasLoaded = true;
+          renderNoticias(json.noticias);
+        }
+      } catch (err) {
+        console.warn('[NOTICIAS] Error:', err.message);
+        document.getElementById('noticias-list').innerHTML =
+          '<div style="padding:12px;font-size:12px;color:#f85149;">Error al cargar noticias</div>';
+      }
+    }
+
+    function renderNoticias(noticias) {
+      const container = document.getElementById('noticias-list');
+      if (!noticias || noticias.length === 0) {
+        container.innerHTML = '<div style="padding:12px;font-size:12px;color:#8b949e;">Sin noticias disponibles</div>';
+        return;
+      }
+      container.innerHTML = noticias.map((n, i) => {
+        const sentColor = n.sentiment || 'neutral';
+        const timeAgo = _timeAgo(n.pubDate);
+        const srcIcon = n.sourceIcon ? `<img src="${n.sourceIcon}" alt="" onerror="this.style.display='none'">` : '';
+        const thumb = n.imageUrl ? `<img class="noticia-thumb" src="${n.imageUrl}" alt="" onerror="this.style.display='none'">` : '';
+        return `<div class="noticia-card" onclick="openNoticia(${i})">
+          ${thumb}
+          <div style="flex:1;min-width:0">
+            <div class="noticia-title">${_esc(n.title)}</div>
+            <div class="noticia-meta">
+              <span class="noticia-sentiment ${sentColor}"></span>
+              ${srcIcon}
+              <span>${_esc(n.source)}</span>
+              <span>·</span>
+              <span>${timeAgo}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function openNoticia(idx) {
+      const n = _noticiasData?.[idx];
+      if (!n) return;
+      const overlay = document.getElementById('news-modal-overlay');
+      const srcIcon = n.sourceIcon ? `<img src="${n.sourceIcon}" alt="" onerror="this.style.display='none'">` : '';
+      document.getElementById('nm-source').innerHTML = `${srcIcon}<span>${_esc(n.source)}</span><span class="noticia-sentiment ${n.sentiment || 'neutral'}"></span><span style="text-transform:capitalize">${n.sentiment || ''}</span>`;
+      document.getElementById('nm-title').textContent = n.title;
+      let bodyHtml = '';
+      if (n.imageUrl) bodyHtml += `<img class="nm-image" src="${n.imageUrl}" alt="" onerror="this.style.display='none'">`;
+      if (n.aiSummary) bodyHtml += `<div class="nm-summary">📋 ${_esc(n.aiSummary)}</div>`;
+      bodyHtml += `<p>${_esc(n.content || n.description || 'Sin contenido disponible.')}</p>`;
+      if (n.keywords && n.keywords.length > 0) {
+        bodyHtml += `<div class="nm-keywords">${n.keywords.map(k => `<span>${_esc(k)}</span>`).join('')}</div>`;
+      }
+      document.getElementById('nm-body').innerHTML = bodyHtml;
+      document.getElementById('nm-date').textContent = n.pubDate ? new Date(n.pubDate).toLocaleString('es-DO', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+      document.getElementById('nm-link').href = n.link || '#';
+      overlay.classList.add('active');
+    }
+
+    function closeNoticia() {
+      document.getElementById('news-modal-overlay').classList.remove('active');
+    }
+
+    // Escape key closes news modal
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeNoticia();
+    });
+
+    function _esc(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function _timeAgo(dateStr) {
+      if (!dateStr) return '';
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return `${mins}m`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h`;
+      return `${Math.floor(hrs / 24)}d`;
+    }
 
     window.addEventListener('DOMContentLoaded', init);
   </script>

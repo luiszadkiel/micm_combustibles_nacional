@@ -312,4 +312,147 @@ async function calcFisica() {
   };
 }
 
-module.exports = { calcularMetricas };
+// ── MÉTRICAS REGIONALES (filtradas por provincia) ───────────────────────────
+/**
+ * Calcula las 6 métricas KPI filtradas por un array de provincias.
+ * Subsidio y WTI son siempre nacionales (sin dimensión geográfica).
+ * IRCF, Alertas N3, IBF, Shrinkage se filtran por provincia.
+ * @param {string[]} provincias - Array de nombres de provincia
+ */
+async function calcularMetricasRegional(provincias) {
+  if (!provincias || provincias.length === 0) {
+    // Sin filtro → devolver nacionales
+    return calcularMetricasKPI();
+  }
+
+  // Normalize province names to uppercase for case-insensitive matching
+  const provsUpper = provincias.map(p => p.toUpperCase());
+
+  // Build parameterized IN clause
+  const placeholders = provsUpper.map((_, i) => `$${i + 1}`).join(',');
+
+  const [subsidioWti, alertasN3, ircf, ibf, shrinkage] = await Promise.all([
+    // Subsidio + WTI: SIEMPRE nacional (no tiene dimension provincial)
+    db.query(`
+      SELECT
+        COALESCE(SUM(subsidio_semanal_total_rd), 0) as subsidio_total,
+        COALESCE(MAX(wti_usd_bbl), 0) as wti,
+        COALESCE(MAX(ircf_nacional), 0) as ircf_nacional
+      FROM fact_precios_semanales
+      WHERE (anio, semana_iso) = (
+        SELECT anio, semana_iso FROM fact_precios_semanales
+        ORDER BY anio DESC, semana_iso DESC LIMIT 1
+      )
+    `),
+
+    // Alertas N3: filtradas por provincia via JOIN dim_estacion
+    db.query(`
+      SELECT COUNT(*)::int as total
+      FROM fact_alertas_operativas ao
+      JOIN dim_estacion e ON e.estacion_id = ao.estacion_id
+      WHERE ao.nivel_alerta = 3
+        AND ao.estado_alerta != 'DESCARTADA'
+        AND UPPER(e.provincia) IN (${placeholders})
+    `, provsUpper),
+
+    // IRCF regional: promedio desde fact_riesgo_fronterizo
+    db.query(`
+      SELECT COALESCE(ROUND(AVG(rf.ircf)::numeric, 2), 0) as ircf_regional
+      FROM fact_riesgo_fronterizo rf
+      JOIN dim_geografia g ON g.geo_id = rf.geo_id
+      WHERE UPPER(g.provincia) IN (${placeholders})
+        AND (rf.anio, rf.semana_iso) = (
+          SELECT anio, semana_iso FROM fact_riesgo_fronterizo
+          ORDER BY anio DESC, semana_iso DESC LIMIT 1
+        )
+    `, provsUpper),
+
+    // IBF promedio: SIEMPRE nacional (fact_triangulacion_fiscal usa empresa_rnc, no tiene dimension provincial)
+    db.query(`
+      SELECT COALESCE(ROUND(AVG(tf.ibf_pct)::numeric, 3), 0) as ibf_promedio
+      FROM fact_triangulacion_fiscal tf
+      WHERE (tf.anio, tf.semana_iso) = (
+          SELECT anio, semana_iso FROM fact_triangulacion_fiscal
+          ORDER BY anio DESC, semana_iso DESC LIMIT 1
+        )
+    `),
+
+    // Shrinkage promedio: filtrado por provincia via JOIN dim_estacion
+    db.query(`
+      SELECT COALESCE(ROUND(AVG(bf.pct_shrinkage) * 100, 3), 0) as shrinkage_pct
+      FROM fact_balance_fisico bf
+      JOIN dim_estacion e ON e.estacion_id = bf.estacion_id
+      WHERE UPPER(e.provincia) IN (${placeholders})
+        AND (bf.anio, bf.semana_iso) = (
+          SELECT anio, semana_iso FROM fact_balance_fisico
+          ORDER BY anio DESC, semana_iso DESC LIMIT 1
+        )
+    `, provsUpper),
+  ]);
+
+  const s = subsidioWti.rows[0];
+  return {
+    subsidio: parseFloat(s.subsidio_total || 0),
+    ircf_nacional: parseFloat(s.ircf_nacional || 0),
+    wti: parseFloat(s.wti || 0),
+    alertas_n3: parseInt(alertasN3.rows[0]?.total || 0),
+    ircf_regional: parseFloat(ircf.rows[0]?.ircf_regional || 0),
+    ibf: parseFloat(ibf.rows[0]?.ibf_promedio || 0),
+    shrinkage: parseFloat(shrinkage.rows[0]?.shrinkage_pct || 0),
+    es_filtrado: true,
+  };
+}
+
+/**
+ * Calcula las 6 KPI métricas nacionales (sin filtro geográfico).
+ */
+async function calcularMetricasKPI() {
+  const [subsidioWti, alertasN3, ibf, shrinkage] = await Promise.all([
+    db.query(`
+      SELECT
+        COALESCE(SUM(subsidio_semanal_total_rd), 0) as subsidio_total,
+        COALESCE(MAX(wti_usd_bbl), 0) as wti,
+        COALESCE(MAX(ircf_nacional), 0) as ircf_nacional
+      FROM fact_precios_semanales
+      WHERE (anio, semana_iso) = (
+        SELECT anio, semana_iso FROM fact_precios_semanales
+        ORDER BY anio DESC, semana_iso DESC LIMIT 1
+      )
+    `),
+    db.query(`
+      SELECT COUNT(*)::int as total
+      FROM fact_alertas_operativas
+      WHERE nivel_alerta = 3 AND estado_alerta != 'DESCARTADA'
+    `),
+    db.query(`
+      SELECT COALESCE(ROUND(AVG(ibf_pct)::numeric, 3), 0) as ibf_promedio
+      FROM fact_triangulacion_fiscal
+      WHERE (anio, semana_iso) = (
+        SELECT anio, semana_iso FROM fact_triangulacion_fiscal
+        ORDER BY anio DESC, semana_iso DESC LIMIT 1
+      )
+    `),
+    db.query(`
+      SELECT COALESCE(ROUND(AVG(pct_shrinkage) * 100, 3), 0) as shrinkage_pct
+      FROM fact_balance_fisico
+      WHERE (anio, semana_iso) = (
+        SELECT anio, semana_iso FROM fact_balance_fisico
+        ORDER BY anio DESC, semana_iso DESC LIMIT 1
+      )
+    `),
+  ]);
+
+  const s = subsidioWti.rows[0];
+  return {
+    subsidio: parseFloat(s.subsidio_total || 0),
+    ircf_nacional: parseFloat(s.ircf_nacional || 0),
+    wti: parseFloat(s.wti || 0),
+    alertas_n3: parseInt(alertasN3.rows[0]?.total || 0),
+    ircf_regional: 0,
+    ibf: parseFloat(ibf.rows[0]?.ibf_promedio || 0),
+    shrinkage: parseFloat(shrinkage.rows[0]?.shrinkage_pct || 0),
+    es_filtrado: false,
+  };
+}
+
+module.exports = { calcularMetricas, calcularMetricasRegional };

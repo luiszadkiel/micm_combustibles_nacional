@@ -14,6 +14,8 @@ const timelineService   = require('../services/timeline.service');
 const triangulacionService = require('../services/triangulacion.service');
 const rutasService      = require('../services/rutas.service');
 const geografiaService  = require('../services/geografia.service');
+const noticiasService   = require('../services/noticias.service');
+const politicosService  = require('../services/politicos.service');
 const db                = require('../db');
 
 const router = Router();
@@ -216,6 +218,55 @@ router.get('/ruta-evaporacion', async (req, res) => {
     res.json({ status: 'ok', data });
   } catch (err) {
     console.error('[API] Error en /ruta-evaporacion:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/noticias ───────────────────────────────────────────────────────
+router.get('/noticias', async (req, res) => {
+  try {
+    const noticias = await noticiasService.getNoticias();
+    res.json({ status: 'ok', total: noticias.length, noticias });
+  } catch (err) {
+    console.error('[API] Error en /noticias:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/politicos ──────────────────────────────────────────────────────
+router.get('/politicos', async (req, res) => {
+  try {
+    const politicos = await politicosService.getPoliticos();
+    res.json({ status: 'ok', total: politicos.length, politicos });
+  } catch (err) {
+    console.error('[API] Error en /politicos:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/metricas-regional ──────────────────────────────────────────────
+router.get('/metricas-regional', async (req, res) => {
+  try {
+    const { provincias, region } = req.query;
+    let provArray = [];
+
+    if (region) {
+      // Expand region name to province list using MACRO_REGION_MAP
+      const { MACRO_REGION_MAP } = geografiaService;
+      const regionUpper = region.toUpperCase();
+      provArray = [...new Set(
+        Object.entries(MACRO_REGION_MAP)
+          .filter(([, r]) => r.toUpperCase() === regionUpper)
+          .map(([prov]) => prov)
+      )];
+    } else if (provincias) {
+      provArray = provincias.split(',').map(p => p.trim()).filter(Boolean);
+    }
+
+    const metricas = await metricasService.calcularMetricasRegional(provArray);
+    res.json({ status: 'ok', metricas, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('[API] Error en /metricas-regional:', err.message);
     res.status(500).json({ status: 'error', error: err.message });
   }
 });
