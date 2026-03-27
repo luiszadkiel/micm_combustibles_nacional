@@ -11,30 +11,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
+    /* ── Lucide Icon Base ── */
+    .lucide, [data-lucide] { display: inline-block; vertical-align: -0.15em; }
+    .icon-xs { width: 12px; height: 12px; }
+    .icon-sm { width: 14px; height: 14px; }
+    .icon-md { width: 16px; height: 16px; }
+    .icon-lg { width: 20px; height: 20px; }
+    .icon-xl { width: 24px; height: 24px; }
     :root {
-      --bg-primary: #0d1117;
-      --bg-panel: rgba(13, 17, 23, 0.92);
-      --bg-panel-solid: #161b22;
-      --bg-card: rgba(22, 27, 34, 0.95);
-      --border: rgba(255, 255, 255, 0.06);
-      --border-strong: rgba(255, 255, 255, 0.1);
-      --text-primary: #e6edf3;
-      --text-secondary: #8b949e;
-      --text-muted: #6e7681;
-      --accent: #58a6ff;
-      --accent-light: rgba(56, 139, 253, 0.15);
-      --red: #f85149;
-      --red-bg: rgba(248, 81, 73, 0.1);
-      --orange: #d29922;
-      --orange-bg: rgba(210, 153, 34, 0.1);
-      --green: #3fb950;
-      --green-bg: rgba(63, 185, 80, 0.1);
-      --blue: #58a6ff;
-      --blue-bg: rgba(56, 139, 253, 0.1);
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+      /* ── Surface Hierarchy (5 levels: deep → elevated) ── */
+      --bg-primary: #09090b;        /* Deepest black – page base */
+      --bg-panel: rgba(14, 14, 16, 0.94); /* Panels with blur */
+      --bg-panel-solid: #111113;    /* Solid panel (topbar, modal) */
+      --bg-card: rgba(20, 20, 23, 0.95); /* Cards, items */
+      --bg-elevated: #1a1a1f;       /* Hover states, tooltips */
+
+      /* ── Borders ── */
+      --border: rgba(255, 255, 255, 0.05);
+      --border-strong: rgba(255, 255, 255, 0.09);
+      --border-accent: rgba(255, 255, 255, 0.12);
+
+      /* ── Text Hierarchy ── */
+      --text-primary: #ececf1;      /* High-contrast headings/values */
+      --text-secondary: #a1a1aa;    /* Body text, descriptions */
+      --text-muted: #63636e;        /* Labels, captions */
+
+      /* ── Accent (cool steel blue) ── */
+      --accent: #6ea1d4;
+      --accent-light: rgba(110, 161, 212, 0.12);
+
+      /* ── Functional Colors (desaturated for refinement) ── */
+      --red: #e5534b;
+      --red-bg: rgba(229, 83, 75, 0.10);
+      --orange: #c69026;
+      --orange-bg: rgba(198, 144, 38, 0.10);
+      --green: #3dba54;
+      --green-bg: rgba(61, 186, 84, 0.08);
+      --blue: #6ea1d4;
+      --blue-bg: rgba(110, 161, 212, 0.10);
+
+      /* ── Shadows (deep, layered) ── */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 12px rgba(0, 0, 0, 0.25);
+      --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 32px rgba(0, 0, 0, 0.3);
+
+      /* ── Geometry ── */
       --radius: 12px;
       --radius-sm: 8px;
     }
@@ -126,7 +149,7 @@
       font-size: 15px;
       font-weight: 800;
       letter-spacing: -0.3px;
-      background: linear-gradient(135deg, #58a6ff, #3fb950);
+      background: linear-gradient(135deg, #b0b8c1, #8891a0);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -211,7 +234,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      background: rgba(22, 27, 34, 0.5);
+      background: rgba(18, 18, 21, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.04);
       border-radius: 10px;
       padding: 10px;
@@ -281,7 +304,7 @@
       border-radius: 8px;
       font-size: 12px;
       font-family: inherit;
-      background: rgba(13, 17, 23, 0.8);
+      background: rgba(13, 13, 16, 0.9);
       color: var(--text-primary);
       transition: all 0.25s ease;
       appearance: none;
@@ -297,17 +320,17 @@
       border-color: var(--accent);
       outline: none;
       box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.15), inset 0 0 12px rgba(56, 139, 253, 0.05);
-      background-color: rgba(22, 27, 34, 1);
+      background-color: rgba(20, 20, 23, 1);
     }
 
     .filter-group select:hover,
     .filter-group input:hover {
       border-color: rgba(255, 255, 255, 0.12);
-      background-color: rgba(22, 27, 34, 0.9);
+      background-color: rgba(20, 20, 23, 0.9);
     }
 
     .filter-group select option {
-      background: #161b22;
+      background: #111113;
       color: var(--text-primary);
     }
 
@@ -394,7 +417,7 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(13, 17, 23, 0.6);
+      background: rgba(13, 13, 16, 0.7);
       color: var(--text-muted);
       letter-spacing: 0.3px;
       text-align: center;
@@ -408,10 +431,10 @@
     }
 
     .pilar-pill.active {
-      background: rgba(56, 139, 253, 0.15);
+      background: rgba(110, 161, 212, 0.12);
       color: var(--accent);
-      border-color: rgba(56, 139, 253, 0.3);
-      box-shadow: 0 0 8px rgba(88, 166, 255, 0.15);
+      border-color: rgba(110, 161, 212, 0.25);
+      box-shadow: 0 0 8px rgba(110, 161, 212, 0.1);
     }
 
     .filter-reset-btn {
@@ -478,7 +501,7 @@
       width: 100%;
       height: 100%;
       z-index: 1;
-      background: #0d1117;
+      background: #09090b;
     }
 
     .leaflet-popup-content-wrapper {
@@ -719,9 +742,9 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #58a6ff, #3fb950);
+      background: linear-gradient(135deg, #b0b8c1, #8891a0);
       border: none;
-      color: #fff;
+      color: #09090b;
       cursor: pointer;
       z-index: 900;
       display: flex;
@@ -729,12 +752,12 @@
       justify-content: center;
       font-size: 18px;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 12px rgba(88, 166, 255, 0.3);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     }
 
     .analytics-btn:hover {
       transform: translateY(-50%) scale(1.1);
-      box-shadow: 0 4px 20px rgba(88, 166, 255, 0.5);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
     #app.panel-collapsed .analytics-btn {
@@ -798,7 +821,7 @@
     .analytics-title {
       font-size: 18px;
       font-weight: 800;
-      background: linear-gradient(135deg, #58a6ff, #3fb950);
+      background: linear-gradient(135deg, #b0b8c1, #8891a0);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1296,7 +1319,7 @@
 
     .metric-module-code.mercado {
       background: rgba(88, 166, 255, 0.15);
-      color: #58a6ff;
+      color: #6ea1d4;
     }
 
     .metric-module-code.modulo1 {
@@ -1311,7 +1334,7 @@
 
     .metric-module-code.modulo3 {
       background: rgba(163, 113, 247, 0.15);
-      color: #a371f7;
+      color: #9878d4;
     }
 
     .metric-module-code.modulo4 {
@@ -1321,7 +1344,7 @@
 
     .metric-module-code.permisologia {
       background: rgba(63, 185, 80, 0.15);
-      color: #3fb950;
+      color: #3dba54;
     }
 
     .metric-module-code.score {
@@ -1432,7 +1455,7 @@
     .alert-card:hover {
       transform: translateY(-3px) translateX(2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      background: rgba(22, 27, 34, 1);
+      background: rgba(22, 22, 26, 1);
     }
 
     .alert-card.nivel-3 {
@@ -1667,7 +1690,7 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.06);
       border-radius: 2px;
     }
 
@@ -1787,7 +1810,7 @@
     }
 
     .leaflet-control-scale-line {
-      background: rgba(13, 17, 23, 0.8) !important;
+      background: rgba(9, 9, 11, 0.85) !important;
       color: var(--text-secondary) !important;
       border-color: var(--border-strong) !important;
     }
@@ -2179,8 +2202,8 @@
           <span class="status-dot disconnected" id="ws-status"></span>
           <span id="ws-label">Conectando</span>
         </div>
-        <div class="topbar-stat">📊 <strong id="stat-registros">—</strong> registros</div>
-        <div class="topbar-stat">📡 <strong id="stat-metricas">44</strong>/51 métricas</div>
+        <div class="topbar-stat"><i data-lucide="database" class="icon-xs"></i> <strong id="stat-registros">—</strong> registros</div>
+        <div class="topbar-stat"><i data-lucide="bar-chart-3" class="icon-xs"></i> <strong id="stat-metricas">44</strong>/51 métricas</div>
         <div class="topbar-stat" id="clock"></div>
       </div>
     </header>
@@ -2189,11 +2212,11 @@
       <!-- SECTION 1: Filtros -->
       <div class="sidebar-section" id="section-filtros">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          🎯 Filtros de Inteligencia <span class="section-chevron">▼</span>
+          <i data-lucide="crosshair" class="icon-sm" style="color:var(--accent)"></i> Filtros de Inteligencia <span class="section-chevron">▼</span>
         </span>
         <div class="section-body">
           <div class="filter-group">
-            <label>📦 Módulo</label>
+            <label><i data-lucide="package" class="icon-xs"></i> Módulo</label>
             <select id="filter-modulo">
               <option value="">Todos los módulos</option>
               <option value="mercado">Mercado y Subsidio</option>
@@ -2207,7 +2230,7 @@
             </select>
           </div>
           <div class="filter-group">
-            <label>⚠️ Nivel de Alerta</label>
+            <label><i data-lucide="alert-triangle" class="icon-xs"></i> Nivel de Alerta</label>
             <div class="nivel-btns">
               <button class="nivel-btn active" data-nivel="0">N0</button>
               <button class="nivel-btn active" data-nivel="1">N1</button>
@@ -2216,7 +2239,7 @@
             </div>
           </div>
           <div class="filter-group">
-            <label>🗺️ Macro-Región</label>
+            <label><i data-lucide="map" class="icon-xs"></i> Macro-Región</label>
             <select id="filter-region">
               <option value="">Todas las regiones</option>
               <option value="NORTE (CIBAO)">Norte (Cibao)</option>
@@ -2225,19 +2248,19 @@
             </select>
           </div>
           <div class="filter-group">
-            <label>📍 Provincia</label>
+            <label><i data-lucide="map-pin" class="icon-xs"></i> Provincia</label>
             <select id="filter-provincia">
               <option value="">Todas las provincias</option>
             </select>
           </div>
           <div class="filter-group">
-            <label>🛢️ Producto</label>
+            <label><i data-lucide="droplet" class="icon-xs"></i> Producto</label>
             <select id="filter-producto">
               <option value="">Todos los productos</option>
             </select>
           </div>
           <div class="filter-group">
-            <label>🔍 Perfil de Fraude</label>
+            <label><i data-lucide="search" class="icon-xs"></i> Perfil de Fraude</label>
             <select id="filter-perfil">
               <option value="">Todos los perfiles</option>
               <option value="CONTRABANDO_FRON">Contrabando Fronterizo</option>
@@ -2246,24 +2269,24 @@
             </select>
           </div>
           <div class="filter-group">
-            <label>🛣️ Ruta de Distribución</label>
+            <label><i data-lucide="route" class="icon-xs"></i> Ruta de Distribución</label>
             <select id="filter-ruta">
               <option value="">Todas las rutas</option>
             </select>
           </div>
           <div class="filter-group">
-            <label>🏪 Estación Específica</label>
+            <label><i data-lucide="fuel" class="icon-xs"></i> Estación Específica</label>
             <select id="filter-estacion">
               <option value="">Todas las estaciones</option>
             </select>
           </div>
           <div class="filter-group">
-            <label>🏛️ Político Específico</label>
+            <label><i data-lucide="landmark" class="icon-xs"></i> Político Específico</label>
             <select id="filter-politico">
               <option value="">Todos los políticos</option>
             </select>
           </div>
-          <button class="filter-reset-btn" onclick="resetAllFilters()">✕ Limpiar Filtros</button>
+          <button class="filter-reset-btn" onclick="resetAllFilters()"><i data-lucide="x" class="icon-xs"></i> Limpiar Filtros</button>
         </div>
         <!-- Panel detalle de ruta seleccionada -->
         <div id="ruta-detail-panel" class="ruta-detail-panel" style="display:none;">
@@ -2273,37 +2296,37 @@
           </div>
           <div class="ruta-detail-grid">
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">📏 Distancia</span>
+              <span class="ruta-detail-label"><i data-lucide="ruler" class="icon-xs"></i> Distancia</span>
               <span class="ruta-detail-value" id="rd-distancia">—</span>
             </div>
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">⏱️ Tiempo</span>
+              <span class="ruta-detail-label"><i data-lucide="clock" class="icon-xs"></i> Tiempo</span>
               <span class="ruta-detail-value" id="rd-tiempo">—</span>
             </div>
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">🌡️ Temp. Media</span>
+              <span class="ruta-detail-label"><i data-lucide="thermometer" class="icon-xs"></i> Temp. Media</span>
               <span class="ruta-detail-value" id="rd-temp">—</span>
             </div>
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">💧 Evaporación</span>
+              <span class="ruta-detail-label"><i data-lucide="droplets" class="icon-xs"></i> Evaporación</span>
               <span class="ruta-detail-value" id="rd-evap">—</span>
             </div>
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">🏪 Estaciones</span>
+              <span class="ruta-detail-label"><i data-lucide="fuel" class="icon-xs"></i> Estaciones</span>
               <span class="ruta-detail-value" id="rd-estaciones">—</span>
             </div>
             <div class="ruta-detail-item">
-              <span class="ruta-detail-label">🚛 Velocidad</span>
+              <span class="ruta-detail-label"><i data-lucide="gauge" class="icon-xs"></i> Velocidad</span>
               <span class="ruta-detail-value" id="rd-velocidad">—</span>
             </div>
           </div>
           <div class="ruta-detail-extra">
             <div class="ruta-detail-item wide">
-              <span class="ruta-detail-label">🌍 Zona Climática</span>
+              <span class="ruta-detail-label"><i data-lucide="globe" class="icon-xs"></i> Zona Climática</span>
               <span class="ruta-detail-value" id="rd-zona">—</span>
             </div>
             <div class="ruta-detail-item wide">
-              <span class="ruta-detail-label">💰 Pérdida Valor Total</span>
+              <span class="ruta-detail-label"><i data-lucide="banknote" class="icon-xs"></i> Pérdida Valor Total</span>
               <span class="ruta-detail-value" id="rd-valor">—</span>
             </div>
           </div>
@@ -2313,16 +2336,16 @@
       <!-- SECTION 2: Capas del Mapa -->
       <div class="sidebar-section" id="section-capas">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          🗂️ Capas del Mapa <span class="section-chevron">▼</span>
+          <i data-lucide="layers" class="icon-sm" style="color:var(--accent)"></i> Capas del Mapa <span class="section-chevron">▼</span>
         </span>
         <div class="section-body">
           <div class="pilares-grid">
-            <span class="pilar-pill active" data-layer="estaciones">🏪 Estaciones</span>
-            <span class="pilar-pill active" data-layer="alertas">🚨 Alertas</span>
-            <span class="pilar-pill active" data-layer="rutas">🚛 Transporte</span>
-            <span class="pilar-pill active" data-layer="gps">📡 GPS</span>
-            <span class="pilar-pill active" data-layer="frontera">🗺 Frontera</span>
-            <span class="pilar-pill active" data-layer="politicos">🏛️ Política</span>
+            <span class="pilar-pill active" data-layer="estaciones"><i data-lucide="fuel" class="icon-xs"></i> Estaciones</span>
+            <span class="pilar-pill active" data-layer="alertas"><i data-lucide="shield-alert" class="icon-xs"></i> Alertas</span>
+            <span class="pilar-pill active" data-layer="rutas"><i data-lucide="truck" class="icon-xs"></i> Transporte</span>
+            <span class="pilar-pill active" data-layer="gps"><i data-lucide="satellite" class="icon-xs"></i> GPS</span>
+            <span class="pilar-pill active" data-layer="frontera"><i data-lucide="shield" class="icon-xs"></i> Frontera</span>
+            <span class="pilar-pill active" data-layer="politicos"><i data-lucide="landmark" class="icon-xs"></i> Política</span>
           </div>
         </div>
       </div>
@@ -2330,7 +2353,7 @@
       <!-- SECTION 3: Timeline -->
       <div class="sidebar-section timeline-container" id="section-timeline">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          ⏱️ Timeline <span class="section-chevron">▼</span>
+          <i data-lucide="clock" class="icon-sm" style="color:var(--accent)"></i> Timeline <span class="section-chevron">▼</span>
         </span>
         <div class="section-body">
           <input type="range" id="timeline-slider" min="1" max="104" value="104">
@@ -2348,19 +2371,19 @@
       <div class="monitor-panel" id="monitor-panel">
         <div class="monitor-title" onclick="toggleMapPanel('monitor-panel')"
           style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
-          <span>🔎 Inteligencia Operativa</span>
+          <span><i data-lucide="radar" class="icon-sm"></i> Inteligencia Operativa</span>
           <span class="collapse-chevron" style="font-size:10px;transition:transform .2s">▼</span>
         </div>
         <div class="collapsible-body">
-          <div class="monitor-row"><span class="label">🛢️ WTI (USD/bbl)</span> <span class="value" id="mon-wti"
+          <div class="monitor-row"><span class="label"><i data-lucide="droplet" class="icon-xs"></i> WTI (USD/bbl)</span> <span class="value" id="mon-wti"
               style="color:#d29922">—</span></div>
-          <div class="monitor-row"><span class="label">⚠️ Alertas N3 activas</span> <span class="value critico"
+          <div class="monitor-row"><span class="label"><i data-lucide="alert-triangle" class="icon-xs"></i> Alertas N3 activas</span> <span class="value critico"
               id="mon-n3">—</span></div>
-          <div class="monitor-row"><span class="label">📊 IRCF Nacional</span> <span class="value" id="mon-ircf"
-              style="color:#58a6ff">—</span></div>
-          <div class="monitor-row"><span class="label">🏛️ Políticos mapeados</span> <span class="value"
-              id="mon-politicos" style="color:#a371f7">—</span></div>
-          <div class="monitor-row"><span class="label">🏪 Estaciones activas</span> <span class="value"
+          <div class="monitor-row"><span class="label"><i data-lucide="bar-chart-3" class="icon-xs"></i> IRCF Nacional</span> <span class="value" id="mon-ircf"
+              style="color:#6ea1d4">—</span></div>
+          <div class="monitor-row"><span class="label"><i data-lucide="landmark" class="icon-xs"></i> Políticos mapeados</span> <span class="value"
+              id="mon-politicos" style="color:#9878d4">—</span></div>
+          <div class="monitor-row"><span class="label"><i data-lucide="fuel" class="icon-xs"></i> Estaciones activas</span> <span class="value"
               id="mon-estaciones">—</span></div>
         </div>
       </div>
@@ -2369,23 +2392,23 @@
       <div class="map-legend" id="map-legend">
         <div class="monitor-title" onclick="toggleMapPanel('map-legend')"
           style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;margin-bottom:8px">
-          <span>📋 Leyenda del Mapa</span>
+          <span><i data-lucide="list" class="icon-sm"></i> Leyenda del Mapa</span>
           <span class="collapse-chevron" style="font-size:10px;transition:transform .2s">▼</span>
         </div>
         <div class="collapsible-body" style="max-height:calc(100vh - 200px);overflow-y:auto">
-          <div class="legend-title">🚨 Nivel de Alerta</div>
+          <div class="legend-title"><i data-lucide="shield-alert" class="icon-xs"></i> Nivel de Alerta</div>
           <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> N0 — Normal</div>
           <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span> N1 — Observación</div>
           <div class="legend-item"><span class="legend-dot" style="background:#d29922"></span> N2 — Sospechoso</div>
           <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> N3 — Crítico</div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-            <div class="legend-title">🏪 Estaciones</div>
+            <div class="legend-title"><i data-lucide="fuel" class="icon-xs"></i> Estaciones</div>
             <div class="legend-item"><span class="legend-dot" style="background:#00d4ff"></span> Estación de Servicio
             </div>
             <div class="legend-item"><span class="legend-dot" style="background:#e040fb"></span> Envasadora GLP</div>
           </div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-            <div class="legend-title">🚛 Rutas</div>
+            <div class="legend-title"><i data-lucide="truck" class="icon-xs"></i> Rutas</div>
             <div class="legend-item"><span class="legend-line" style="background:#3fb950"></span> Normal</div>
             <div class="legend-item"><span class="legend-line" style="background:#d29922"></span> Sospechosa</div>
             <div class="legend-item"><span class="legend-line" style="background:#f85149"></span> Crítica</div>
@@ -2393,18 +2416,18 @@
               Fronteriza</div>
           </div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-            <div class="legend-title">📡 GPS</div>
+            <div class="legend-title"><i data-lucide="satellite" class="icon-xs"></i> GPS</div>
             <div class="legend-item"><span class="legend-dot" style="background:#39d353;width:6px;height:6px"></span>
               Cisterna en tránsito</div>
           </div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-            <div class="legend-title">🗺 Frontera</div>
+            <div class="legend-title"><i data-lucide="shield" class="icon-xs"></i> Frontera</div>
             <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span> Bajo</div>
             <div class="legend-item"><span class="legend-dot" style="background:#d29922"></span> Medio</div>
             <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span> Alto</div>
           </div>
           <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
-            <div class="legend-title">🏛️ Partidos</div>
+            <div class="legend-title"><i data-lucide="landmark" class="icon-xs"></i> Partidos</div>
             <div class="legend-item"><span class="legend-dot" style="background:#1a73e8"></span> PRM</div>
             <div class="legend-item"><span class="legend-dot" style="background:#8e24aa"></span> PLD</div>
             <div class="legend-item"><span class="legend-dot" style="background:#2e7d32"></span> FP</div>
@@ -2424,7 +2447,7 @@
 
       <!-- Analytics Button -->
       <button class="analytics-btn" id="analytics-btn" onclick="openAnalytics()" title="Análisis Avanzado">
-        📊
+        <i data-lucide="bar-chart-3" class="icon-lg"></i>
       </button>
     </div>
 
@@ -2432,7 +2455,7 @@
       <!-- Alertas en Vivo -->
       <div class="sidebar-section" id="alertas-section" style="margin:12px 12px 6px 12px">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          🚨 Alertas en Vivo <span class="count" id="alertas-count"
+          <i data-lucide="shield-alert" class="icon-sm" style="color:var(--red)"></i> Alertas en Vivo <span class="count" id="alertas-count"
             style="font-size:11px;background:rgba(248,81,73,0.15);color:#f85149;padding:1px 8px;border-radius:10px;letter-spacing:0">—</span>
           <span class="section-chevron">▼</span>
         </span>
@@ -2446,7 +2469,7 @@
       <!-- Métricas Nacionales -->
       <div class="sidebar-section" id="metricas-section" style="margin:0 12px 6px 12px">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          <span id="metricas-section-label">📊 Métricas Nacionales</span> <span class="section-chevron">▼</span>
+          <span id="metricas-section-label"><i data-lucide="bar-chart-3" class="icon-sm" style="color:var(--accent)"></i> Métricas Nacionales</span> <span class="section-chevron">▼</span>
         </span>
         <div class="section-body">
           <div class="metrics-grid" id="metrics-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
@@ -2507,34 +2530,34 @@
       <!-- Territorio Seleccionado -->
       <div class="sidebar-section" id="territorio-section" style="margin:0 12px 6px 12px">
         <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          📍 Territorio Seleccionado <span class="section-chevron">▼</span>
+          <i data-lucide="map-pin" class="icon-sm" style="color:var(--accent)"></i> Territorio Seleccionado <span class="section-chevron">▼</span>
         </span>
         <div class="section-body">
           <div id="territorio-info" style="font-size:11px;color:var(--text-secondary);line-height:1.6">
             <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px" id="terr-nombre">
-              🇩🇴 República Dominicana (Nacional)</div>
+              República Dominicana (Nacional)</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="terr-stats">
               <div
                 style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
-                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🏪
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600"><i data-lucide="fuel" class="icon-xs"></i>
                   Estaciones</div>
                 <div style="font-size:15px;font-weight:700;color:#00d4ff" id="terr-estaciones">—</div>
               </div>
               <div
                 style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
-                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🚨 Alertas
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600"><i data-lucide="shield-alert" class="icon-xs"></i> Alertas
                 </div>
                 <div style="font-size:15px;font-weight:700;color:#f85149" id="terr-alertas">—</div>
               </div>
               <div
                 style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
-                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🏛️
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600"><i data-lucide="landmark" class="icon-xs"></i>
                   Políticos</div>
                 <div style="font-size:15px;font-weight:700;color:#a371f7" id="terr-politicos">—</div>
               </div>
               <div
                 style="background:rgba(13,17,23,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px">
-                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600">🚛 Rutas
+                <div style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600"><i data-lucide="truck" class="icon-xs"></i> Rutas
                 </div>
                 <div style="font-size:15px;font-weight:700;color:#3fb950" id="terr-rutas">—</div>
               </div>
@@ -2544,7 +2567,7 @@
               id="terr-partidos">
               <div
                 style="font-size:9px;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:3px">
-                🗳️ Composición Política</div>
+                <i data-lucide="vote" class="icon-xs"></i> Composición Política</div>
               <div id="terr-partido-bars" style="font-size:10px">—</div>
             </div>
           </div>
@@ -2554,7 +2577,7 @@
       <!-- Noticias Section -->
       <div class="sidebar-section" id="noticias-section" style="margin:0 12px 6px 12px">
         <span class="sidebar-label" onclick="toggleNoticias()">
-          📰 Noticias Combustibles <span class="section-chevron" id="noticias-chevron">▼</span>
+          <i data-lucide="newspaper" class="icon-sm" style="color:var(--accent)"></i> Noticias Combustibles <span class="section-chevron" id="noticias-chevron">▼</span>
         </span>
         <div class="noticias-list section-body" id="noticias-list"></div>
       </div>
@@ -2574,15 +2597,15 @@
     <div class="analytics-modal">
       <div class="analytics-header">
         <div class="analytics-header-left">
-          <span class="analytics-title">📊 Análisis Avanzado</span>
+          <span class="analytics-title"><i data-lucide="bar-chart-3" class="icon-md"></i> Análisis Avanzado</span>
           <div class="analytics-tabs">
-            <button class="analytics-tab" data-tab="metricas51" onclick="switchAnalyticsTab('metricas51')">📋
+            <button class="analytics-tab" data-tab="metricas51" onclick="switchAnalyticsTab('metricas51')"><i data-lucide="list-checks" class="icon-xs"></i>
               51 Métricas</button>
-            <button class="analytics-tab active" data-tab="alertas" onclick="switchAnalyticsTab('alertas')">🚨
+            <button class="analytics-tab active" data-tab="alertas" onclick="switchAnalyticsTab('alertas')"><i data-lucide="shield-alert" class="icon-xs"></i>
               Alertas</button>
-            <button class="analytics-tab" data-tab="volumen" onclick="switchAnalyticsTab('volumen')">⛽
+            <button class="analytics-tab" data-tab="volumen" onclick="switchAnalyticsTab('volumen')"><i data-lucide="fuel" class="icon-xs"></i>
               Volumenías</button>
-            <button class="analytics-tab" data-tab="estadisticas" onclick="switchAnalyticsTab('estadisticas')">📈
+            <button class="analytics-tab" data-tab="estadisticas" onclick="switchAnalyticsTab('estadisticas')"><i data-lucide="trending-up" class="icon-xs"></i>
               Estadísticas</button>
           </div>
         </div>
@@ -2660,7 +2683,7 @@
           <div class="volume-grid" id="volume-grid"></div>
           <div class="analytics-charts-grid" style="margin-top:20px;">
             <div class="analytics-chart-card">
-              <div class="analytics-chart-title">⛽ Despacho por Producto</div>
+              <div class="analytics-chart-title">Despacho por Producto</div>
               <div class="chart-bars" id="chart-productos"></div>
             </div>
             <div class="analytics-chart-card">
@@ -2747,7 +2770,7 @@
       'PRM': '#1a73e8', 'PLD': '#8e24aa', 'FP': '#2e7d32',
       'PRD': '#e65100', 'NI': '#00897b', 'Varios': '#78909c',
     };
-    const CARGO_ICON = { 'SENADOR': '🏛️', 'DIPUTADO': '📜', 'ALCALDE': '🏢' };
+    const CARGO_ICON = { 'SENADOR': 'S', 'DIPUTADO': 'D', 'ALCALDE': 'A' };
     const CARGO_RADIUS = { 'SENADOR': 9, 'DIPUTADO': 7, 'ALCALDE': 5 };
 
     const state = {
@@ -2771,6 +2794,8 @@
       loadProvinceLabels();
       loadGeografia();
       loadPoliticos();
+      // Initialize Lucide icons
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     // ── MAP (Dark Theme) ────────────────────────────────────────────────────────
@@ -3338,22 +3363,25 @@
       features.forEach(f => {
         const p = f.properties;
         const [lng, lat] = f.geometry.coordinates;
-        if (isNaN(lat) || isNaN(lng)) return; // skip invalid coords
+        if (isNaN(lat) || isNaN(lng)) return;
         const color = TIPO_COLORS[p.tipo] || '#00d4ff';
         const isSelected = state.selectedEstacion === p.estacion_id;
+        const size = isSelected ? 28 : 18;
 
-        const marker = L.circleMarker([lat, lng], {
-          radius: isSelected ? 12 : 6,
-          fillColor: color, color: isSelected ? '#fff' : color,
-          weight: isSelected ? 3 : 1,
-          fillOpacity: isSelected ? 1 : 0.7,
-          opacity: isSelected ? 1 : 0.5,
+        // SVG fuel-pump icon marker
+        const svgIcon = L.divIcon({
+          className: '',
+          html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${isSelected ? 2.5 : 1.8}" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,0.6))${isSelected ? ';filter:drop-shadow(0 0 6px '+color+')' : ''}"><path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/><path d="M13 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 6"/><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="12" y2="9"/></svg>`,
+          iconSize: [size, size],
+          iconAnchor: [size/2, size/2],
         });
+
+        const marker = L.marker([lat, lng], { icon: svgIcon });
 
         marker.bindPopup(`
       <div class="popup-title">${p.nombre}</div>
       <span class="popup-badge n${p.nivel_alerta}">NIVEL ${p.nivel_alerta}</span>
-      <div class="popup-row"><span class="label">Tipo</span> ${p.tipo === 'ENVASADORA' ? '🏭 Envasadora' : '⛽ Estación'}</div>
+      <div class="popup-row"><span class="label">Tipo</span> ${p.tipo === 'ENVASADORA' ? 'Envasadora GLP' : 'Estaci\u00f3n de Servicio'}</div>
       <div class="popup-row"><span class="label">Provincia</span> ${p.provincia}</div>
       <div class="popup-row"><span class="label">Capacidad</span> ${parseInt(p.capacidad || 0).toLocaleString()} gal</div>
       <div class="popup-row"><span class="label">Z-score</span> ${parseFloat(p.z_score || 0).toFixed(2)}</div>
@@ -3411,11 +3439,11 @@
       const all = geojson.features;
 
       const RIESGO_STYLES = {
-        'CRITICO': { color: '#f85149', weight: 4, opacity: 0.85 },
-        'ALTO': { color: '#d29922', weight: 2.5, opacity: 0.6 },
-        'MEDIO': { color: '#58a6ff', weight: 1.5, opacity: 0.35 },
+        'CRITICO': { color: '#a1a1aa', weight: 3, opacity: 0.9 },
+        'ALTO': { color: '#a1a1aa', weight: 2, opacity: 0.55 },
+        'MEDIO': { color: '#a1a1aa', weight: 1.5, opacity: 0.3 },
       };
-      const DEFAULT_STYLE = { color: '#3fb950', weight: 1, opacity: 0.2 };
+      const DEFAULT_STYLE = { color: '#a1a1aa', weight: 1, opacity: 0.15 };
 
       all.forEach(f => {
         const p = f.properties;
@@ -3439,10 +3467,10 @@
           line.setStyle(style);
           if (line.getPopup()) {
             line.getPopup().setContent(`
-        <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
+        <div class="popup-title">${p.origen || ''} \u2192 ${p.nombre || p.destino || ''}</div>
         <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
         <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
-        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
+        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? 'Carretera' : 'Aproximada'}</div>
       `);
           }
         } else {
@@ -3455,10 +3483,10 @@
           // Only bind popups on high-risk routes to reduce overhead
           if (isHighRisk) {
             line.bindPopup(`
-        <div class="popup-title">🚛 ${p.origen || ''} → ${p.nombre || p.destino || ''}</div>
+        <div class="popup-title">${p.origen || ''} \u2192 ${p.nombre || p.destino || ''}</div>
         <div class="popup-row"><span class="label">Distancia</span> ${parseFloat(p.distancia || 0).toFixed(1)} km</div>
         <div class="popup-row"><span class="label">Riesgo</span> <strong style="color:${style.color}">${p.riesgo || 'BAJO'}</strong></div>
-        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? '🛣️ Carretera' : '📐 Aproximada'}</div>
+        <div class="popup-row"><span class="label">Ruta</span> ${p.has_road ? 'Carretera' : 'Aproximada'}</div>
       `);
           }
           line.addTo(layer);
@@ -3966,29 +3994,33 @@
         if (!p.lat || !p.lon) return;
         const color = PARTIDO_COLORS[p.partido] || '#78909c';
         const radius = CARGO_RADIUS[p.cargo] || 5;
-        const icon = CARGO_ICON[p.cargo] || '🏛️';
-        const marker = L.circleMarker([parseFloat(p.lat), parseFloat(p.lon)], {
-          radius: radius,
-          fillColor: color,
-          color: '#0d1117',
-          weight: 2,
-          fillOpacity: 0.85,
+        const cargoLetter = CARGO_ICON[p.cargo] || 'P';
+        const size = radius * 3.5;
+
+        // SVG landmark/pin icon marker
+        const svgIcon = L.divIcon({
+          className: '',
+          html: `<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:${color};border:2px solid #09090b;color:#fff;font-size:${size*0.45}px;font-weight:800;font-family:Inter,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,0.5);letter-spacing:-0.5px">${cargoLetter}</div>`,
+          iconSize: [size, size],
+          iconAnchor: [size/2, size/2],
         });
+
+        const marker = L.marker([parseFloat(p.lat), parseFloat(p.lon)], { icon: svgIcon });
         const popup = `
           <div style="font-family:'Inter',sans-serif;min-width:200px">
-            <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:6px">
-              ${icon} ${p.nombre}
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:6px">
+              ${p.nombre}
             </div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
               <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color}"></span>
-              <span style="font-size:12px;color:#8b949e;font-weight:600">${p.partido}</span>
-              <span style="font-size:11px;background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:10px;color:#c9d1d9">${p.cargo}</span>
+              <span style="font-size:12px;color:var(--text-secondary);font-weight:600">${p.partido}</span>
+              <span style="font-size:11px;background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:10px;color:var(--text-primary)">${p.cargo}</span>
             </div>
-            <div style="font-size:11px;color:#8b949e;line-height:1.5">
-              <div>📍 ${p.provincia}${p.municipio ? ' • ' + p.municipio : ''}</div>
-              ${p.circunscripcion ? '<div>🗳️ ' + p.circunscripcion + '</div>' : ''}
-              ${p.region ? '<div>🌎 ' + p.region + '</div>' : ''}
-              <div>📅 ${p.periodoInicio ? new Date(p.periodoInicio).getFullYear() : '2024'}–${p.periodoFin ? new Date(p.periodoFin).getFullYear() : '2028'}</div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.5">
+              <div>${p.provincia}${p.municipio ? ' \u00b7 ' + p.municipio : ''}</div>
+              ${p.circunscripcion ? '<div>' + p.circunscripcion + '</div>' : ''}
+              ${p.region ? '<div>' + p.region + '</div>' : ''}
+              <div>${p.periodoInicio ? new Date(p.periodoInicio).getFullYear() : '2024'}\u2013${p.periodoFin ? new Date(p.periodoFin).getFullYear() : '2028'}</div>
             </div>
           </div>
         `;
@@ -4046,7 +4078,7 @@
         return `<div class="alert-card nivel-${n} slide-in" style="--i:${i}" onclick="flyToAlert(${lat},${lng},'${p.estacion_id}')">
       <div class="alert-header"><span class="alert-nivel n${n}">NIVEL ${n}</span><span class="alert-score n${n}">${parseFloat(p.score_compuesto || 0).toFixed(2)}</span></div>
       <div class="alert-perfil">${formatPerfil(p.perfil_fraude)}</div>
-      <div class="alert-location">📍 ${p.nombre || ''} · ${p.provincia}</div></div>`;
+      <div class="alert-location">${p.nombre || ''} \u00b7 ${p.provincia}</div></div>`;
       }).join('');
     }
 
@@ -4058,8 +4090,8 @@
       if (features.length === 0) { container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">Sin cisternas activas</div>'; return; }
       container.innerHTML = features.slice(0, 8).map((f, i) => {
         const p = f.properties; const isWarn = p.riesgo === 'ALTO' || p.riesgo === 'CRITICO';
-        return `<div class="gps-item slide-in" style="--i:${i}"><div class="gps-icon ${isWarn ? 'warn' : 'ok'}">${isWarn ? '⚠️' : '🚛'}</div>
-      <div class="gps-info"><div class="gps-cisterna">${p.cisterna || 'Cisterna'}</div><div class="gps-detail">${p.estacion || ''} · ${p.producto || ''}</div></div>
+        return `<div class="gps-item slide-in" style="--i:${i}"><div class="gps-icon ${isWarn ? 'warn' : 'ok'}">${isWarn ? '!' : 'T'}</div>
+      <div class="gps-info"><div class="gps-cisterna">${p.cisterna || 'Cisterna'}</div><div class="gps-detail">${p.estacion || ''} \u00b7 ${p.producto || ''}</div></div>
       <div class="gps-progress">${p.progreso || 0}%</div></div>`;
       }).join('');
     }
@@ -4100,7 +4132,7 @@
       section.classList.add('hidden');
       setTimeout(() => { section.style.display = 'none'; }, 400);
     }
-    function formatPerfil(p) { return { 'CONTRABANDO_FRON': '🔴 Contrabando Fronterizo', 'DESVIO_FISCAL': '🟠 Desvío Fiscal', 'ADULTERACION': '🟡 Adulteración' }[p] || p || '—'; }
+    function formatPerfil(p) { return { 'CONTRABANDO_FRON': 'Contrabando Fronterizo', 'DESVIO_FISCAL': 'Desvío Fiscal', 'ADULTERACION': 'Adulteración' }[p] || p || '—'; }
     function formatMoney(v) { const n = parseFloat(v); if (isNaN(n)) return '—'; if (n >= 1e9) return 'RD$ ' + (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return 'RD$ ' + (n / 1e6).toFixed(0) + 'M'; if (n >= 1e3) return 'RD$ ' + (n / 1e3).toFixed(0) + 'K'; return 'RD$ ' + n.toFixed(0); }
     function countRecords(d) { let t = 0;['estaciones', 'alertas', 'gps', 'rutas', 'frontera'].forEach(k => { if (d[k]?.features) t += d[k].features.length; }); document.getElementById('stat-registros').textContent = t.toLocaleString(); }
     function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
@@ -4119,9 +4151,9 @@
       const region = document.getElementById('filter-region')?.value || '';
       const prov = document.getElementById('filter-provincia')?.value || '';
       const nameEl = document.getElementById('terr-nombre');
-      if (prov) nameEl.textContent = '📍 ' + prov;
-      else if (region) nameEl.textContent = '🗺️ ' + region;
-      else nameEl.innerHTML = '🇩🇴 República Dominicana (Nacional)';
+      if (prov) nameEl.textContent = prov;
+      else if (region) nameEl.textContent = region;
+      else nameEl.textContent = 'República Dominicana (Nacional)';
 
       const hasFilter = !!(prov || region);
 
@@ -4447,14 +4479,14 @@
 
       grid.innerHTML = `
     <div class="volume-card scale-in" style="--i:0">
-      <div class="volume-card-title">⛽ Distribución por Tipo</div>
+      <div class="volume-card-title">Distribución por Tipo</div>
       ${Object.entries(byTipo).map(([tipo, d]) => `
-        <div class="volume-row"><span class="vr-label">${tipo === 'ESTACION_SERVICIO' ? '⛽ Estación' : '🏭 Envasadora'}</span> <span class="vr-value">${d.count.toLocaleString()}</span></div>
+        <div class="volume-row"><span class="vr-label">${tipo === 'ESTACION_SERVICIO' ? 'Estación' : 'Envasadora'}</span> <span class="vr-value">${d.count.toLocaleString()}</span></div>
         <div class="volume-row"><span class="vr-label">Capacidad total</span> <span class="vr-value">${d.totalCap.toLocaleString()} gal</span></div>
       `).join('<div style="margin:6px 0;border-top:1px solid var(--border)"></div>')}
     </div>
     <div class="volume-card scale-in" style="--i:1">
-      <div class="volume-card-title">📍 Top Provincias por Capacidad</div>
+      <div class="volume-card-title">Top Provincias por Capacidad</div>
       ${topProvs.map(([prov, d]) => `
         <div class="volume-row"><span class="vr-label">${prov}</span> <span class="vr-value">${(d.totalCap / 1000).toFixed(0)}K gal</span></div>
         <div class="volume-bar-wrap"><div class="volume-bar-fill" style="width:${(d.totalCap / maxCap * 100).toFixed(0)}%;background:linear-gradient(90deg,#58a6ff,#3fb950)"></div></div>
