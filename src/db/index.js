@@ -17,7 +17,10 @@ pool.on('error', (err) => {
  * @param {Array}  params
  * @returns {Promise<import('pg').QueryResult>}
  */
+let _poolEnded = false;
+
 async function query(text, params = []) {
+  if (_poolEnded) return { rows: [], rowCount: 0 };
   const start = Date.now();
   try {
     const result = await pool.query(text, params);
@@ -88,12 +91,14 @@ async function healthCheck() {
  * Cierra pool y listener.
  */
 async function shutdown() {
+  if (_poolEnded) return;
+  _poolEnded = true;
   if (reconnectTimer) clearTimeout(reconnectTimer);
   if (listenClient) {
     try { await listenClient.end(); } catch (e) { /* ignore */ }
     console.log('[DB-LISTEN] Desconectado');
   }
-  await pool.end();
+  try { await pool.end(); } catch (e) { /* ignore */ }
   console.log('[DB] Pool cerrado');
 }
 

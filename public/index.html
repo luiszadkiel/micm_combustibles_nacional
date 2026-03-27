@@ -82,7 +82,7 @@
     /* ── LAYOUT ─────────────────────────────────────────────────────── */
     #app {
       display: grid;
-      grid-template-rows: 48px 1fr;
+      grid-template-rows: 48px 1fr auto;
       grid-template-columns: 280px 1fr 360px;
       height: 100vh;
       transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -458,19 +458,7 @@
       border-color: rgba(248, 81, 73, 0.3);
     }
 
-    .timeline-container {
-      margin-top: auto;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
 
-    .timeline-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
 
     input[type="range"] {
       width: 100%;
@@ -478,7 +466,7 @@
       appearance: none;
       height: 4px;
       border-radius: 2px;
-      background: linear-gradient(to right, var(--green), var(--orange), var(--red));
+      background: rgba(255, 255, 255, 0.08);
       outline: none;
     }
 
@@ -2186,6 +2174,93 @@
       font-weight: 700;
       color: #e6edf3;
     }
+
+    /* ── PREMIUM TIMELINE BAR ────────────────────────────────────── */
+    #timeline-bar {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      background: linear-gradient(180deg, rgba(14,14,16,0.95) 0%, rgba(9,9,11,1) 100%);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+      max-height: 150px;
+    }
+    #timeline-bar.collapsed { max-height: 30px; }
+    .tl-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      min-height: 30px;
+      flex-shrink: 0;
+    }
+    .tl-toolbar-left, .tl-toolbar-center, .tl-toolbar-right {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tl-toolbar-left { margin-right: auto; }
+    .tl-toolbar-right { margin-left: auto; }
+    .tl-icon-btn {
+      width: 22px; height: 22px; border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: transparent; color: var(--text-muted);
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; font-size: 10px; transition: all 0.12s;
+    }
+    .tl-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+    .tl-icon-btn.active { background: rgba(110,161,212,0.15); color: var(--accent); border-color: var(--accent); }
+    .tl-date-display {
+      font-size: 11px; font-weight: 600; color: var(--text-primary);
+      padding: 2px 10px; background: rgba(255,255,255,0.03);
+      border-radius: 3px; border: 1px solid rgba(255,255,255,0.06);
+      min-width: 180px; text-align: center; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      letter-spacing: 0.3px;
+    }
+    .tl-view-latest {
+      font-size: 9px; font-weight: 700; color: var(--accent);
+      background: rgba(110,161,212,0.08); border: 1px solid rgba(110,161,212,0.2);
+      border-radius: 3px; padding: 2px 8px; cursor: pointer; transition: all 0.12s;
+    }
+    .tl-view-latest:hover { background: rgba(110,161,212,0.15); }
+    .tl-speed {
+      font-size: 9px; font-weight: 700; color: var(--text-muted);
+      padding: 2px 5px; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 3px; cursor: pointer; background: transparent; transition: all 0.12s;
+    }
+    .tl-speed:hover { color: var(--text-primary); border-color: var(--accent); }
+    .tl-granularity {
+      display: flex; gap: 0; border-radius: 3px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .tl-gran-btn {
+      font-size: 9px; font-weight: 600; padding: 2px 7px;
+      background: transparent; color: var(--text-muted); border: none;
+      cursor: pointer; transition: all 0.12s;
+    }
+    .tl-gran-btn:hover { color: var(--text-primary); }
+    .tl-gran-btn.active {
+      background: rgba(110,161,212,0.15); color: var(--accent);
+    }
+    .tl-mode-indicator {
+      font-size: 8px; padding: 1px 6px; border-radius: 2px;
+      font-weight: 700; letter-spacing: 0.5px;
+    }
+    .tl-mode-indicator.live { background: rgba(61,186,84,0.12); color: var(--green); }
+    .tl-mode-indicator.hist { background: rgba(210,153,34,0.12); color: var(--orange); }
+    .tl-range-val { font-size: 9px; color: var(--text-muted); font-family: monospace; }
+    .tl-chart-area {
+      flex: 1; position: relative; padding: 0 16px 2px; min-height: 0;
+    }
+    #tl-canvas {
+      width: 100%; height: 70px; display: block; cursor: crosshair;
+    }
+    .tl-tick-labels {
+      display: flex; justify-content: space-between;
+      font-size: 8px; color: rgba(255,255,255,0.3); padding: 0 2px;
+      font-family: monospace;
+    }
   </style>
 </head>
 
@@ -2351,17 +2426,7 @@
       </div>
 
       <!-- SECTION 3: Timeline -->
-      <div class="sidebar-section timeline-container" id="section-timeline">
-        <span class="sidebar-label" onclick="this.parentElement.classList.toggle('section-collapsed')">
-          <i data-lucide="clock" class="icon-sm" style="color:var(--accent)"></i> Timeline <span class="section-chevron">▼</span>
-        </span>
-        <div class="section-body">
-          <input type="range" id="timeline-slider" min="1" max="104" value="104">
-          <div class="timeline-labels">
-            <span>S01 2024</span><span>Actual</span><span>S12 2026</span>
-          </div>
-        </div>
-      </div>
+
     </aside>
 
     <div id="map-container">
@@ -2449,6 +2514,37 @@
       <button class="analytics-btn" id="analytics-btn" onclick="openAnalytics()" title="Análisis Avanzado">
         <i data-lucide="bar-chart-3" class="icon-lg"></i>
       </button>
+
+    </div>
+
+    <!-- ── PREMIUM TIMELINE BAR ───────────────────────────────── -->
+    <div id="timeline-bar">
+      <div class="tl-toolbar">
+        <div class="tl-toolbar-left">
+          <button class="tl-icon-btn" onclick="document.getElementById('timeline-bar').classList.toggle('collapsed')" title="Collapse">▼</button>
+          <span class="tl-mode-indicator live" id="tl-mode">LIVE</span>
+          <div class="tl-granularity">
+            <button class="tl-gran-btn" onclick="tlSetGran('month')" id="tl-g-month">Month</button>
+            <button class="tl-gran-btn active" onclick="tlSetGran('day')" id="tl-g-day">Day</button>
+            <button class="tl-gran-btn" onclick="tlSetGran('hour')" id="tl-g-hour">Hour</button>
+          </div>
+        </div>
+        <div class="tl-toolbar-center">
+          <button class="tl-icon-btn" onclick="tlStep(-1)" title="Anterior">◀</button>
+          <button class="tl-icon-btn" id="tl-play" onclick="tlTogglePlay()" title="Play">▶</button>
+          <button class="tl-icon-btn" onclick="tlStep(1)" title="Siguiente">▶</button>
+          <div class="tl-date-display" id="tl-date-display">—</div>
+          <button class="tl-view-latest" onclick="tlGoLive()">View Latest ▸</button>
+          <button class="tl-speed" id="tl-speed" onclick="tlCycleSpeed()">1x</button>
+        </div>
+        <div class="tl-toolbar-right">
+          <span class="tl-range-val" id="tl-range-val">—</span>
+        </div>
+      </div>
+      <div class="tl-chart-area">
+        <canvas id="tl-canvas" height="70"></canvas>
+        <div class="tl-tick-labels" id="tl-tick-labels"></div>
+      </div>
     </div>
 
     <div id="panel">
@@ -3437,11 +3533,11 @@
       const all = geojson.features;
 
       const RIESGO_STYLES = {
-        'CRITICO': { color: '#a1a1aa', weight: 3, opacity: 0.9 },
-        'ALTO': { color: '#a1a1aa', weight: 2, opacity: 0.55 },
-        'MEDIO': { color: '#a1a1aa', weight: 1.5, opacity: 0.3 },
+        'CRITICO': { color: '#00e676', weight: 3, opacity: 1 },
+        'ALTO': { color: '#00c853', weight: 2.5, opacity: 0.85 },
+        'MEDIO': { color: '#66bb6a', weight: 2, opacity: 0.6 },
       };
-      const DEFAULT_STYLE = { color: '#a1a1aa', weight: 1, opacity: 0.15 };
+      const DEFAULT_STYLE = { color: '#2e7d32', weight: 1.2, opacity: 0.4 };
 
       all.forEach(f => {
         const p = f.properties;
@@ -4865,7 +4961,7 @@
       document.getElementById('nm-title').textContent = n.title;
       let bodyHtml = '';
       if (n.imageUrl) bodyHtml += `<img class="nm-image" src="${n.imageUrl}" alt="" onerror="this.style.display='none'">`;
-      if (n.aiSummary) bodyHtml += `<div class="nm-summary">📋 ${_esc(n.aiSummary)}</div>`;
+      if (n.aiSummary) bodyHtml += `<div class="nm-summary">${_esc(n.aiSummary)}</div>`;
       bodyHtml += `<p>${_esc(n.content || n.description || 'Sin contenido disponible.')}</p>`;
       if (n.keywords && n.keywords.length > 0) {
         bodyHtml += `<div class="nm-keywords">${n.keywords.map(k => `<span>${_esc(k)}</span>`).join('')}</div>`;
@@ -4880,7 +4976,6 @@
       document.getElementById('news-modal-overlay').classList.remove('active');
     }
 
-    // Escape key closes news modal
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeNoticia();
     });
@@ -4900,6 +4995,389 @@
       const hrs = Math.floor(mins / 60);
       if (hrs < 24) return `${hrs}h`;
       return `${Math.floor(hrs / 24)}d`;
+    }
+
+    // ── PREMIUM TIMELINE (Canvas Mountain Chart + Simulation) ──────────────
+    const tlState = { data: [], idx: -1, playing: false, timer: null, isLive: true, speed: 600, gran: 'day' };
+    const TL_SPEEDS = [600, 300, 150];
+    const TL_SPEED_LABELS = ['1x', '2x', '4x'];
+    let _tlSpeedIdx = 0;
+
+    // ── Time formatting ──────────────────────────
+    function _fmtFull(d) {
+      const dt = new Date(d);
+      return dt.toLocaleDateString('en-US', { month:'short', day:'2-digit', year:'numeric' })
+        + '  ' + dt.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+    }
+    function _fmtShort(d, gran) {
+      const dt = new Date(d);
+      if (gran === 'month') return dt.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+      if (gran === 'day') return dt.toLocaleDateString('en-US',{month:'short',day:'2-digit'});
+      return dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+    }
+
+    // ── Simulation engine (enhanced) ────────────────────────
+    // Dominican Republic city coordinates for realistic alert placement
+    const _DR_LOCATIONS = [
+      { lat:18.4861, lon:-69.9312, name:'Santo Domingo', prov:'Distrito Nacional', muni:'Santo Domingo de Guzmán' },
+      { lat:19.4517, lon:-70.6970, name:'Santiago', prov:'Santiago', muni:'Santiago de los Caballeros' },
+      { lat:18.4530, lon:-69.9790, name:'Los Alcarrizos', prov:'Santo Domingo', muni:'Los Alcarrizos' },
+      { lat:18.4270, lon:-70.1270, name:'San Cristóbal', prov:'San Cristóbal', muni:'San Cristóbal' },
+      { lat:18.8060, lon:-71.2280, name:'San Juan', prov:'San Juan', muni:'San Juan de la Maguana' },
+      { lat:19.7930, lon:-70.6880, name:'Puerto Plata', prov:'Puerto Plata', muni:'San Felipe' },
+      { lat:18.2100, lon:-71.0900, name:'Barahona', prov:'Barahona', muni:'Santa Cruz' },
+      { lat:19.2230, lon:-69.5390, name:'Samaná', prov:'Samaná', muni:'Santa Bárbara' },
+      { lat:18.6120, lon:-68.7080, name:'La Romana', prov:'La Romana', muni:'La Romana' },
+      { lat:18.5090, lon:-69.8510, name:'Boca Chica', prov:'Santo Domingo', muni:'Boca Chica' },
+      { lat:19.3820, lon:-70.4310, name:'Moca', prov:'Espaillat', muni:'Moca' },
+      { lat:18.9300, lon:-70.4080, name:'La Vega', prov:'La Vega', muni:'La Vega' },
+      { lat:19.0590, lon:-69.8920, name:'Nagua', prov:'María Trinidad Sánchez', muni:'Nagua' },
+      { lat:18.4520, lon:-69.6770, name:'San Pedro de Macorís', prov:'San Pedro de Macorís', muni:'San Pedro de Macorís' },
+      { lat:19.2180, lon:-70.2520, name:'San Fco. Macorís', prov:'Duarte', muni:'San Francisco de Macorís' },
+      { lat:18.7110, lon:-71.6870, name:'Jimaní', prov:'Independencia', muni:'Jimaní' },
+      { lat:19.6660, lon:-71.0810, name:'Dajabón', prov:'Dajabón', muni:'Dajabón' },
+      { lat:18.4100, lon:-68.9700, name:'Higüey', prov:'La Altagracia', muni:'Higüey' },
+      { lat:18.4800, lon:-69.3100, name:'Hato Mayor', prov:'Hato Mayor', muni:'Hato Mayor del Rey' },
+      { lat:19.3900, lon:-70.0800, name:'Salcedo', prov:'Hermanas Mirabal', muni:'Salcedo' },
+      { lat:18.5700, lon:-70.3300, name:'Baní', prov:'Peravia', muni:'Baní' },
+      { lat:18.4500, lon:-70.7300, name:'Azua', prov:'Azua', muni:'Azua de Compostela' },
+      { lat:18.5600, lon:-69.0400, name:'El Seibo', prov:'El Seibo', muni:'El Seibo' },
+    ];
+    const _FRAUDE_PROFILES = [
+      'TRIANGULACIÓN FISCAL', 'DESVÍO DE RUTA', 'SOBREPRECIO MAYORISTA',
+      'DESCARGA PARCIAL', 'EVAPORACIÓN ANÓMALA', 'FUGA FRONTERIZA',
+      'ADULTERACIÓN', 'DOBLE FACTURACIÓN', 'CONTRABANDO NOCTURNO'
+    ];
+
+    function generateSimulatedData(gran) {
+      const now = new Date();
+      const data = [];
+      let count, stepMs;
+      if (gran === 'month') { count = 24; stepMs = 30*24*3600000; }
+      else if (gran === 'day') { count = 60; stepMs = 24*3600000; }
+      else { count = 48; stepMs = 3600000; }
+      const start = new Date(now.getTime() - count * stepMs);
+      let seed = 42;
+      const rng = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; };
+      // Multiple wave layers for realism
+      const spike1 = Math.floor(count * 0.3);   // incident spike 1
+      const spike2 = Math.floor(count * 0.7);   // incident spike 2
+      for (let i = 0; i < count; i++) {
+        const t = new Date(start.getTime() + i * stepMs);
+        // Time-of-day pattern (late night = high, morning = calm)
+        const hourWave = gran === 'hour'
+          ? Math.pow(Math.sin((t.getHours() - 2) * Math.PI / 12), 2) * 0.6 + 0.4
+          : 1;
+        // Day-of-week cycle (weekends = more activity)
+        const dayWave = gran !== 'month'
+          ? (t.getDay() === 0 || t.getDay() === 6 ? 1.3 : 0.85) + Math.sin(t.getDay() * 0.9) * 0.15
+          : 1;
+        // Seasonal trend (gradual ramp-up)
+        const trend = 1 + (i / count) * 0.4;
+        // Spikes (simulated incidents)
+        const nearSpike1 = Math.exp(-Math.pow(i - spike1, 2) / 8) * 20;
+        const nearSpike2 = Math.exp(-Math.pow(i - spike2, 2) / 12) * 15;
+        const base = (5 + rng() * 18) * hourWave * dayWave * trend + nearSpike1 + nearSpike2;
+        // N3 clusters around spikes
+        const spikeProximity = Math.min(Math.abs(i - spike1), Math.abs(i - spike2));
+        const n3Prob = spikeProximity < 4 ? 0.65 : (rng() > 0.75 ? 0.5 : 0);
+        const n3 = n3Prob > rng() ? Math.floor(1 + rng() * 7) : 0;
+        const n2 = Math.floor(rng() * Math.max(1, base * 0.3));
+        const total = Math.max(1, Math.floor(base + n3 + n2));
+        data.push({ time: t.toISOString(), total, n3, n2, score: +(0.1 + rng() * 0.85).toFixed(2) });
+      }
+      return data;
+    }
+
+    // ── Generate simulated GeoJSON alerts for map ──────────
+    function generateSimAlerts(timeISO, count) {
+      let seed = 0;
+      for (let c = 0; c < timeISO.length; c++) seed = ((seed << 5) - seed + timeISO.charCodeAt(c)) | 0;
+      seed = Math.abs(seed);
+      const rng = () => { seed = (seed * 16807 + 7) % 2147483647; return (seed - 1) / 2147483646; };
+      const features = [];
+      const n = Math.min(count, 40);
+      for (let i = 0; i < n; i++) {
+        const loc = _DR_LOCATIONS[Math.floor(rng() * _DR_LOCATIONS.length)];
+        const nivel = rng() > 0.7 ? 3 : (rng() > 0.5 ? 2 : 1);
+        const perfil = _FRAUDE_PROFILES[Math.floor(rng() * _FRAUDE_PROFILES.length)];
+        const estId = `EST-${String(Math.floor(rng() * 1960)).padStart(4, '0')}`;
+        const t = new Date(timeISO);
+        t.setMinutes(Math.floor(rng() * 60));
+        t.setSeconds(Math.floor(rng() * 60));
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [loc.lon + (rng()-0.5)*0.04, loc.lat + (rng()-0.5)*0.04] },
+          properties: {
+            alerta_id: `SIM-${Date.now()}-${i}`,
+            timestamp_generacion: t.toISOString(),
+            nivel_alerta: nivel,
+            perfil_fraude: perfil,
+            estacion_id: estId,
+            score_compuesto: +(0.3 + rng() * 0.65).toFixed(2),
+            estado_alerta: nivel === 3 ? 'CONFIRMADA' : 'PENDIENTE',
+            descripcion_alerta: `[SIM] ${perfil} detectado en ${loc.name}`,
+            destinatario: 'DGII',
+            nombre_establecimiento: `Estación ${loc.name} #${Math.floor(rng()*99)+1}`,
+            lat: loc.lat + (rng()-0.5)*0.04,
+            lon: loc.lon + (rng()-0.5)*0.04,
+            provincia: loc.prov,
+            municipio: loc.muni,
+            es_zona_fronteriza: loc.prov === 'Independencia' || loc.prov === 'Dajabón',
+          }
+        });
+      }
+      return { type: 'FeatureCollection', features };
+    }
+
+    // ── Load data (API with simulation fallback) ──────────
+    async function loadTimelineData() {
+      let data = null;
+      try {
+        const hours = tlState.gran === 'hour' ? 48 : tlState.gran === 'day' ? 1440 : 17520;
+        const res = await fetch(`/api/timeline-hours?hours=${hours}`);
+        const json = await res.json();
+        if (json.hours && json.hours.length > 3) {
+          data = json.hours.map(h => ({ time: h.hora, total: h.total, n3: h.n3, n2: h.n2, score: h.score_avg }));
+        }
+      } catch(e) { /* fallback to simulation */ }
+      if (!data || data.length < 3) {
+        data = generateSimulatedData(tlState.gran);
+        console.log(`[TIMELINE] Using simulated data (${data.length} points, ${tlState.gran})`);
+      }
+      tlState.data = data;
+      tlState.idx = data.length - 1;
+      renderTlChart();
+      renderTlTicks();
+      updateTlUI();
+      document.getElementById('tl-range-val').textContent =
+        `${_fmtShort(data[0].time, tlState.gran)}  ―  ${_fmtShort(data[data.length-1].time, tlState.gran)}`;
+      console.log(`[TIMELINE] ✓ ${data.length} puntos (${tlState.gran})`);
+    }
+
+    // ── Canvas mountain chart ─────────────────────
+    function renderTlChart() {
+      const canvas = document.getElementById('tl-canvas');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = 70 * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = 70;
+      ctx.clearRect(0, 0, W, H);
+      const d = tlState.data;
+      if (!d.length) return;
+      const max = Math.max(...d.map(p => p.total), 1);
+      const xStep = W / (d.length - 1 || 1);
+      const pad = 4;
+      const chartH = H - pad * 2;
+      const pts = d.map((p, i) => ({ x: i * xStep, y: pad + chartH - (p.total / max) * chartH }));
+      // Mountain fill
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, 'rgba(110,161,212,0.3)');
+      grad.addColorStop(0.5, 'rgba(110,161,212,0.08)');
+      grad.addColorStop(1, 'rgba(110,161,212,0)');
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, H);
+      for (let i = 0; i < pts.length; i++) {
+        if (i === 0) { ctx.lineTo(pts[i].x, pts[i].y); continue; }
+        const cx = (pts[i-1].x + pts[i].x) / 2;
+        ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
+      }
+      ctx.lineTo(pts[pts.length-1].x, H);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      // N2 secondary fill (orange tint under N2 areas)
+      const grad2 = ctx.createLinearGradient(0, 0, 0, H);
+      grad2.addColorStop(0, 'rgba(210,153,34,0.15)');
+      grad2.addColorStop(1, 'rgba(210,153,34,0)');
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, H);
+      for (let i = 0; i < pts.length; i++) {
+        const n2h = d[i].n2 > 0 ? pad + chartH - (d[i].n2 / max) * chartH : H;
+        if (i === 0) { ctx.lineTo(pts[i].x, n2h); continue; }
+        const cx = (pts[i-1].x + pts[i].x) / 2;
+        const prevN2h = d[i-1].n2 > 0 ? pad + chartH - (d[i-1].n2 / max) * chartH : H;
+        ctx.bezierCurveTo(cx, prevN2h, cx, n2h, pts[i].x, n2h);
+      }
+      ctx.lineTo(pts[pts.length-1].x, H);
+      ctx.closePath();
+      ctx.fillStyle = grad2;
+      ctx.fill();
+      // Main line stroke
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        if (i === 0) { ctx.moveTo(pts[i].x, pts[i].y); continue; }
+        const cx = (pts[i-1].x + pts[i].x) / 2;
+        ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
+      }
+      ctx.strokeStyle = 'rgba(110,161,212,0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // N3 critical dots with glow
+      d.forEach((p, i) => {
+        if (p.n3 > 0) {
+          ctx.beginPath();
+          ctx.arc(pts[i].x, pts[i].y - 2, 4 + p.n3 * 0.8, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(248,81,73,0.15)';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(pts[i].x, pts[i].y - 2, Math.min(3.5, 1.5 + p.n3 * 0.5), 0, Math.PI * 2);
+          ctx.fillStyle = '#f85149';
+          ctx.fill();
+        }
+      });
+      // Scrubber vertical line
+      if (tlState.idx >= 0 && tlState.idx < pts.length) {
+        const sx = pts[tlState.idx].x;
+        // Highlight zone behind scrubber
+        ctx.fillStyle = 'rgba(255,255,255,0.015)';
+        ctx.fillRect(0, 0, sx, H);
+        // Dashed line
+        ctx.beginPath();
+        ctx.moveTo(sx, 0); ctx.lineTo(sx, H);
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Active dot with glow
+        ctx.beginPath();
+        ctx.arc(sx, pts[tlState.idx].y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(sx, pts[tlState.idx].y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(110,161,212,0.8)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    function renderTlTicks() {
+      const container = document.getElementById('tl-tick-labels');
+      const total = tlState.data.length;
+      const step = Math.max(1, Math.floor(total / 8));
+      let html = '';
+      for (let i = 0; i < total; i += step) {
+        html += `<span>${_fmtShort(tlState.data[i].time, tlState.gran)}</span>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function updateTlUI() {
+      const p = tlState.data[tlState.idx];
+      if (!p) return;
+      const isLast = tlState.idx === tlState.data.length - 1;
+      tlState.isLive = isLast;
+      document.getElementById('tl-date-display').textContent = _fmtFull(p.time);
+      const mode = document.getElementById('tl-mode');
+      if (isLast) { mode.textContent = 'LIVE'; mode.className = 'tl-mode-indicator live'; }
+      else { mode.textContent = 'HISTÓRICO'; mode.className = 'tl-mode-indicator hist'; }
+      renderTlChart();
+      // Filter alerts on map
+      if (!isLast) {
+        const stepMs = tlState.gran === 'hour' ? 3600000 : tlState.gran === 'day' ? 86400000 : 2592000000;
+        const desde = p.time;
+        const hasta = new Date(new Date(p.time).getTime() + stepMs).toISOString();
+        fetchHourAlerts(desde, hasta, p.total);
+      } else if (state.rawData.alertas) {
+        const prov = document.getElementById('filter-provincia')?.value || '';
+        renderAlertas(state.rawData.alertas, prov);
+        updateAlertasUI(state.rawData.alertas, prov);
+      }
+    }
+
+    let _lastFetchTime = 0;
+    async function fetchHourAlerts(desde, hasta, simCount) {
+      // Throttle to avoid lag during drag
+      const now = Date.now();
+      if (now - _lastFetchTime < 100) return;
+      _lastFetchTime = now;
+      try {
+        const res = await fetch(`/api/alertas-hora?desde=${desde}&hasta=${hasta}`);
+        const json = await res.json();
+        if (json.alertas && json.alertas.features && json.alertas.features.length > 0) {
+          const prov = document.getElementById('filter-provincia')?.value || '';
+          renderAlertas(json.alertas, prov);
+          updateAlertasUI(json.alertas, prov);
+          return;
+        }
+      } catch(e) { /* fallback to simulation */ }
+      // Simulate alerts on map if API is empty
+      const simGeoJSON = generateSimAlerts(desde, simCount || 10);
+      const prov = document.getElementById('filter-provincia')?.value || '';
+      renderAlertas(simGeoJSON, prov);
+      updateAlertasUI(simGeoJSON, prov);
+    }
+
+    // ── Canvas click handler ──────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('tl-canvas');
+      if (canvas) {
+        canvas.addEventListener('click', e => {
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const pct = x / rect.width;
+          const idx = Math.round(pct * (tlState.data.length - 1));
+          tlJump(idx);
+        });
+        canvas.addEventListener('mousemove', e => {
+          if (e.buttons !== 1) return;
+          const rect = canvas.getBoundingClientRect();
+          const pct = (e.clientX - rect.left) / rect.width;
+          tlJump(Math.round(pct * (tlState.data.length - 1)));
+        });
+      }
+      setTimeout(loadTimelineData, 2500);
+    });
+
+    function tlJump(idx) {
+      tlState.idx = Math.max(0, Math.min(idx, tlState.data.length - 1));
+      updateTlUI();
+    }
+    function tlStep(delta) { tlJump(tlState.idx + delta); }
+    function tlGoLive() {
+      if (tlState.playing) tlTogglePlay();
+      tlJump(tlState.data.length - 1);
+    }
+    function tlSetGran(g) {
+      tlState.gran = g;
+      document.querySelectorAll('.tl-gran-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tl-g-' + g)?.classList.add('active');
+      loadTimelineData();
+    }
+    function tlCycleSpeed() {
+      _tlSpeedIdx = (_tlSpeedIdx + 1) % TL_SPEEDS.length;
+      tlState.speed = TL_SPEEDS[_tlSpeedIdx];
+      document.getElementById('tl-speed').textContent = TL_SPEED_LABELS[_tlSpeedIdx];
+      if (tlState.playing) {
+        clearInterval(tlState.timer);
+        tlState.timer = setInterval(() => {
+          if (tlState.idx >= tlState.data.length - 1) { tlTogglePlay(); return; }
+          tlStep(1);
+        }, tlState.speed);
+      }
+    }
+    function tlTogglePlay() {
+      tlState.playing = !tlState.playing;
+      const btn = document.getElementById('tl-play');
+      if (tlState.playing) {
+        btn.textContent = '⏸'; btn.classList.add('active');
+        if (tlState.idx >= tlState.data.length - 1) tlState.idx = 0;
+        tlState.timer = setInterval(() => {
+          if (tlState.idx >= tlState.data.length - 1) { tlTogglePlay(); return; }
+          tlStep(1);
+        }, tlState.speed);
+      } else {
+        btn.textContent = '▶'; btn.classList.remove('active');
+        if (tlState.timer) { clearInterval(tlState.timer); tlState.timer = null; }
+      }
     }
 
     window.addEventListener('DOMContentLoaded', init);

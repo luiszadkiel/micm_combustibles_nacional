@@ -51,7 +51,7 @@ setInterval(() => {
 }, 5000);
 
 // Refrescar Vista Materializada cada 10 minutos
-setInterval(async () => {
+const mvRefreshTimer = setInterval(async () => {
   try {
     await db.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY micm_intel.mv_mapa_calor_municipio;`);
     console.log('[DB] Vista de Mapa Calor refrescada concurrentemente.');
@@ -144,6 +144,7 @@ async function start() {
 // ── Graceful shutdown ───────────────────────────────────────────────────────
 process.on('SIGINT', async () => {
   console.log('\n[SERVER] Cerrando...');
+  clearInterval(mvRefreshTimer);
   wsPolling.stopPolling();
   server.close();
   await db.shutdown();
@@ -151,6 +152,7 @@ process.on('SIGINT', async () => {
 });
 
 process.on('SIGTERM', async () => {
+  clearInterval(mvRefreshTimer);
   wsPolling.stopPolling();
   server.close();
   await db.shutdown();

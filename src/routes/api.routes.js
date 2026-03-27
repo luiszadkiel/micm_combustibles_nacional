@@ -271,4 +271,70 @@ router.get('/metricas-regional', async (req, res) => {
   }
 });
 
+// ── GET /api/timeline-hours — Hourly alert histogram (last 48h) ─────────────
+router.get('/timeline-hours', async (req, res) => {
+  try {
+    const hours = parseInt(req.query.hours) || 48;
+    const sql = `
+      SELECT 
+        date_trunc('hour', a.timestamp_generacion) AS hora,
+        COUNT(*) AS total,
+        COUNT(*) FILTER (WHERE a.nivel_alerta = 3) AS n3,
+        COUNT(*) FILTER (WHERE a.nivel_alerta = 2) AS n2,
+        ROUND(AVG(a.score_compuesto)::numeric, 2) AS score_avg
+      FROM micm_intel.fact_alertas_operativas a
+      WHERE a.timestamp_generacion >= NOW() - INTERVAL '${hours} hours'
+        AND a.estado_alerta != 'DESCARTADA'
+      GROUP BY date_trunc('hour', a.timestamp_generacion)
+      ORDER BY hora ASC
+    `;
+    const { rows } = await db.query(sql);
+    
+    // Fill gaps (hours with 0 alerts)
+    const filled = [];
+    const now = new Date();
+    const start = new Date(now.getTime() - hours * 3600000);
+    for (let h = new Date(start); h <= now; h = new Date(h.getTime() + 3600000)) {
+      const key = h.toISOString().substring(0, 13);
+      const match = rows.find(r => new Date(r.hora).toISOString().substring(0, 13) === key);
+      filled.push({
+        hora: h.toISOString(),
+        total: match ? parseInt(match.total) : 0,
+        n3: match ? parseInt(match.n3) : 0,
+        n2: match ? parseInt(match.n2) : 0,
+        score_avg: match ? parseFloat(match.score_avg) : 0
+      });
+    }
+    res.json({ status: 'ok', count: filled.length, hours: filled });
+  } catch (err) {
+    console.error('[API] Error en /timeline-hours:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ── GET /api/alertas-hora?desde=ISO&hasta=ISO — Alerts for specific time range
+router.get('/alertas-hora', async (req, res) => {
+  try {
+    const { desde, hasta } = req.query;
+    if (!desde || !hasta) return res.status(400).json({ status: 'error', error: 'desde/hasta requeridos' });
+    const sql = `
+      SELECT a.alerta_id, a.timestamp_generacion, a.nivel_alerta, a.perfil_fraude,
+             a.estacion_id, a.score_compuesto, a.estado_alerta, a.descripcion_alerta, a.destinatario,
+             e.nombre_establecimiento, e.lat, e.lon, e.provincia, e.municipio, e.es_zona_fronteriza
+      FROM micm_intel.fact_alertas_operativas a
+      JOIN micm_intel.dim_estacion e ON e.estacion_id = a.estacion_id
+      WHERE a.timestamp_generacion >= $1 AND a.timestamp_generacion < $2
+        AND a.estado_alerta != 'DESCARTADA'
+      ORDER BY a.nivel_alerta DESC, a.score_compuesto DESC
+      LIMIT 500
+    `;
+    const rows = (await db.query(sql, [desde, hasta])).rows;
+    const geojson = alertasService.toGeoJSON(rows);
+    res.json({ status: 'ok', total: rows.length, alertas: geojson });
+  } catch (err) {
+    console.error('[API] Error en /alertas-hora:', err.message);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
 module.exports = router;
