@@ -2261,10 +2261,184 @@
       font-size: 8px; color: rgba(255,255,255,0.3); padding: 0 2px;
       font-family: monospace;
     }
+    /* ── LOGIN OVERLAY ────────────────────────────────────── */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(5, 5, 8, 0.82);
+      backdrop-filter: blur(12px) saturate(1.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+    }
+    #login-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* ── Logo ── */
+    .login-logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-bottom: 28px;
+      animation: logoFloat 1.2s cubic-bezier(0.16, 1, 0.3, 1) both,
+                 logoBreathe 4s ease-in-out 1.2s infinite alternate;
+    }
+    @keyframes logoFloat {
+      0%   { opacity: 0; transform: scale(0.5) translateY(60px); filter: blur(12px) brightness(0.3); }
+      60%  { opacity: 1; filter: blur(0) brightness(1.2); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0) brightness(1); }
+    }
+    @keyframes logoBreathe {
+      0%   { filter: drop-shadow(0 0 12px rgba(110,161,212,0.15)) drop-shadow(0 4px 30px rgba(0,0,0,0.5)); }
+      100% { filter: drop-shadow(0 0 28px rgba(110,161,212,0.40)) drop-shadow(0 4px 30px rgba(0,0,0,0.5)); }
+    }
+
+    /* ── Form wrapper (invisible, just for layout) ── */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 300px;
+      animation: formReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+    }
+    @keyframes formReveal {
+      0%   { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Inputs (clean underline style) ── */
+    .login-field {
+      width: 100%;
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .login-field .lf-icon {
+      position: absolute;
+      left: 0;
+      bottom: 13px;
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      transition: color 0.3s;
+      pointer-events: none;
+    }
+    .login-field input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid rgba(255,255,255,0.10);
+      padding: 12px 0 12px 30px;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.2px;
+      transition: border-color 0.3s;
+    }
+    .login-field input::placeholder {
+      color: rgba(255,255,255,0.22);
+      font-weight: 400;
+    }
+    .login-field input:focus {
+      outline: none;
+      border-bottom-color: var(--accent);
+    }
+    .login-field input:focus ~ .lf-icon {
+      color: var(--accent);
+    }
+    .login-field .lf-line {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), #388bfd);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 2px;
+    }
+    .login-field input:focus ~ .lf-line {
+      width: 100%;
+      left: 0;
+    }
+
+    /* ── Submit ── */
+    .login-submit {
+      width: 100%;
+      padding: 13px 0;
+      margin-top: 12px;
+      background: linear-gradient(135deg, rgba(110,161,212,0.18), rgba(56,139,253,0.18));
+      border: 1px solid rgba(110,161,212,0.25);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent), #388bfd);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+    .login-submit:hover {
+      color: #fff;
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(110,161,212,0.2);
+    }
+    .login-submit:hover::before { opacity: 1; }
+    .login-submit span { position: relative; z-index: 1; }
+    .login-submit:active { transform: translateY(0); }
+
+    /* ── Error ── */
+    .login-error {
+      color: var(--red);
+      font-size: 12px;
+      text-align: center;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: all 0.35s ease;
+    }
+    .login-error.show {
+      max-height: 40px;
+      opacity: 1;
+      margin-top: 16px;
+    }
   </style>
 </head>
 
 <body>
+
+  <div id="login-overlay">
+    <img src="img/noticias/IATLAS-ISOTIPO.png" alt="IATLAS" class="login-logo">
+    <div class="login-form">
+      <div class="login-field">
+        <i data-lucide="user" class="lf-icon"></i>
+        <input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
+        <div class="lf-line"></div>
+      </div>
+      <div class="login-field">
+        <i data-lucide="lock" class="lf-icon"></i>
+        <input type="password" id="login-pass" placeholder="Contraseña">
+        <div class="lf-line"></div>
+      </div>
+      <button class="login-submit" id="login-submit"><span>Acceder</span></button>
+      <div id="login-error-msg" class="login-error">Credenciales incorrectas</div>
+    </div>
+  </div>
 
   <div id="app">
     <header id="topbar">
@@ -5381,7 +5555,42 @@
     }
 
     window.addEventListener('DOMContentLoaded', init);
+
+    // ── Login Logic ──────────────────────────────────────
+    document.getElementById('login-submit').addEventListener('click', handleLogin);
+    document.getElementById('login-pass').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+    
+    function handleLogin() {
+      const u = document.getElementById('login-user').value;
+      const p = document.getElementById('login-pass').value;
+      const err = document.getElementById('login-error-msg');
+      
+      if (u === 'admin' && p === 'admin') {
+        err.classList.remove('show');
+        // Smooth exit: logo scales up & fades, form slides down
+        const logo = document.querySelector('.login-logo');
+        const form = document.querySelector('.login-form');
+        if (logo) { logo.style.transition = 'all 0.5s ease'; logo.style.opacity = '0'; logo.style.transform = 'scale(1.2)'; }
+        if (form) { form.style.transition = 'all 0.4s ease 0.1s'; form.style.opacity = '0'; form.style.transform = 'translateY(20px)'; }
+        setTimeout(() => {
+          document.getElementById('login-overlay').classList.add('hidden');
+          if(window.lucide) lucide.createIcons();
+        }, 500);
+      } else {
+        err.classList.add('show');
+        const form = document.querySelector('.login-form');
+        form.animate([
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-8px)' },
+          { transform: 'translateX(8px)' },
+          { transform: 'translateX(-8px)' },
+          { transform: 'translateX(8px)' },
+          { transform: 'translateX(0)' }
+        ], { duration: 350, easing: 'ease-in-out' });
+      }
+    }
   </script>
 </body>
-
 </html>
